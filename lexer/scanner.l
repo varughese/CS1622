@@ -1,14 +1,26 @@
 %{
-	int numChars = 0, numWords = 0, numLines = 0;
+	int numLines = 0;
 %}
 
+DIGIT [0-9]
+LETTER [a-zA-Z]
+KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
+MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
+RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
+BRACKET_SYMBOL (\()|(\))|(\[)|(\])|(\{)|(\})
+COMMENTS  (\/\*)|(\*\/)
 %%
 
-\n				{numLines++; numChars++;}
-[^ \t\n]+		{numWords++; numChars += yyleng;}
-.				{numChars++;}	
-
+(" "|\t)						/* Skip whitespace */
+\n								{numLines++;}
+{KEYWORD}						{return 1;}
+{LETTER}({LETTER}|{DIGIT})*		{return 2;}
+{DIGIT}+(\.{DIGIT}+)?			{return 3;}
+{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|{COMMENTS}|(;)|(,)		{return 4;}
+[.]								{return 5;}
 %%
+
+int yywrap() { return 1; }
 
 #include <stdio.h>
 
@@ -17,10 +29,13 @@ int main(int argc, char* argv[]) {
 		printf("Must provide 2 arguments\n");
 		return 1;
 	}
+	// freopen (argv[2],"w",stdout);
 	yyin = fopen(argv[1],"r"); 
-	yylex();
-	freopen (argv[2],"w",stdout);
-	printf("%d\t%d\t%d\n", numChars, numWords, numLines);
-	fclose(stdout);
+	while(1) {
+		int t = yylex();
+		if(t == 0) break;
+		printf("(,,%s)\n", yytext);
+	}
+	// fclose(stdout);
 	return 0;
 }
