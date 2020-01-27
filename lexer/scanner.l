@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 	while(1) {
 		int token = yylex();
 		if(token == 0) break;
-		printf("(%d, %s, \"%s\")\n", numLines, tokenToString(token), yytext);
+		printf("(%d,%s,\"%s\")\n", numLines, tokenToString(token), yytext);
 	}
 	fclose(stdout);
 	return 0;
