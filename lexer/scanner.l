@@ -1,6 +1,6 @@
 %{
 	#include "token.h"
-	int numLines = 0;
+	int numLines = 1;
 %}
 
 DIGIT [0-9]
@@ -15,11 +15,11 @@ COMMENTS  ("/*")|("*/")
 
 (" "|\t)						/* Skip whitespace */
 \n								{numLines++;}
-{KEYWORD}						{return 1;}
-{LETTER}({LETTER}|{DIGIT})*		{return 2;}
-{DIGIT}+(\.{DIGIT}+)?			{return 3;}
-{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|{COMMENTS}|(;)|(,)		{return 4;}
-[.]								{return 5;}
+{KEYWORD}						{return TOKEN_ID;}
+{LETTER}({LETTER}|{DIGIT})*		{return TOKEN_NUM;}
+{DIGIT}+(\.{DIGIT}+)?			{return TOKEN_KEY;}
+{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|{COMMENTS}|(;)|(,)		{return TOKEN_SYM;}
+[.]								{return TOKEN_ERROR;}
 %%
 
 int yywrap() { return 1; }
@@ -35,9 +35,9 @@ int main(int argc, char* argv[]) {
 	freopen (argv[2],"w",stdout);
 	yyin = fopen(argv[1],"r"); 
 	while(1) {
-		int t = yylex();
-		if(t == 0) break;
-		printf("(,,%s)\n", yytext);
+		int token = yylex();
+		if(token == 0) break;
+		printf("(%d, %s, \"%s\")\n", numLines, tokenToString(token), yytext);
 	}
 	fclose(stdout);
 	return 0;
