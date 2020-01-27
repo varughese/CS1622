@@ -9,16 +9,16 @@ KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
 MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
 RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
 BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
-COMMENTS  ("/*")|("*/")
+COMMENTS  \/\*.*\*\/
 
 %%
 
-(" "|\t)						/* Skip whitespace */
+(" "|\t|{COMMENTS})						/* Skip whitespace */
 \n								{numLines++;}
 {KEYWORD}						{return TOKEN_ID;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_NUM;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_KEY;}
-{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|{COMMENTS}|(;)|(,)		{return TOKEN_SYM;}
+{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
 %%
 
