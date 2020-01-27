@@ -18,7 +18,7 @@ COMMENTS  \/\*.*\*\/
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
-{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}/(;)|(,)		{return TOKEN_SYM;}
+{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
 %%
 
