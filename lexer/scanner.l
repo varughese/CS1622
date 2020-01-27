@@ -15,9 +15,9 @@ COMMENTS  ("/*")|("*/")
 
 (" "|\t)						/* Skip whitespace */
 \n								{numLines++;}
-{KEYWORD}						{return TOKEN_ID;}
-{LETTER}({LETTER}|{DIGIT})*		{return TOKEN_NUM;}
-{DIGIT}+(\.{DIGIT}+)?			{return TOKEN_KEY;}
+{KEYWORD}						{return TOKEN_KEY;}
+{LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
+{DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
 {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|{COMMENTS}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
 %%
