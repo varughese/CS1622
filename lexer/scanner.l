@@ -14,7 +14,7 @@ COMMENTS  \/\*.*\*\/
 %%
 
 (" "|\t|{COMMENTS})						/* Skip whitespace */
-\n								{numLines++;
+\n								{numLines++;}
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
