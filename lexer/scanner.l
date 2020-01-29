@@ -1,6 +1,6 @@
 %{
 	#include "token.h"
-	int numLines = 1;
+	int line_number = 1;
 %}
 
 DIGIT [0-9]
@@ -17,18 +17,17 @@ COMMENTS  \/\*(\/|([^*][^/])*|.*\/)\*\/
 %%
 
 (" "|\t)						/* Skip whitespace */
-\n								{numLines++;}
+\n								{line_number++;}
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
 {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
 
-/* Comments, got help from Flex man pages */
-"/*"         BEGIN(comment);
+"/*"         BEGIN(comment); /* Comments, got help from Flex man pages */
 <comment>[^*\n]*        /* Not a '*' */
 <comment>"*"+[^*/\n]*   /* '*'s not followed by '/'s */
-<comment>\n             {numLines++;}
+<comment>\n             {line_number++;}
 <comment>"*"+"/"        BEGIN(INITIAL);
 %%
 
@@ -47,7 +46,7 @@ int main(int argc, char* argv[]) {
 	while(1) {
 		int token = yylex();
 		if(token == 0) break;
-		printf("(%d,%s,\"%s\")\n", numLines, tokenToString(token), yytext);
+		printf("(%d,%s,\"%s\")\n", line_number, tokenToString(token), yytext);
 	}
 	fclose(stdout);
 	return 0;
