@@ -1,5 +1,5 @@
 files=(
-# "test-comment-fun"
+"test-comment-fun"
 # "test-comment-multi-line"
 # "test-comment-nesting"
 # "test-comment-single-line"
@@ -19,12 +19,12 @@ files=(
 # "test-number"
 # "test-program-gcd"
 # "test-program-selection-sort"
-"test-program-simple"
-"test-program-sum"
-"test-stop-on-first-error-2"
-"test-stop-on-first-error"
-"test-symbols"
-"test-whitespace-2"
+# "test-program-simple"
+# "test-program-sum"
+# "test-stop-on-first-error-2"
+# "test-stop-on-first-error"
+# "test-symbols"
+# "test-whitespace-2"
 # "test-whitespace"
 )
 

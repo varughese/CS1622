@@ -9,17 +9,27 @@ KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
 MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
 RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
 BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
-COMMENTS  \/\*.*\*\/
 
+
+COMMENTS  \/\*(\/|([^*][^/])*|.*\/)\*\/
+
+%x comment
 %%
 
-(" "|\t|{COMMENTS})						/* Skip whitespace */
+(" "|\t)						/* Skip whitespace */
 \n								{numLines++;}
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
 {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
+
+/* Comments, got help from Flex man pages */
+"/*"         BEGIN(comment);
+<comment>[^*\n]*        /* Not a '*' */
+<comment>"*"+[^*/\n]*   /* '*'s not followed by '/'s */
+<comment>\n             {numLines++;}
+<comment>"*"+"/"        BEGIN(INITIAL);
 %%
 
 int yywrap() { return 1; }
