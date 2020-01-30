@@ -16,23 +16,23 @@ SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 %%
 
 (" "|\t)						/* Skip whitespace */
-\n								{line_number++;}
-{KEYWORD}						{return TOKEN_KEY;}
-{LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
-{DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
+\n								{ line_number++; 	}
+{KEYWORD}						{ return TOKEN_KEY; }
+{LETTER}({LETTER}|{DIGIT})*		{ return TOKEN_ID;  }
+{DIGIT}+(\.{DIGIT}+)?			{ return TOKEN_NUM; }
 
 	/* This defines comments using start conditions, which is explained in the flex 
-	   man pages */
-"/*"         			{ BEGIN(comment); comment_line_number = 0; }
-<comment>[^*\n]*        /* Skip anything that is not a '*' */
-<comment>"*"+[^*/\n]*   /* Skip any '*'s not followed by '/'s */
-<comment>\n             { comment_line_number++;}
-<comment>"*"+"/"        { BEGIN(INITIAL); line_number += comment_line_number;}
-<comment><<EOF>>		{ return ERROR_UNCLOSED_COMMENT; }
+	   man pages. */
+"/*"         					{ BEGIN(comment); comment_line_number = 0; }
+<comment>[^*\n]*        		/* Skip anything that is not a '*' */
+<comment>"*"+[^*/\n]*   		/* Skip any '*'s not followed by '/'s */
+<comment>\n             		{ comment_line_number++;}
+<comment>"*"+"/"        		{ BEGIN(INITIAL); line_number += comment_line_number;}
+<comment><<EOF>>				{ return ERROR_UNCLOSED_COMMENT; }
 	/* End of comments definition */
 
-{SYMBOL}				{return TOKEN_SYM;}
-.						{return ERROR_INVALID_CHARACTER; }
+{SYMBOL}						{ return TOKEN_SYM;}
+.								{ return ERROR_INVALID_CHARACTER; }
 
 %%
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 		lexeme = yytext;
 
 		if (token == TOKEN_EOF) break;
-		if(token == ERROR_UNCLOSED_COMMENT) lexeme = "/*";
+		if (token == ERROR_UNCLOSED_COMMENT) lexeme = "/*";
 
 		output_lexeme(token, lexeme);
 

@@ -1,7 +1,7 @@
 #ifndef tokens
 #define tokens
 
-typedef enum token{
+enum token{
 	TOKEN_EOF=0,
 	TOKEN_ID,
 	TOKEN_NUM,
@@ -9,7 +9,7 @@ typedef enum token{
 	TOKEN_SYM,
 	ERROR_UNCLOSED_COMMENT,
 	ERROR_INVALID_CHARACTER,
-} token;
+};
 
 static inline char is_error_token(enum token tok) {
 	/* Since token is an enum, defined by ints, we can use integer comparision to test
