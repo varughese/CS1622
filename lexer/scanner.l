@@ -10,6 +10,7 @@ KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
 MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
 RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
 BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
+SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 
 %x comment
 %%
@@ -27,8 +28,8 @@ BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
 <comment>"*"+"/"        { line_number += comment_line_number; BEGIN(INITIAL);}
 <comment><<EOF>>		{ return TOKEN_ERROR_UNCLOSED_COMMENT; }
 
-{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
-[.]								{return TOKEN_ERROR;}
+{SYMBOL}				{return TOKEN_SYM;}
+[.]						{return TOKEN_ERROR;}
 
 %%
 
