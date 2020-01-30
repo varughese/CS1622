@@ -29,7 +29,7 @@ SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 <comment><<EOF>>		{ return TOKEN_ERROR_UNCLOSED_COMMENT; }
 
 {SYMBOL}				{return TOKEN_SYM;}
-[.]						{return TOKEN_ERROR;}
+.						{return TOKEN_ERROR;}
 
 %%
 
