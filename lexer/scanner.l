@@ -1,5 +1,6 @@
 %{
 	#include "token.h"
+	int comment_line_number = 0;
 	int line_number = 1;
 %}
 
@@ -9,8 +10,7 @@ KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
 MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
 RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
 BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
-COMMENTS  \/\*(\/|([^*][^/])*|.*\/)\*\/
-UNOPEN_COMMENTS "/*"[.\n]*[^"*/"]*
+
 %x comment
 %%
 
@@ -19,12 +19,14 @@ UNOPEN_COMMENTS "/*"[.\n]*[^"*/"]*
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
-"/*"         BEGIN(comment); /* Comments, got help from Flex man pages */
+
+"/*"         			{ comment_line_number = 0; BEGIN(comment);} /* Comments, got help from Flex man pages */
 <comment>[^*\n]*        /* Not a '*' */
 <comment>"*"+[^*/\n]*   /* '*'s not followed by '/'s */
-<comment>\n             {line_number++;}
-<comment>"*"+"/"        BEGIN(INITIAL);
-{UNOPEN_COMMENTS}				{return TOKEN_ERROR;}
+<comment>\n             { comment_line_number++;}
+<comment>"*"+"/"        { line_number += comment_line_number; BEGIN(INITIAL);}
+<comment><<EOF>>		{ return TOKEN_ERROR_UNCLOSED_COMMENT; }
+
 {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
 [.]								{return TOKEN_ERROR;}
 
@@ -42,13 +44,19 @@ int main(int argc, char* argv[]) {
 	}
 	freopen (argv[2],"w",stdout);
 	yyin = fopen(argv[1],"r"); 
+	char * lexeme; 
 	while(1) {
 		int token = yylex();
-		if(token == 0) break;
-		printf("(%d,%s,\"%s\")\n", line_number, tokenToString(token), yytext);
-		if(token == TOKEN_ERROR)
-		{
-			
+		if (token == TOKEN_EOF) {
+			break;
+		}
+		if(token == TOKEN_ERROR_UNCLOSED_COMMENT) {
+			lexeme = "/*";
+		} else {
+			lexeme = yytext;
+		}
+		printf("(%d,%s,\"%s\")\n", line_number, tokenToString(token), lexeme);
+		if(token == TOKEN_ERROR || token == TOKEN_ERROR_UNCLOSED_COMMENT) {
 			break;
 		}
 	}
