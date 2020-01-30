@@ -8,10 +8,10 @@ typedef enum token{
 	TOKEN_KEY,
 	TOKEN_SYM,
 	TOKEN_ERROR_UNCLOSED_COMMENT,
-	TOKEN_ERROR,
+	TOKEN_ERROR_INVALID_CHARACTER,
 } token;
 
-static inline char *tokenToString(enum token tok)
+static inline char *token_to_string(enum token tok)
 {
     static const char *strings[] = { "EOF", "ID", "NUM", "KEY", "SYM", "ERROR", "ERROR" };
 

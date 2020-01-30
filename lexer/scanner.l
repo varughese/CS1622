@@ -29,7 +29,7 @@ SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 <comment><<EOF>>		{ return TOKEN_ERROR_UNCLOSED_COMMENT; }
 
 {SYMBOL}				{return TOKEN_SYM;}
-.						{return TOKEN_ERROR;}
+.						{return TOKEN_ERROR_INVALID_CHARACTER; }
 
 %%
 
@@ -39,7 +39,7 @@ int yywrap() { return 1; }
 #include <stdio.h>
 
 void output_lexeme(enum token tok, char *lexeme) {
-	printf("(%d,%s,\"%s\")\n", line_number, tokenToString(tok), lexeme);
+	printf("(%d,%s,\"%s\")\n", line_number, token_to_string(tok), lexeme);
 }
 
 int main(int argc, char* argv[]) {
@@ -51,17 +51,15 @@ int main(int argc, char* argv[]) {
 	yyin = fopen(argv[1],"r"); 
 	char * lexeme; 
 	while(1) {
-		int token = yylex();
-		if (token == TOKEN_EOF) {
-			break;
-		}
-		if(token == TOKEN_ERROR_UNCLOSED_COMMENT) {
+		enum token cur_token = yylex();
+		if (cur_token == TOKEN_EOF) break;
+		if(cur_token == TOKEN_ERROR_UNCLOSED_COMMENT) {
 			lexeme = "/*";
 		} else {
 			lexeme = yytext;
 		}
-		output_lexeme(token, lexeme);
-		if(token == TOKEN_ERROR || token == TOKEN_ERROR_UNCLOSED_COMMENT) {
+		output_lexeme(cur_token, lexeme);
+		if(cur_token == TOKEN_ERROR_INVALID_CHARACTER || cur_token == TOKEN_ERROR_UNCLOSED_COMMENT) {
 			break;
 		}
 	}
