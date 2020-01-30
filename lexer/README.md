@@ -1,26 +1,4 @@
-<div class="hJDwNd-AhqUyc-uQSCkd purZT-AhqUyc-II5mzb pSzOP-AhqUyc-qWD73c JNdkSc">
-
-<div class="JNdkSc-SmKAyb">
-
-<div class="" jscontroller="sGwD4d" jsaction="zXBUYb:zTPCnb;oc1XGd:Qxe3nd;" jsname="F57UId">
-
-<div class="oKdM2c Kzv0Me">
-
-<div id="h.p_NEpWpu2ePhFg" class="hJDwNd-AhqUyc-uQSCkd jXK9ad D2fZ2 OjCsFc wHaque GNzUNc">
-
-<div class="jXK9ad-SmKAyb">
-
-<div class="tyJCtd mGzaTb baZpAe">
-
-## 
-
-<div jscontroller="Ae65rd" jsaction="touchstart:UrsOsc; click:KjsqPd; focusout:QZoaZ; mouseover:y0pDld; mouseout:dq0hvd;fv1Rjc:jbFSOd;CrfLRd:SzACGe;" class="CjVfdc">
-
-<div class="PPhIP rviiZ" jsname="haAclf">
-
-</div>
-
-Part I: Lexical Analysis</div>
+# Part I: Lexical Analysis
 
 In this part of the project you will implement a scanner for the [C- language](/view/cs1622sp2020/c-language?authuser=0). The scanner will read in a source file and produces a listing of each token one by one, annotated with the token kind (identifier, integer number, etc) and the location in the source. If invalid input is discovered, it will stop producing the error token annotated with the lexeme incorrectly recognized.
 
