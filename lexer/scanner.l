@@ -37,6 +37,10 @@ int yywrap() { return 1; }
 #include "token.h"
 #include <stdio.h>
 
+void output_lexeme(enum token tok, char *lexeme) {
+	printf("(%d,%s,\"%s\")\n", line_number, tokenToString(tok), lexeme);
+}
+
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
 		printf("Must provide 2 arguments\n");
@@ -55,7 +59,7 @@ int main(int argc, char* argv[]) {
 		} else {
 			lexeme = yytext;
 		}
-		printf("(%d,%s,\"%s\")\n", line_number, tokenToString(token), lexeme);
+		output_lexeme(token, lexeme);
 		if(token == TOKEN_ERROR || token == TOKEN_ERROR_UNCLOSED_COMMENT) {
 			break;
 		}
