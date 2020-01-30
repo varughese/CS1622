@@ -9,10 +9,8 @@ KEYWORD (if)|(else)|(while)|(int)|(void)|(return)
 MATH_SYMBOL (\+)|(\-)|(\*)|(\/)
 RELATION_SYMBOL (>=)|(<=)|(<)|(>)|(==)|(!=)|(=)
 BRACKET_SYMBOL ("(")|(")")|("[")|("]")|("{")|("}")
-
-
 COMMENTS  \/\*(\/|([^*][^/])*|.*\/)\*\/
-
+UNOPEN_COMMENTS "/*"[.\n]*[^"*/"]*
 %x comment
 %%
 
@@ -21,14 +19,15 @@ COMMENTS  \/\*(\/|([^*][^/])*|.*\/)\*\/
 {KEYWORD}						{return TOKEN_KEY;}
 {LETTER}({LETTER}|{DIGIT})*		{return TOKEN_ID;}
 {DIGIT}+(\.{DIGIT}+)?			{return TOKEN_NUM;}
-{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
-[.]								{return TOKEN_ERROR;}
-
 "/*"         BEGIN(comment); /* Comments, got help from Flex man pages */
 <comment>[^*\n]*        /* Not a '*' */
 <comment>"*"+[^*/\n]*   /* '*'s not followed by '/'s */
 <comment>\n             {line_number++;}
 <comment>"*"+"/"        BEGIN(INITIAL);
+{UNOPEN_COMMENTS}				{return TOKEN_ERROR;}
+{MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)		{return TOKEN_SYM;}
+[.]								{return TOKEN_ERROR;}
+
 %%
 
 int yywrap() { return 1; }
@@ -47,6 +46,11 @@ int main(int argc, char* argv[]) {
 		int token = yylex();
 		if(token == 0) break;
 		printf("(%d,%s,\"%s\")\n", line_number, tokenToString(token), yytext);
+		if(token == TOKEN_ERROR)
+		{
+			
+			break;
+		}
 	}
 	fclose(stdout);
 	return 0;
