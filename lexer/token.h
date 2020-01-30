@@ -7,14 +7,18 @@ typedef enum token{
 	TOKEN_NUM,
 	TOKEN_KEY,
 	TOKEN_SYM,
-	TOKEN_ERROR_UNCLOSED_COMMENT,
-	TOKEN_ERROR_INVALID_CHARACTER,
+	ERROR_UNCLOSED_COMMENT,
+	ERROR_INVALID_CHARACTER,
 } token;
 
-static inline char *token_to_string(enum token tok)
-{
-    static const char *strings[] = { "EOF", "ID", "NUM", "KEY", "SYM", "ERROR", "ERROR" };
+static inline char is_error_token(enum token tok) {
+	/* Since token is an enum, defined by ints, we can use integer comparision to test
+	   if a token is a error token, since all errors are defined last */
+	return tok >= ERROR_UNCLOSED_COMMENT; 
+}
 
+static inline char *token_to_string(enum token tok) {
+    static const char *strings[] = { "EOF", "ID", "NUM", "KEY", "SYM", "ERROR", "ERROR" };
     return (unsigned char *) strings[tok];
 }
 
