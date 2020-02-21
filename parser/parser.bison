@@ -129,7 +129,7 @@ mulop : T_MUL
 factor : T_LPAREN expression T_RPAREN 
 	   | var 
 	   | call 
-	   | T_NUM
+	   | T_NUM { $$ = atoi(yytext); }
 
 call : T_ID T_LPAREN args T_RPAREN
 
@@ -150,6 +150,7 @@ int main(int argc, char* argv[]) {
 	yyin = fopen(argv[1],"r"); 
 
 	do {
+		printf("asdf\n");
 		yyparse();
 	} while(!feof(yyin));
 
