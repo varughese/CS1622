@@ -2,9 +2,6 @@
 
 %{
 	#include "parser.tab.h"
-
-	#define YY_DECL int yylex()
-
 	int comment_line_number = 0;
 	int line_number = 1;
 %}
@@ -22,9 +19,16 @@ SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 
 (" "|\t)						/* Skip whitespace */
 \n								{ line_number++; 	}
-{KEYWORD}						{ return TOKEN_KEY; }
-{LETTER}({LETTER}|{DIGIT})*		{ return TOKEN_ID;  }
-{DIGIT}+(\.{DIGIT}+)?			{ yylval.fval = atof(yytext); return TOKEN_NUM; }
+
+"if"							{ return T_IF; }
+"else"							{ return T_ELSE; }
+"while"							{ return T_WHILE; }
+"int"							{ return T_INT; }
+"void"							{ return T_VOID; }
+"return"						{ return T_RETURN; }
+
+{LETTER}({LETTER}|{DIGIT})*		{ return T_ID;  }
+{DIGIT}+(\.{DIGIT}+)?			{ return T_NUM; }
 
 	/* This defines comments using start conditions, which is explained in the flex 
 	   man pages. */
@@ -36,7 +40,26 @@ SYMBOL {MATH_SYMBOL}|{RELATION_SYMBOL}|{BRACKET_SYMBOL}|(;)|(,)
 <comment><<EOF>>				{ return ERROR_UNCLOSED_COMMENT; }
 	/* End of comments definition */
 
-{SYMBOL}						{ return TOKEN_SYM;}
-.								{ return ERROR_INVALID_CHARACTER; }
+"="                     return T_EQUAL;
+"=="                    return T_ISEQ;
+"!="                    return T_NEQ;
+"<"                     return T_LT;
+"<="                    return T_LE;
+">"                     return T_GT;
+">="                    return T_GE;
+"("                     return T_LPAREN;
+")"                     return T_RPAREN;
+"["                     return T_LBRACKET;
+"]"                     return T_RBRACKET;
+"{"                     return T_LBRACE;
+"}"                     return T_RBRACE;
+"."                     return T_DOT;
+","                     return T_COMMA;
+"+"                     return T_PLUS;
+"-"                     return T_MINUS;
+"*"                     return T_MUL;
+"/"                     return T_DIV;
+";"                     return T_SEMICOLON;
+.						return ERROR_INVALID_CHARACTER;
 
 %%
