@@ -2,3 +2,12 @@ Pitt_CS1550_recitation_materials
 xv6-public
 linux-2.6.23.1
 .vscode
+*.o
+
+parser/parser 
+parser.output
+parser.tab.bison
+parser.tab.c
+parser.tab.h
+parser/lex.yy.c
+parser/main.ast

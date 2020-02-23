@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "ast/ast.h"
+
+#define YYSTYPE struct expr *
 
 extern int yylex();
 extern int yyparse();
@@ -9,6 +12,8 @@ extern FILE* yyin;
 
 void yyerror(const char* s);
 %}
+
+
 
 %union {
     int token;
@@ -19,7 +24,7 @@ void yyerror(const char* s);
 %token T_VOID
 %token T_RETURN
 %token T_ID
-%token<ival> T_NUM
+%token T_NUM
 %token T_EQUAL
 %token T_ISEQ
 %token T_NEQ
@@ -44,7 +49,8 @@ void yyerror(const char* s);
 %token ERROR_UNCLOSED_COMMENT
 %token ERROR_INVALID_CHARACTER
 
-%type<block> program
+%left T_PLUS T_MUL
+%precedence T_ELSE
 
 %start program
 
@@ -91,8 +97,7 @@ statement : expression_stmt
 expression_stmt : expression T_SEMICOLON 
 				| T_SEMICOLON
 
-selection_stmt : T_IF T_LPAREN expression T_RPAREN statement 
-               | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement
+selection_stmt : T_IF T_LPAREN expression T_RPAREN statement
 
 iteration_stmt : T_WHILE T_LPAREN expression T_RPAREN statement
 
@@ -129,7 +134,7 @@ mulop : T_MUL
 factor : T_LPAREN expression T_RPAREN 
 	   | var 
 	   | call 
-	   | T_NUM { $$ = atoi(yytext); }
+	   | T_NUM
 
 call : T_ID T_LPAREN args T_RPAREN
 
