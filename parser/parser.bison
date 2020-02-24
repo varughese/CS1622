@@ -2,22 +2,30 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ast/ast.h"
-
-#define YYSTYPE struct expr *
+#include "ast/decl.h"
+#include "ast/expr.h"
+#include "ast/stmt.h"
+#include "ast/type.h"
 
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 
+void *parser_result;
+
 void yyerror(const char* s);
+
 %}
 
 
-
 %union {
-    int token;
-}
+    struct decl *decl;
+	// struct stmt *stmt;
+	// struct expr *expr;
+	// struct type *type;
+	// struct param_list *param_list;
+	// char *name;
+};
 
 %token T_IF T_ELSE T_WHILE
 %token T_INT
@@ -50,21 +58,28 @@ void yyerror(const char* s);
 %token ERROR_INVALID_CHARACTER
 
 %left T_PLUS T_MUL
-%precedence T_ELSE
+%right T_RPAREN T_ELSE
+
+%type <decl> program declaration_list 
+// %type <stmt> statement statement_list
+// %type <expr> expression additive_expression factor term mulop addop
+// %type <type> type_specifier
+// %type <param_list> params param param_list
+// %type <name> T_ID
 
 %start program
-
 %%
 
-program : declaration_list
+program : declaration_list { parser_result = $$; }
 
-declaration_list : declaration_list declaration
-				 | declaration
+declaration_list : declaration_list declaration { $$ = create_decl(0, 0, 0, 0, 0);  }
+				 | declaration { $$ = create_decl(0, 0, 0, 0, 0);  }
 
-declaration : var_declaration | fun_declaration
+declaration : var_declaration
+			| fun_declaration
 
-var_declaration : type_specifier T_ID T_SEMICOLON
-				| type_specifier T_ID T_LBRACKET T_NUM T_RBRACKET T_SEMICOLON
+var_declaration : type_specifier T_ID T_SEMICOLON 
+				| type_specifier T_ID T_LBRACKET T_NUM T_RBRACKET T_SEMICOLON 
 
 type_specifier : T_INT 
 			   | T_VOID
@@ -98,6 +113,7 @@ expression_stmt : expression T_SEMICOLON
 				| T_SEMICOLON
 
 selection_stmt : T_IF T_LPAREN expression T_RPAREN statement
+			   | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement
 
 iteration_stmt : T_WHILE T_LPAREN expression T_RPAREN statement
 
@@ -136,7 +152,7 @@ factor : T_LPAREN expression T_RPAREN
 	   | call 
 	   | T_NUM
 
-call : T_ID T_LPAREN args T_RPAREN
+call : T_ID T_LPAREN args T_RPAREN 
 
 args : arg_list 
 	 | %empty
@@ -155,7 +171,6 @@ int main(int argc, char* argv[]) {
 	yyin = fopen(argv[1],"r"); 
 
 	do {
-		printf("asdf\n");
 		yyparse();
 	} while(!feof(yyin));
 
