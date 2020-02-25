@@ -1,5 +1,6 @@
 void main(void)
 {
-  int a; int b;
-  a = 4 + 5;
+    int a;
+    g(a);
+    foo(1, 3, g(a));
 }

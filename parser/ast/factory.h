@@ -23,6 +23,8 @@ typedef enum {
 	EXPR_MUL,
 	EXPR_DIV,
 	EXPR_ASSIGN,
+	EXPR_CALL,
+	EXPR_ARG,
 	EXPR_NAME,
 	EXPR_LE,
 	EXPR_LT,

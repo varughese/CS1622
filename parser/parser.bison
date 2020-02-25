@@ -68,7 +68,7 @@ extern char *yytext;
 
 %type <decl> program declaration_list var_declaration fun_declaration
 %type <stmt> statement statement_list
-%type <expr> expression additive_expression simple_expression term factor var
+%type <expr> expression additive_expression simple_expression term factor var call arg_list args
 %type <type> type_specifier
 %type <param_list> params param param_list
 %type <expr_t> addop mulop relop
@@ -161,17 +161,20 @@ mulop : T_MUL { $$ = EXPR_MUL; }
 	  | T_DIV { $$ = EXPR_DIV; }
 
 factor : T_LPAREN expression T_RPAREN { $$ = $2; }
-	   | var { expr_create_integer_literal(622 /* TODO */); }
-	   | call { expr_create_integer_literal(622 /* TODO */); } 
+	   | var { $$ = $1; }
+	   | call { $$ = $1; } 
 	   | T_NUM { $$ = expr_create_integer_literal(atoi(yytext)); }
 
-call : T_ID T_LPAREN args T_RPAREN 
+call : T_ID T_LPAREN args T_RPAREN { 
+	struct expr *n = expr_create_name($1);
+	$$ = create_expr(EXPR_CALL, n, $3);
+}
 
-args : arg_list 
-	 | %empty
+args : arg_list { $$ = $1; }
+	 | %empty { $$ = NULL; }
 
-arg_list : arg_list T_COMMA expression 
-		 | expression
+arg_list : expression T_COMMA arg_list { $$ = create_expr(EXPR_ARG, $1, $3); }
+		 | expression { $$ = create_expr(EXPR_ARG, $1, NULL); }
 
 %%
 
