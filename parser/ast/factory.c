@@ -1,9 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "decl.h"
-#include "expr.h"
-#include "stmt.h"
-#include "type.h"
+#include "factory.h"
+
+struct decl *create_decl(
+	char *name,
+	struct type *type,
+	struct expr *value,
+	struct stmt *code,
+	struct decl *next
+) {
+	struct decl *d = malloc(sizeof(*d));
+	d->name = name;
+	d->type = type;
+	d->value = value;
+	d->code = code;
+	d->next = next;
+	return d;
+}
+
+int expressions = 0;
 
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
 	struct expr *e = malloc(sizeof(*e));
@@ -15,8 +30,9 @@ struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
 	e->name = 0;
 }
 
-struct expr * expr_create_name( const char *name ) {
+struct expr *expr_create_name( const char *name ) {
 	struct expr *e = create_expr(EXPR_NAME, 0,0);
+	e->name = name;
 	return e;
 };
 
