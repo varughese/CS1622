@@ -1,6 +1,18 @@
+void foo(void)
+{
+}
+
+void baz(int x)
+{
+}
+
+void bar(int x, int y)
+{
+}
+
 void main(void)
 {
-    int a;
-    g(a);
-    foo(1, 3, g(a));
+    foo();
+    baz(1);
+    bar(1, 2);
 }

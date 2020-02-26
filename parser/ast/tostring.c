@@ -23,6 +23,24 @@ char *expr_to_string(struct expr *expr) {
 		case EXPR_CALL:
 			strcpy(operation, "call");
 			break;
+		case EXPR_LE:
+			strcpy(operation, "<=");
+			break;
+		case EXPR_LT:
+			strcpy(operation, "<");
+			break;
+		case EXPR_GT:
+			strcpy(operation, ">");
+			break;
+		case EXPR_GE:
+			strcpy(operation, ">=");
+			break;
+		case EXPR_ISEQ:
+			strcpy(operation, "==");
+			break;
+		case EXPR_NEQ:
+			strcpy(operation, "!=");
+			break;
 		case EXPR_DIV:
 			strcpy(operation, "/");
 			break;
@@ -75,7 +93,7 @@ char *print_args(struct expr *expr, int num_tabs) {
 	char *arg_list = malloc(5000);
 	sprintf(arg_list, "[args");
 	char *function_name = malloc(500);
-	sprintf(function_name, "[%s]", expr->left->name);
+	sprintf(function_name, "%s", expr->left->name);
 	struct expr *current_expr_node = expr->right;
 	while(current_expr_node != NULL) {
 		char *arg_name = print_expr_helper(current_expr_node->left, num_tabs);

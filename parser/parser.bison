@@ -122,7 +122,7 @@ statement : expression_stmt { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); }
 	      | iteration_stmt { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); }
 		  | return_stmt { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); }
 
-expression_stmt : expression T_SEMICOLON { printf("NEW EXPRESSION\n"); print_expr($1);  }
+expression_stmt : expression T_SEMICOLON { print_expr($1);  }
 				| T_SEMICOLON
 
 selection_stmt : T_IF T_LPAREN expression T_RPAREN statement
