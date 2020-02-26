@@ -136,7 +136,7 @@ expression : var T_EQUAL expression { $$ = create_expr(EXPR_ASSIGN, $1, $3); }
 		   | simple_expression { $$ = $1; }
 
 var : T_ID { $$ = expr_create_name($1); }
-	| T_ID T_LBRACKET expression T_RBRACKET { $$ = $3; /* TODO(var) create a array type */ }
+	| T_ID T_LBRACKET expression T_RBRACKET { $$ = create_expr(EXPR_SUBSCRIPT, expr_create_name($1), $3); }
 
 simple_expression : additive_expression relop additive_expression { $$ = create_expr($2, $1, $3); } 
                   | additive_expression { $$ = $1; }
