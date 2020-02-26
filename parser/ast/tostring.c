@@ -47,6 +47,9 @@ char *expr_to_string(struct expr *expr) {
 		case EXPR_DIV:
 			strcpy(operation, "/");
 			break;
+		case EXPR_SEMICOLON:
+			strcpy(operation, ";");
+			break;
 		case EXPR_NAME:
 			sprintf(operation, "var [%s]", expr->name);
 			break;
