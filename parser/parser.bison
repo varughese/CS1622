@@ -108,9 +108,14 @@ param_list : param_list T_COMMA param  { $$ = create_param_list(0, 0, 0); }
 param : type_specifier T_ID { $$ = create_param_list(0, $1, 0); }
 	  | type_specifier T_ID T_LBRACKET T_RBRACKET { $$ = create_param_list(0, $1, 0); }
 
-compound_stmt : T_LBRACE local_declarations statement_list T_RBRACE { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); }
+compound_stmt : T_LBRACE local_declarations statement_list T_RBRACE { 
+		// TODO make local declarations a list of declarations
+		$$ = create_stmt(0, 0, 0, 0, 0, 0, 0, $3); 
+	}
 
-local_declarations : local_declarations var_declaration 
+local_declarations : local_declarations var_declaration {
+							// TODO , i think a var_declaration is a STMT_DECL with a declaraion as the decl 
+					}
 				   | %empty
 
 statement_list : statement statement_list { $$ = $1; $1->next = $2; }
@@ -123,26 +128,24 @@ statement : expression_stmt
 		  | return_stmt
 
 expression_stmt : expression T_SEMICOLON { 
-					$$ = create_stmt(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0); 
+					$$ = stmt_create_expr($1); 
 					print_expr($1); 
 				}
-				| T_SEMICOLON { 
-					$$ = create_stmt(STMT_EXPR, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0, 0, 0); 
-				}
+				| T_SEMICOLON { $$ = stmt_create_semicolon(); }
 
 selection_stmt : T_IF T_LPAREN expression T_RPAREN statement { 
-					$$ = create_stmt(STMT_IF_ELSE, 0, $3, 0, 0, $5, 0, 0); 
+					$$ = stmt_create_if_else($3, $5, 0); 
 				}
 			   | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { 
-				   $$ = create_stmt(STMT_IF_ELSE, 0, $3, 0, 0, $5, $7, 0); 
+				   $$ = stmt_create_if_else($3, $5, $7); 
 				}
 
 iteration_stmt : T_WHILE T_LPAREN expression T_RPAREN statement { 
-					$$ = create_stmt(STMT_ITERATION, 0, 0, 0, 0, 0, 0, 0); 
+					$$ = stmt_create_iteration($3, $5); 
 				}
 
-return_stmt : T_RETURN T_SEMICOLON { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); } 
-			| T_RETURN expression T_SEMICOLON { $$ = create_stmt(0, 0, 0, 0, 0, 0, 0, 0); }
+return_stmt : T_RETURN T_SEMICOLON { $$ = stmt_create_return(NULL); } 
+			| T_RETURN expression T_SEMICOLON { $$ = stmt_create_return($2); }
 
 expression : var T_EQUAL expression { $$ = create_expr(EXPR_ASSIGN, $1, $3); }
 		   | simple_expression { $$ = $1; }

@@ -42,21 +42,6 @@ struct expr * expr_create_integer_literal(int i) {
 	return e;
 };
 
-// struct expr * expr_create_boolean_literal( int b ) {
-// 	struct expr *e = create_expr(EXPR_INTEGER_LITERAL, 0,0);
-// 	return e;
-// };
-
-// struct expr * expr_create_char_literal( char c ) {
-// 	struct expr *e = create_expr(EXPR_ADD, 0,0);
-// 	return e;
-// }
-
-// struct expr * expr_create_string_literal( const char *str ) {
-// 	struct expr *e = create_expr(EXPR_ADD, 0,0);
-// 	return e;
-// }
-
 struct stmt *create_stmt(stmt_t kind,
 	struct decl *decl, struct expr *init_expr,
 	struct expr *expr, struct expr *next_expr,
@@ -75,6 +60,34 @@ struct stmt *create_stmt(stmt_t kind,
 	return s;
 
 };
+
+struct stmt *stmt_create_compound_stmt(struct stmt *local_declarations, struct stmt *statement_list) {
+	// Need to create a cmpd stmt structure or something that 
+	// holds the changes ?
+	// return create_stmt(STMT_COMPOUND, 0, 0, expr, 0, 0, 0, 0);
+	return statement_list;
+}
+
+struct stmt *stmt_create_return(struct expr *expr) {
+	return create_stmt(STMT_RETURN, 0, 0, expr, 0, 0, 0, 0);
+}
+
+struct stmt *stmt_create_if_else(struct expr *condition, struct stmt *if_body, struct stmt *else_body) {
+	return create_stmt(STMT_IF_ELSE, 0, condition, 0, 0, if_body, else_body, 0);
+}
+
+struct stmt *stmt_create_expr(struct expr *expr) {
+	return create_stmt(STMT_EXPR, 0, 0, expr, 0, 0, 0, 0);
+}
+
+struct stmt *stmt_create_iteration(struct expr *condition, struct stmt *body) {
+	return create_stmt(STMT_ITERATION, 0, condition, 0, 0, body, 0, 0);
+}
+
+struct stmt *stmt_create_semicolon() {
+	return create_stmt(STMT_EXPR, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0, 0, 0);
+}
+
 
 struct type *create_type(
 	type_t kind,
