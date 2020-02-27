@@ -118,7 +118,6 @@ also be a declaration of a local variable. Here is the stmt structure:
 */
 
 typedef enum {
-	STMT_DECL,
 	STMT_COMPOUND,
 	STMT_EXPR,
 	STMT_IF_ELSE,

@@ -109,7 +109,7 @@ struct stmt *stmt_create_iteration(struct expr *condition, struct stmt *body) {
 }
 
 struct stmt *stmt_create_semicolon() {
-	return create_stmt(STMT_EXPR, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0, 0, 0);
+	return create_stmt(STMT_EXPR, 0, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0, 0);
 }
 
 

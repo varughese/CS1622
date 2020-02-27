@@ -207,6 +207,7 @@ int main(int argc, char* argv[]) {
 }
 
 void yyerror(const char* s) {
-	printf("ERROR! %s\n", s);
+	// This would display the syntax error - printf("ERROR! %s\n", s);
+	printf("\n");
 	exit(1);
 }

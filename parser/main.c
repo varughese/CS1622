@@ -1,39 +1,9 @@
-void foo(void)
-{
-}
-
-void baz(int x)
-{
-}
-
-void bar(int x, int y)
-{
-}
-
 void main(void)
 {
-    foo();
-    baz(1);
-    bar(1, 2);
+    int a[10];
+    while(g < 10)
+    {
+        g = foo(g, 2, a);
+        ;
+    }
 }
-
-/*
-void foo(void)
-{
-}
-
-void baz(int x)
-{
-}
-
-void bar(int x, int y)
-{
-}
-
-void main(void)
-{
-    foo();
-    baz(1);
-    bar(1, 2);
-}
-*/

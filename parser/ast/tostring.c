@@ -79,35 +79,15 @@ char *repeat_tabs(int num_tabs) {
 
 char *stringify_args(struct expr *expr);
 char *stringify_array(struct expr *expr);
-
-char *stringify_expr_helper(struct expr *expr) {
-	if (expr == NULL) { return ""; }
-	/* Some expressions are printed differently, so we handle
-	 them first */
-	if (expr->kind == EXPR_CALL) {
-		return stringify_args(expr);
-	}
-	if (expr->kind == EXPR_SUBSCRIPT) {
-		return stringify_array(expr);
-	}
-	char *output = malloc(5000);
-	char *current = expr_to_string(expr);
-	char *left = stringify_expr_helper(expr->left);
-	char *right = stringify_expr_helper(expr->right);
-	char *lspace = (expr->left != NULL) ? " " : ""; 
-	char *rspace = (expr->right != NULL) ? " " : ""; 
-	sprintf(output, "[%s%s%s%s%s]", current, lspace, left, rspace, right);
-	free(current);
-	return output;
-}
+char *stringify_expr(struct expr *expr);
 
 char *stringify_array(struct expr *expr) {
 	char *output = malloc(5000);
 	if (expr == NULL) { return ""; }
 	if (expr->kind != EXPR_SUBSCRIPT) return "Error, stringify_array called on non EXPR_SUBSCRIPT node";
 	if (expr->left->kind != EXPR_NAME) return "Error, EXPR_SUBSCRIPT node does not have var on left";
-	char *left = stringify_expr_helper(expr->left);
-	char *right = stringify_expr_helper(expr->right);
+	char *left = stringify_expr(expr->left);
+	char *right = stringify_expr(expr->right);
 	sprintf(output, "[var [%s]%s]", expr->left->name, right);
 	return output;
 }
@@ -124,7 +104,7 @@ char *stringify_args(struct expr *expr) {
 	sprintf(function_name, "%s", expr->left->name);
 	struct expr *current_expr_node = expr->right;
 	while(current_expr_node != NULL) {
-		char *arg_name = stringify_expr_helper(current_expr_node->left);
+		char *arg_name = stringify_expr(current_expr_node->left);
 		sprintf(arg_list, "%s %s", arg_list, arg_name);
 		free(arg_name);
 		current_expr_node = current_expr_node->right;
@@ -138,7 +118,24 @@ char *stringify_args(struct expr *expr) {
 }
 
 char *stringify_expr(struct expr *expr) {
-	return stringify_expr_helper(expr);
+	if (expr == NULL) { return ""; }
+	/* Some expressions are printed differently, so we handle
+	 them first */
+	if (expr->kind == EXPR_CALL) {
+		return stringify_args(expr);
+	}
+	if (expr->kind == EXPR_SUBSCRIPT) {
+		return stringify_array(expr);
+	}
+	char *output = malloc(5000);
+	char *current = expr_to_string(expr);
+	char *left = stringify_expr(expr->left);
+	char *right = stringify_expr(expr->right);
+	char *lspace = (expr->left != NULL) ? " " : ""; 
+	char *rspace = (expr->right != NULL) ? " " : ""; 
+	sprintf(output, "[%s%s%s%s%s]", current, lspace, left, rspace, right);
+	free(current);
+	return output;
 }
 
 /************************************
@@ -156,9 +153,7 @@ char *stringify_stmt(struct stmt *stmt) {
 	if (stmt == NULL) return "";
 	char *stmt_str = malloc(1000);
 
-	if (stmt->kind == STMT_DECL) {
-
-	} else if (stmt->kind == STMT_COMPOUND) {
+	if (stmt->kind == STMT_COMPOUND) {
 		char *local_declarations_str = stringify_decl_list(stmt->decl);
 		char *statement_body_str = stringify_stmt_list(stmt->body);
 		sprintf(stmt_str, "[compound-stmt %s%s]", local_declarations_str, statement_body_str);
@@ -180,7 +175,7 @@ char *stringify_stmt(struct stmt *stmt) {
 		char *else_body = stringify_stmt_list(stmt->else_body);
 		sprintf(stmt_str, "[selection-stmt %s%s%s]", condition_str, if_body, else_body);
 		free(condition_str);
-		free(if_body);
+		if (strlen(if_body) > 0) free(if_body);
 		if (strlen(else_body) > 0) free(else_body);
 	} else if (stmt->kind == STMT_RETURN) {
 		char *return_body = stringify_expr(stmt->expr);
