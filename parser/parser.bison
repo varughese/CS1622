@@ -52,7 +52,6 @@ extern char *yytext;
 %token T_RBRACKET
 %token T_LBRACE
 %token T_RBRACE
-%token T_DOT
 %token T_COMMA
 %token T_PLUS
 %token T_MINUS
@@ -60,6 +59,7 @@ extern char *yytext;
 %token T_DIV
 %token T_SEMICOLON
 
+%token T_DOT
 %token ERROR_UNCLOSED_COMMENT
 %token ERROR_INVALID_CHARACTER
 
@@ -151,7 +151,9 @@ expression : var T_EQUAL expression { $$ = create_expr(EXPR_ASSIGN, $1, $3); }
 		   | simple_expression { $$ = $1; }
 
 var : T_ID { $$ = expr_create_name($1); }
-	| T_ID T_LBRACKET expression T_RBRACKET { $$ = create_expr(EXPR_SUBSCRIPT, expr_create_name($1), $3); }
+	| T_ID T_LBRACKET expression T_RBRACKET { 
+		$$ = create_expr(EXPR_SUBSCRIPT, expr_create_name($1), $3); 
+	}
 
 simple_expression : additive_expression relop additive_expression { $$ = create_expr($2, $1, $3); } 
                   | additive_expression { $$ = $1; }

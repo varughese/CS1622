@@ -1,5 +1,4 @@
 void main(void)
 {
-    a = t;
-    a[i] = t;
+    (1+3)-2;
 }
