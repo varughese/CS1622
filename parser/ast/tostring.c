@@ -180,7 +180,7 @@ char *stringify_decl(struct decl *decl) {
 		free(function_name);
 		free(param_str);
 	} else if (decl->type->kind == TYPE_INTEGER) {
-		sprintf(decl_str, "[var-declaration [%s] [%s] [%s]]", "todo", "", "");
+		sprintf(decl_str, "[var-declaration [int] [%s]]", decl->name);
 	} else if (decl->type->kind == TYPE_ARRAY) {
 		//todo add /[/] thing
 		sprintf(decl_str, "[var-declaration array [%s] [%s] [%s]]", "", "", "");
@@ -225,9 +225,11 @@ char *stringify_decl_list(struct decl* root) {
 	char *decl_list_string = malloc(5000);
 	sprintf(decl_list_string, "");
 	struct decl* current = root;
-	if (current != NULL) {
-		sprintf(decl_list_string, "%s%s", decl_list_string, stringify_decl(current));
-		// free that 
+	while (current != NULL) {
+		char *decl_str = stringify_decl(current);
+		sprintf(decl_list_string, "%s%s", decl_list_string, decl_str);
+		free(decl_str); 
+		current = current->next;
 	}
 	return decl_list_string;
 }
