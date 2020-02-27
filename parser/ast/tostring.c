@@ -183,7 +183,7 @@ char *stringify_decl(struct decl *decl) {
 		sprintf(decl_str, "[var-declaration [int] [%s]]", decl->name);
 	} else if (decl->type->kind == TYPE_ARRAY) {
 		//todo add /[/] thing
-		sprintf(decl_str, "[var-declaration array [%s] [%s] [%s]]", "", "", "");
+		sprintf(decl_str, "[var-declaration [int] [%s] [%d]]", decl->name, decl->array_size);
 	}
 
 	return decl_str;

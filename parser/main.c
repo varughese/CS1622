@@ -1,4 +1,4 @@
-int g;
+int arrrrr[4];
 
 int main(int x, int y, int z[])
 {

@@ -40,7 +40,8 @@ struct decl *create_array_var_declaration(
 	struct type *type,
 	int array_size
 ) {
-	return create_decl(name, type, array_size, 0, 0);
+	struct type *array_type = create_type(TYPE_ARRAY, type, 0);
+	return create_decl(name, array_type, array_size, 0, 0);
 }
 
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
