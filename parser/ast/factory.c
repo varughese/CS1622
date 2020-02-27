@@ -86,22 +86,11 @@ struct stmt *create_stmt(stmt_t kind,
 };
 
 struct stmt *stmt_create_compound_stmt(struct decl *local_declarations, struct stmt *statement_list) {
-	// Need to create a cmpd stmt structure or something that 
-	// holds the changes ?
-	// struct stmt *current_stmt = local_declarations;
-	// if(local_declarations != NULL) {
-	// 	while(current_stmt->next != NULL) {
-	// 		current_stmt = current_stmt->next;
-	// 	}
-	// 	current_stmt->next = statement_list;
-	// } else {
-	// 	current_stmt = statement_list;
-	// }
-	
-	struct stmt *cmpd = create_stmt(STMT_COMPOUND, 0, 0, 0, 0, 0, 0, 0);
-	cmpd->next = statement_list;
-	return cmpd;
+	// Compound statements have local declarations at the top, and then a list of statements
+	return create_stmt(STMT_COMPOUND, local_declarations, 0, 0, 0, statement_list, 0, 0);
 }
+
+// TODO clean up the stmt struct to not hae unused
 
 struct stmt *stmt_create_return(struct expr *expr) {
 	return create_stmt(STMT_RETURN, 0, 0, expr, 0, 0, 0, 0);

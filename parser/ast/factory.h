@@ -123,8 +123,7 @@ typedef enum {
 	STMT_EXPR,
 	STMT_IF_ELSE,
 	STMT_ITERATION,
-	STMT_RETURN,
-	STMT_BLOCK
+	STMT_RETURN
 } stmt_t;
 
 struct stmt {

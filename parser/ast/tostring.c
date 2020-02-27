@@ -137,10 +137,8 @@ char *stringify_args(struct expr *expr) {
 	return output;	
 }
 
-void stringify_expr(struct expr *expr) {
-	char *res = stringify_expr_helper(expr);
-	printf(res);
-	free(res);
+char *stringify_expr(struct expr *expr) {
+	return stringify_expr_helper(expr);
 }
 
 /************************************
@@ -151,6 +149,48 @@ void stringify_expr(struct expr *expr) {
 /************************************
  	STATEMENT NODES 
  ***********************************/
+char *stringify_decl_list(struct decl* root);
+
+
+char *stringify_stmt(struct stmt *stmt) {
+	if (stmt == NULL) return "";
+	char *stmt_str = malloc(1000);
+
+	if (stmt->kind == STMT_DECL) {
+
+	} else if (stmt->kind == STMT_COMPOUND) {
+		char *local_declarations_str = stringify_decl_list(stmt->decl);
+		char *statement_body_str = stringify_stmt(stmt->body);
+		sprintf(stmt_str, "[compound-stmt %s%s]", local_declarations_str, statement_body_str);
+		free(statement_body_str);
+		free(local_declarations_str);
+	} else if (stmt->kind == STMT_EXPR) {
+		char *expr_str = stringify_expr(stmt->expr);
+		strcpy(stmt_str, expr_str);
+		free(expr_str);
+	} else if (stmt->kind == STMT_ITERATION) {
+
+	} else if (stmt->kind == STMT_IF_ELSE) {
+
+	} else if (stmt->kind == STMT_RETURN) {
+
+	}
+
+	return stmt_str;
+}
+
+char *stringify_stmt_list(struct stmt *stmt_list) {
+	if (stmt_list == NULL) return "";
+	char *stmt_list_str = malloc(1000);
+	struct stmt *current = stmt_list;
+	if (current != NULL) {
+		char *stmt_str = stringify_stmt(current);
+		sprintf(stmt_list_str, "%s%s\n", stmt_list_str, stmt_str);
+		free(stmt_str);
+		current = current->next;
+	}
+	return stmt_list_str;
+}
 
 /************************************
  	DECLARATION NODES 
@@ -175,10 +215,14 @@ char *stringify_decl(struct decl *decl) {
 		// Parameters
 		char *param_str = malloc(500);
 		sprintf(param_str, stringify_params(decl->type->params));
-		sprintf(decl_str, "[fun-declaration [%s] [%s] [%s]]", return_type, function_name, param_str);
+		// Function body
+		char *function_body = stringify_stmt(decl->code);
+		// Put it all together
+		sprintf(decl_str, "[fun-declaration [%s] [%s] \n[%s]\n%s]", return_type, function_name, param_str, function_body);
 		free(return_type);
 		free(function_name);
 		free(param_str);
+		free(function_body);
 	} else if (decl->type->kind == TYPE_INTEGER) {
 		sprintf(decl_str, "[var-declaration [int] [%s]]", decl->name);
 	} else if (decl->type->kind == TYPE_ARRAY) {
@@ -223,7 +267,7 @@ char *stringify_decl_list(struct decl* root) {
 	struct decl* current = root;
 	while (current != NULL) {
 		char *decl_str = stringify_decl(current);
-		sprintf(decl_list_string, "%s%s", decl_list_string, decl_str);
+		sprintf(decl_list_string, "%s%s\n", decl_list_string, decl_str);
 		free(decl_str); 
 		current = current->next;
 	}
@@ -237,6 +281,6 @@ char *stringify_decl_list(struct decl* root) {
 char *stringify_abstract_syntax_tree(struct decl* root) {
 	char *output = malloc(MAX_TREE_STRING_LENGTH + 20);
 	char *program = stringify_decl_list(root);
-	sprintf(output, "[program %s]", program);
+	sprintf(output, "[program \n%s\n]", program);
 	return output;
 }
