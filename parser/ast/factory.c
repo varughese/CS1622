@@ -67,17 +67,14 @@ struct expr * expr_create_integer_literal(int i) {
 };
 
 struct stmt *create_stmt(stmt_t kind,
-	struct decl *decl, struct expr *init_expr,
-	struct expr *expr, struct expr *next_expr,
+	struct decl *decl, struct expr *expr,
 	struct stmt *body, struct stmt *else_body,
 	struct stmt *next
 ) {
 	struct stmt *s = malloc(sizeof(*s));
 	s->kind = kind;
 	s->decl = decl;
-	s->init_expr = init_expr;
 	s->expr = expr;
-	s->next_expr = next_expr;
 	s->body = body;
 	s->else_body = else_body;
 	s->next = next;
@@ -87,29 +84,27 @@ struct stmt *create_stmt(stmt_t kind,
 
 struct stmt *stmt_create_compound_stmt(struct decl *local_declarations, struct stmt *statement_list) {
 	// Compound statements have local declarations at the top, and then a list of statements
-	return create_stmt(STMT_COMPOUND, local_declarations, 0, 0, 0, statement_list, 0, 0);
+	return create_stmt(STMT_COMPOUND, local_declarations, 0, statement_list, 0, 0);
 }
 
-// TODO clean up the stmt struct to not have unused properties
-
 struct stmt *stmt_create_return(struct expr *expr) {
-	return create_stmt(STMT_RETURN, 0, 0, expr, 0, 0, 0, 0);
+	return create_stmt(STMT_RETURN, 0, expr, 0, 0, 0);
 }
 
 struct stmt *stmt_create_if_else(struct expr *condition, struct stmt *if_body, struct stmt *else_body) {
-	return create_stmt(STMT_IF_ELSE, 0, condition, 0, 0, if_body, else_body, 0);
+	return create_stmt(STMT_IF_ELSE, 0, condition, if_body, else_body, 0);
 }
 
 struct stmt *stmt_create_expr(struct expr *expr) {
-	return create_stmt(STMT_EXPR, 0, 0, expr, 0, 0, 0, 0);
+	return create_stmt(STMT_EXPR, 0, expr, 0, 0, 0);
 }
 
 struct stmt *stmt_create_iteration(struct expr *condition, struct stmt *body) {
-	return create_stmt(STMT_ITERATION, 0, condition, 0, 0, body, 0, 0);
+	return create_stmt(STMT_ITERATION, 0, condition, body, 0, 0);
 }
 
 struct stmt *stmt_create_semicolon() {
-	return create_stmt(STMT_EXPR, 0, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0, 0);
+	return create_stmt(STMT_EXPR, 0, create_expr(EXPR_SEMICOLON, 0, 0), 0, 0, 0);
 }
 
 

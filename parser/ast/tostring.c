@@ -165,12 +165,12 @@ char *stringify_stmt(struct stmt *stmt) {
 		free(expr_str);
 	} else if (stmt->kind == STMT_ITERATION) {
 		char *statement_body_str = stringify_stmt_list(stmt->body);
-		char *condition_str = stringify_expr(stmt->init_expr);
+		char *condition_str = stringify_expr(stmt->expr);
 		sprintf(stmt_str, "[iteration-stmt %s%s]", condition_str, statement_body_str);
 		free(condition_str);
 		free(statement_body_str);
 	} else if (stmt->kind == STMT_IF_ELSE) {
-		char *condition_str = stringify_expr(stmt->init_expr);
+		char *condition_str = stringify_expr(stmt->expr);
 		char *if_body = stringify_stmt_list(stmt->body);
 		char *else_body = stringify_stmt_list(stmt->else_body);
 		sprintf(stmt_str, "[selection-stmt %s%s%s]", condition_str, if_body, else_body);

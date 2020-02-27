@@ -136,14 +136,9 @@ struct stmt {
 	struct stmt *next;
 };
 
-struct stmt *create_stmt(
-	stmt_t kind,
-	struct decl *decl, 
-	struct expr *init_expr,
-	struct expr *expr, 
-	struct expr *next_expr,
-	struct stmt *body, 
-	struct stmt *else_body,
+struct stmt *create_stmt(stmt_t kind,
+	struct decl *decl, struct expr *expr,
+	struct stmt *body, struct stmt *else_body,
 	struct stmt *next
 );
 
