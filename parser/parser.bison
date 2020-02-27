@@ -201,7 +201,7 @@ int main(int argc, char* argv[]) {
 
 	char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);
 	printf("%s\n", ast);
-
+	free(ast);
 	fclose(stdout);
 	return 0;
 }
