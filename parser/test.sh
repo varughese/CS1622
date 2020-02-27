@@ -156,8 +156,9 @@ RESETCOLOR='\033[0m' # No Color
 for f in "${files[@]}"
 do
 	/bin/bash ./run.sh test/cases/$f.in test/out_test/$f.out
-
-	diff_output="$(diff "test/cases/$f.out" "test/out_test/$f.out")"  
+	expected=$(awk '{printf "%s ", $0} END {printf "\n"}' "test/cases/$f.out" | sed 's/ //g')
+	actual=$(awk '{printf "%s ", $0} END {printf "\n"}' "test/out_test/$f.out" | sed 's/ //g')
+	diff_output="$(diff <(echo "$expected") <(echo "$actual"))"  
 	if [[ $diff_output == "" ]]; then
     	echo -e "${GREEN}${f}${RESETCOLOR}"
 	else
@@ -165,7 +166,7 @@ do
 		echo "----"
 		cat test/cases/$f.in
 		echo "----"
-		sdiff test/cases/$f.out test/out_test/$f.out
+		diff <(echo "$expected") <(echo "$actual") 
 	fi
 	echo
 done
