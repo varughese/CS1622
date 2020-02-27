@@ -191,8 +191,6 @@ char *stringify_decl(struct decl *decl) {
 
 char *stringify_params(struct param_list *params) {
 	if (params == NULL) { return "params"; }
-	char *output = malloc(5000);
-
 	char *param_list_str = malloc(5000);
 	sprintf(param_list_str, "params");
 	
@@ -216,9 +214,7 @@ char *stringify_params(struct param_list *params) {
 	}
 
 	// The format is [params [param [type] [name] ]
-	sprintf(output, "[%s]", param_list_str);
-	free(param_list_str);
-	return output;	
+	return param_list_str;	
 }
 
 char *stringify_decl_list(struct decl* root) {
