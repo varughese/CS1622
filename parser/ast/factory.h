@@ -44,7 +44,7 @@ struct param_list *create_param_list(
 struct decl {
 	char *name;
 	struct type *type; 
-	struct expr *value;
+	int array_size;
 	struct stmt *code;
 	struct decl *next;
 };
@@ -52,7 +52,7 @@ struct decl {
 struct decl *create_decl(
 	char *name,
 	struct type *type,
-	struct expr *value,
+	int array_size,
 	struct stmt *code,
 	struct decl *next
 );
@@ -62,6 +62,17 @@ struct decl *create_function_declaration(
 	struct type *return_type,
 	struct param_list *params,
 	struct stmt *code
+);
+
+struct decl *create_var_declaration(
+	char *name, 
+	struct type *type
+);
+
+struct decl *create_array_var_declaration(
+	char *name, 
+	struct type *type,
+	int array_size
 );
 
 typedef enum {

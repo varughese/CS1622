@@ -84,8 +84,8 @@ declaration_list : declaration_list declaration { $$ = create_decl(0, 0, 0, 0, 0
 declaration : var_declaration
 			| fun_declaration
 
-var_declaration : type_specifier T_ID T_SEMICOLON { $$ = create_decl(0, 0, 0, 0, 0);  }
-				| type_specifier T_ID T_LBRACKET T_NUM T_RBRACKET T_SEMICOLON { $$ = create_decl(0, 0, 0, 0, 0); }
+var_declaration : type_specifier T_ID T_SEMICOLON { $$ = create_var_declaration($2, $1);  }
+				| type_specifier T_ID T_LBRACKET T_NUM T_RBRACKET T_SEMICOLON { $$ = create_array_var_declaration($2, $1, $4); }
 
 type_specifier : T_INT { $$ = create_type(TYPE_INTEGER, 0, 0); }
 			   | T_VOID { $$ = create_type(TYPE_VOID, 0, 0); }

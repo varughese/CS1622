@@ -5,14 +5,14 @@
 struct decl *create_decl(
 	char *name,
 	struct type *type,
-	struct expr *value,
+	int array_size,
 	struct stmt *code,
 	struct decl *next
 ) {
 	struct decl *d = malloc(sizeof(*d));
 	d->name = name;
 	d->type = type;
-	d->value = value;
+	d->array_size = array_size;
 	d->code = code;
 	d->next = next;
 	return d;
@@ -26,6 +26,21 @@ struct decl *create_function_declaration(
 ) {
 	struct type *fn_type = create_type(TYPE_FUNCTION, return_type, params);
 	return create_decl(name, fn_type, 0, code, 0);
+}
+
+struct decl *create_var_declaration(
+	char *name, 
+	struct type *type
+) {
+	return create_decl(name, type, 0, 0, 0);
+}
+
+struct decl *create_array_var_declaration(
+	char *name, 
+	struct type *type,
+	int array_size
+) {
+	return create_decl(name, type, array_size, 0, 0);
 }
 
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
