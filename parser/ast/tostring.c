@@ -162,8 +162,8 @@ char *stringify_stmt(struct stmt *stmt) {
 		char *local_declarations_str = stringify_decl_list(stmt->decl);
 		char *statement_body_str = stringify_stmt_list(stmt->body);
 		sprintf(stmt_str, "[compound-stmt %s%s]", local_declarations_str, statement_body_str);
-		free(statement_body_str);
-		free(local_declarations_str);
+		if (strlen(statement_body_str) > 0) free(statement_body_str);
+		if (strlen(local_declarations_str) > 0) free(local_declarations_str);
 	} else if (stmt->kind == STMT_EXPR) {
 		char *expr_str = stringify_expr(stmt->expr);
 		strcpy(stmt_str, expr_str);
