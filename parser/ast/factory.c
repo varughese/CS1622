@@ -18,7 +18,15 @@ struct decl *create_decl(
 	return d;
 }
 
-int expressions = 0;
+struct decl *create_function_declaration(
+	char *name, 
+	struct type *return_type,
+	struct param_list *params,
+	struct stmt *code
+) {
+	struct type *fn_type = create_type(TYPE_FUNCTION, return_type, params);
+	return create_decl(name, fn_type, 0, code, 0);
+}
 
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
 	struct expr *e = malloc(sizeof(*e));
@@ -61,11 +69,22 @@ struct stmt *create_stmt(stmt_t kind,
 
 };
 
-struct stmt *stmt_create_compound_stmt(struct stmt *local_declarations, struct stmt *statement_list) {
+struct stmt *stmt_create_compound_stmt(struct decl *local_declarations, struct stmt *statement_list) {
 	// Need to create a cmpd stmt structure or something that 
 	// holds the changes ?
-	// return create_stmt(STMT_COMPOUND, 0, 0, expr, 0, 0, 0, 0);
-	return statement_list;
+	// struct stmt *current_stmt = local_declarations;
+	// if(local_declarations != NULL) {
+	// 	while(current_stmt->next != NULL) {
+	// 		current_stmt = current_stmt->next;
+	// 	}
+	// 	current_stmt->next = statement_list;
+	// } else {
+	// 	current_stmt = statement_list;
+	// }
+	
+	struct stmt *cmpd = create_stmt(STMT_COMPOUND, 0, 0, 0, 0, 0, 0, 0);
+	cmpd->next = statement_list;
+	return cmpd;
 }
 
 struct stmt *stmt_create_return(struct expr *expr) {

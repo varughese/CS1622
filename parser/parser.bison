@@ -66,8 +66,8 @@ extern char *yytext;
 %left T_PLUS T_MUL
 %right T_RPAREN T_ELSE
 
-%type <decl> program declaration_list var_declaration fun_declaration
-%type <stmt> statement statement_list expression_stmt compound_stmt selection_stmt iteration_stmt return_stmt
+%type <decl> program declaration_list fun_declaration local_declarations var_declaration
+%type <stmt> compound_stmt statement_list statement expression_stmt selection_stmt iteration_stmt return_stmt
 %type <expr> expression additive_expression simple_expression term factor var call arg_list args
 %type <type> type_specifier
 %type <param_list> params param param_list
@@ -91,32 +91,30 @@ type_specifier : T_INT { $$ = create_type(TYPE_INTEGER, 0, 0); }
 			   | T_VOID { $$ = create_type(TYPE_VOID, 0, 0); }
 
 fun_declaration : type_specifier T_ID T_LPAREN params T_RPAREN compound_stmt { 
-	// TODO Fill this with actual parts of the stack
-	struct type *function_type = create_type(TYPE_FUNCTION, 0, 0);
-	$$ = create_decl(0, function_type, 0, 0, 0);  
+	$$ = create_function_declaration($2, $1, $4, $6);  
 }
 
-params : param_list { 
-			// TODO make this a list somehow 
-			$$ = create_param_list(0, 0, 0); 
+params : param_list { $$ = $1; }
+	   | T_VOID { $$ = NULL; }
+
+param_list : param T_COMMA param_list { $$ = $1; $1->next = $3; }
+		   | param { $$ = $1; }
+
+param : type_specifier T_ID { $$ = create_param_list($2, $1, 0); }
+	  | type_specifier T_ID T_LBRACKET T_RBRACKET { 
+		  struct type* array = create_type(TYPE_ARRAY, $1, 0);
+		  $$ = create_param_list($2, array, 0); 
 		}
-	   | T_VOID { $$ = create_param_list(0, 0, 0); }
-
-param_list : param_list T_COMMA param  { $$ = create_param_list(0, 0, 0); }
-		   | param { $$ = create_param_list(0, create_type(TYPE_VOID, 0, 0), 0); }
-
-param : type_specifier T_ID { $$ = create_param_list(0, $1, 0); }
-	  | type_specifier T_ID T_LBRACKET T_RBRACKET { $$ = create_param_list(0, $1, 0); }
 
 compound_stmt : T_LBRACE local_declarations statement_list T_RBRACE { 
-		// TODO make local declarations a list of declarations
-		$$ = create_stmt(0, 0, 0, 0, 0, 0, 0, $3); 
+		$$ = stmt_create_compound_stmt($2, $3);
 	}
 
 local_declarations : local_declarations var_declaration {
 							// TODO , i think a var_declaration is a STMT_DECL with a declaraion as the decl 
+							$$ = create_decl(0, 0, 0, 0, 0);
 					}
-				   | %empty
+				   | %empty { $$ = NULL; }
 
 statement_list : statement statement_list { $$ = $1; $1->next = $2; }
 			   | %empty { $$ = NULL; }
