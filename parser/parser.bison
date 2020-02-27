@@ -13,7 +13,7 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 
-void *parser_result;
+struct decl *abstract_syntax_tree;
 
 void yyerror(const char* s);
 
@@ -66,7 +66,7 @@ extern char *yytext;
 %left T_PLUS T_MUL
 %right T_RPAREN T_ELSE
 
-%type <decl> program declaration_list fun_declaration local_declarations var_declaration
+%type <decl> program declaration_list declaration fun_declaration local_declarations var_declaration
 %type <stmt> compound_stmt statement_list statement expression_stmt selection_stmt iteration_stmt return_stmt
 %type <expr> expression additive_expression simple_expression term factor var call arg_list args
 %type <type> type_specifier
@@ -76,10 +76,10 @@ extern char *yytext;
 %start program
 %%
 
-program : declaration_list { parser_result = $$; }
+program : declaration_list { abstract_syntax_tree = $$; }
 
-declaration_list : declaration_list declaration { $$ = create_decl(0, 0, 0, 0, 0);  }
-				 | declaration { $$ = create_decl(0, 0, 0, 0, 0);  }
+declaration_list : declaration declaration_list { $$ = $1; $1->next = $2;  }
+				 | declaration { $$ = $1;  }
 
 declaration : var_declaration
 			| fun_declaration
