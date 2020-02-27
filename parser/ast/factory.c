@@ -90,7 +90,7 @@ struct stmt *stmt_create_compound_stmt(struct decl *local_declarations, struct s
 	return create_stmt(STMT_COMPOUND, local_declarations, 0, 0, 0, statement_list, 0, 0);
 }
 
-// TODO clean up the stmt struct to not hae unused
+// TODO clean up the stmt struct to not have unused properties
 
 struct stmt *stmt_create_return(struct expr *expr) {
 	return create_stmt(STMT_RETURN, 0, 0, expr, 0, 0, 0, 0);

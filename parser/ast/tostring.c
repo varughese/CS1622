@@ -169,9 +169,18 @@ char *stringify_stmt(struct stmt *stmt) {
 		strcpy(stmt_str, expr_str);
 		free(expr_str);
 	} else if (stmt->kind == STMT_ITERATION) {
-
+		char *statement_body_str = stringify_stmt(stmt->body);
+		// TODO
+		sprintf(stmt_str, "[iteration-stmt %s%s]", statement_body_str);
+		free(statement_body_str);
 	} else if (stmt->kind == STMT_IF_ELSE) {
-
+		char *condition_str = stringify_expr(stmt->init_expr);
+		char *if_body = stringify_stmt(stmt->body);
+		char *else_body = stringify_stmt(stmt->else_body);
+		sprintf(stmt_str, "[selection-stmt %s%s%s]", condition_str, if_body, else_body);
+		free(condition_str);
+		free(if_body);
+		if (strlen(else_body) > 0) free(else_body);
 	} else if (stmt->kind == STMT_RETURN) {
 
 	}

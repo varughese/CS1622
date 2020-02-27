@@ -2,6 +2,10 @@ int arrrrr[4];
 
 int main(int x, int y, int z[])
 {
-    int y;
-    y = (1+3)-2;
+    if(y == 0)
+    {
+        y == 1;
+    } else {
+        x = 1;
+    }
 }
