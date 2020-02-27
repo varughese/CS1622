@@ -110,10 +110,7 @@ compound_stmt : T_LBRACE local_declarations statement_list T_RBRACE {
 		$$ = stmt_create_compound_stmt($2, $3);
 	}
 
-local_declarations : local_declarations var_declaration {
-							// TODO , i think a var_declaration is a STMT_DECL with a declaraion as the decl 
-							$$ = create_decl(0, 0, 0, 0, 0);
-					}
+local_declarations : var_declaration local_declarations  { $$ = $1; $1->next = $2; }
 				   | %empty { $$ = NULL; }
 
 statement_list : statement statement_list { $$ = $1; $1->next = $2; }
@@ -125,10 +122,7 @@ statement : expression_stmt
 	      | iteration_stmt
 		  | return_stmt
 
-expression_stmt : expression T_SEMICOLON { 
-					$$ = stmt_create_expr($1); 
-					print_expr($1); 
-				}
+expression_stmt : expression T_SEMICOLON { $$ = stmt_create_expr($1); }
 				| T_SEMICOLON { $$ = stmt_create_semicolon(); }
 
 selection_stmt : T_IF T_LPAREN expression T_RPAREN statement { 
@@ -204,6 +198,9 @@ int main(int argc, char* argv[]) {
 	do {
 		yyparse();
 	} while(!feof(yyin));
+
+	char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);
+	printf("%s\n", ast);
 
 	fclose(stdout);
 	return 0;

@@ -3,6 +3,12 @@
 #include <string.h>
 #include "factory.h"
 
+#define MAX_TREE_STRING_LENGTH 10000
+
+
+/************************************
+ 	EXPR NODES 
+ ***********************************/
 char *expr_to_string(struct expr *expr) {
 	if (expr == NULL) return "";
 
@@ -71,46 +77,45 @@ char *repeat_tabs(int num_tabs) {
 	return s;
 }
 
-char *print_args(struct expr *expr);
-char *print_array(struct expr *expr);
+char *stringify_args(struct expr *expr);
+char *stringify_array(struct expr *expr);
 
-char *print_expr_helper(struct expr *expr) {
+char *stringify_expr_helper(struct expr *expr) {
 	if (expr == NULL) { return ""; }
 	/* Some expressions are printed differently, so we handle
 	 them first */
 	if (expr->kind == EXPR_CALL) {
-		return print_args(expr);
+		return stringify_args(expr);
 	}
 	if (expr->kind == EXPR_SUBSCRIPT) {
-		return print_array(expr);
+		return stringify_array(expr);
 	}
 	char *output = malloc(5000);
 	char *current = expr_to_string(expr);
-	char *left = print_expr_helper(expr->left);
-	char *right = print_expr_helper(expr->right);
+	char *left = stringify_expr_helper(expr->left);
+	char *right = stringify_expr_helper(expr->right);
 	char *lspace = (expr->left != NULL) ? " " : ""; 
 	char *rspace = (expr->right != NULL) ? " " : ""; 
-	// char *tabs = repeat_tabs(num_tabs);
 	sprintf(output, "[%s%s%s%s%s]", current, lspace, left, rspace, right);
 	free(current);
 	return output;
 }
 
-char *print_array(struct expr *expr) {
+char *stringify_array(struct expr *expr) {
 	char *output = malloc(5000);
 	if (expr == NULL) { return ""; }
-	if (expr->kind != EXPR_SUBSCRIPT) return "Error, print_array called on non EXPR_SUBSCRIPT node";
+	if (expr->kind != EXPR_SUBSCRIPT) return "Error, stringify_array called on non EXPR_SUBSCRIPT node";
 	if (expr->left->kind != EXPR_NAME) return "Error, EXPR_SUBSCRIPT node does not have var on left";
-	char *left = print_expr_helper(expr->left);
-	char *right = print_expr_helper(expr->right);
+	char *left = stringify_expr_helper(expr->left);
+	char *right = stringify_expr_helper(expr->right);
 	sprintf(output, "[var [%s]%s]", expr->left->name, right);
 	return output;
 }
 
-char *print_args(struct expr *expr) {
+char *stringify_args(struct expr *expr) {
 	char *output = malloc(5000);
 	if (expr == NULL) { return ""; }
-	if (expr->kind != EXPR_CALL) return "Error, print_args called on non EXPR_CALL node";
+	if (expr->kind != EXPR_CALL) return "Error, stringify_args called on non EXPR_CALL node";
 	if (expr->left->kind != EXPR_NAME) return "Error, EXPR_CALL node does not have var on left";
 
 	char *arg_list = malloc(5000);
@@ -119,7 +124,7 @@ char *print_args(struct expr *expr) {
 	sprintf(function_name, "%s", expr->left->name);
 	struct expr *current_expr_node = expr->right;
 	while(current_expr_node != NULL) {
-		char *arg_name = print_expr_helper(current_expr_node->left);
+		char *arg_name = stringify_expr_helper(current_expr_node->left);
 		sprintf(arg_list, "%s %s", arg_list, arg_name);
 		free(arg_name);
 		current_expr_node = current_expr_node->right;
@@ -132,8 +137,108 @@ char *print_args(struct expr *expr) {
 	return output;	
 }
 
-void print_expr(struct expr *expr) {
-	char *res = print_expr_helper(expr);
+void stringify_expr(struct expr *expr) {
+	char *res = stringify_expr_helper(expr);
 	printf(res);
 	free(res);
+}
+
+/************************************
+ 	TYPE NODES 
+ ***********************************/
+
+
+/************************************
+ 	STATEMENT NODES 
+ ***********************************/
+
+/************************************
+ 	DECLARATION NODES 
+ ***********************************/
+
+char *stringify_params(struct param_list *params);
+
+char *stringify_decl(struct decl *decl) {
+	if (decl == NULL) return "";
+	char *decl_str = malloc(1000);
+
+	if (decl->type->kind == TYPE_FUNCTION) {
+		// Function Type
+		char *return_type = malloc(40);
+		if (decl->type->subtype->kind == TYPE_INTEGER) {
+			strcpy(return_type, "int");
+		} else if (decl->type->subtype->kind == TYPE_VOID) {
+			strcpy(return_type, "void");
+		}
+		// Function Name
+		char *function_name = decl->name;
+		// Parameters
+		char *param_str = malloc(500);
+		sprintf(param_str, stringify_params(decl->type->params));
+		sprintf(decl_str, "[fun-declaration [%s] [%s] [%s]]", return_type, function_name, param_str);
+		free(return_type);
+		free(function_name);
+		free(param_str);
+	} else if (decl->type->kind == TYPE_INTEGER) {
+		sprintf(decl_str, "[var-declaration [%s] [%s] [%s]]", "todo", "", "");
+	} else if (decl->type->kind == TYPE_ARRAY) {
+		//todo add /[/] thing
+		sprintf(decl_str, "[var-declaration array [%s] [%s] [%s]]", "", "", "");
+	}
+
+	return decl_str;
+}
+
+char *stringify_params(struct param_list *params) {
+	if (params == NULL) { return "params"; }
+	char *output = malloc(5000);
+
+	char *param_list_str = malloc(5000);
+	sprintf(param_list_str, "params");
+	
+	struct param_list *current_param = params;
+	while(current_param != NULL) {
+		// Get the typing for the parameter
+		char *type = "int"; // Params can only be of type int in this language
+		char *name = current_param->name;
+		char *array_str;
+		if (current_param->type->kind == TYPE_ARRAY) {
+			array_str = " [\\[\\]]";
+		} else {
+			array_str = "";
+		}
+		char *current_param_str = malloc(300);
+		sprintf(current_param_str, "param [%s] [%s]%s", type, name, array_str);
+
+		sprintf(param_list_str, "%s [%s]", param_list_str, current_param_str);
+		free(current_param_str);
+		current_param = current_param->next;
+	}
+
+	// The format is [params [param [type] [name] ]
+	sprintf(output, "[%s]", param_list_str);
+	free(param_list_str);
+	return output;	
+}
+
+char *stringify_decl_list(struct decl* root) {
+	char *decl_list_string = malloc(5000);
+	sprintf(decl_list_string, "");
+	struct decl* current = root;
+	if (current != NULL) {
+		sprintf(decl_list_string, "%s%s", decl_list_string, stringify_decl(current));
+		// free that 
+	}
+	return decl_list_string;
+}
+
+/************************************
+ 	ENTRY POINT 
+ ***********************************/
+
+char *stringify_abstract_syntax_tree(struct decl* root) {
+	char *output = malloc(MAX_TREE_STRING_LENGTH + 20);
+	char *program = stringify_decl_list(root);
+	sprintf(output, "[program %s]", program);
+	return output;
 }
