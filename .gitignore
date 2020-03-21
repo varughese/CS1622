@@ -3,7 +3,7 @@ xv6-public
 linux-2.6.23.1
 .vscode
 *.o
-
+*.pdf
 parser/parser 
 parser.output
 parser.tab.bison
