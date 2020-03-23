@@ -1,6 +1,6 @@
 all: parser
 
-factory: ast/factory.c ast/factory.h ast/tostring.c ast/tostring.h
+factory: ast/factory.c ast/factory.h ast/tostring.c ast/tostring.h ast/*.h
 	gcc -c ast/factory.c -o ast/factory.o
 	gcc -c ast/tostring.c -o ast/tostring.o
 

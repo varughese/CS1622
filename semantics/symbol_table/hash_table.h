@@ -1,3 +1,5 @@
+// Copied from @dthain's Notre Dame compilers book
+
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
