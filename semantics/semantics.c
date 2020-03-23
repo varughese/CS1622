@@ -6,6 +6,7 @@
 #include "token.h"
 #include "ast/factory.h"
 #include "ast/tostring.h"
+#include "typecheck/typecheck.h"
 
 extern int yylex();
 extern int yyparse();

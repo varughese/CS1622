@@ -1,0 +1,1 @@
+void decl_resolve(struct decl *d);

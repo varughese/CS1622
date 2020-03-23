@@ -6,11 +6,7 @@
 #include "decl.h"
 #include "expr.h"
 
-/* A type structure encodes the type of every variable and function 
-mentioned in a declaration. Primitive types like integer and boolean 
-are expressed by simply setting the kind field appropriately, and leaving the
-other fields null. Compound types like array and function are built by
-connecting multiple type structures together. */
+/************* TYPE ***************/
 
 struct type *create_type(
 	type_t kind,
@@ -23,6 +19,8 @@ struct param_list *create_param_list(
 	struct type *type,
 	struct param_list *next
 );
+
+/************* DECL ***************/
 
 struct decl *create_decl(
 	char *name,
@@ -50,17 +48,13 @@ struct decl *create_array_var_declaration(
 	int array_size
 );
 
+/************* EXPR ***************/
+
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R );
 struct expr *expr_create_name( const char *name );
 struct expr *expr_create_integer_literal(int i);
 
-/*
-The body of a function consists of a sequence of statements. A statement
-indicates that the program is to take a particular action in 
-the order specified, such as computing a value, performing a loop, 
-or choosing between branches of an alternative. A statement can 
-also be a declaration of a local variable. Here is the stmt structure:
-*/
+/************* STMT ***************/
 
 struct stmt *create_stmt(stmt_t kind,
 	struct decl *decl, struct expr *expr,

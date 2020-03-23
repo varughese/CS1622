@@ -1,3 +1,10 @@
+/* An expression is a combination of values and operations 
+that is evaluated according to specific rules and yields a
+value such as an integer, floating point, or string */
+
+#ifndef EXPR_H
+#define EXPR_H
+
 typedef enum {
 	EXPR_ADD,
 	EXPR_SUB,
@@ -27,3 +34,5 @@ struct expr {
 	int integer_value;
 	const char * string_literal;
 };
+
+#endif

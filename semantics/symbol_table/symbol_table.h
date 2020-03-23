@@ -1,19 +1,10 @@
-typedef enum {
-	SYMBOL_LOCAL,
-	SYMBOL_PARAM,
-	SYMBOL_GLOBAL
-} symbol_t;
+#include "symbol.h"
 
-struct symbol {
-	// kind : local, global, or function parameter
-	symbol_t kind; 
-	// type : the type, int, function, etc
-	struct type *type;
-	// name : int x, name is x
-	char *name;
-	// which : ordinal position of local variables and parameters
-	int which;
-};
+struct symbol *symbol_create(
+	symbol_t kind,
+	struct type *type,
+	char *name
+);
 
 // causes a new hash table to be pushed on the top of the stack, 
 // representing a new scope.

@@ -1,3 +1,12 @@
+/* A type structure encodes the type of every variable and function 
+mentioned in a declaration. Primitive types like integer and boolean 
+are expressed by simply setting the kind field appropriately, and leaving the
+other fields null. Compound types like array and function are built by
+connecting multiple type structures together. */
+
+#ifndef TYPE_H
+#define TYPE_H
+
 typedef enum {
 	TYPE_VOID,
 	TYPE_BOOLEAN,
@@ -19,3 +28,5 @@ struct param_list {
 	struct type *type;
 	struct param_list *next;
 };
+
+#endif
