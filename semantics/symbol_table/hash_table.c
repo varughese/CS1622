@@ -1,3 +1,5 @@
+// Copied from @dthain's Notre Dame compilers book
+
 #include "hash_table.h"
 
 #include <stdlib.h>
