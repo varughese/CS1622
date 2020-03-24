@@ -6,6 +6,7 @@
 #include "token.h"
 #include "ast/factory.h"
 #include "ast/tostring.h"
+#include "typecheck/name_resolution.h"
 #include "typecheck/typecheck.h"
 
 extern int yylex();
@@ -32,9 +33,15 @@ int main(int argc, char* argv[]) {
 		yyparse();
 	} while(!feof(yyin));
 
-	char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);
-	printf("%s\n", ast);
-	free(ast);
+	// Populate symbol table
+	decl_resolve(abstract_syntax_tree);
+
+	if(!typecheck(abstract_syntax_tree)) {
+		char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	
+		printf("%s\n", ast);
+		free(ast);
+	}
+	
 	fclose(stdout);
 	return 0;
 }
