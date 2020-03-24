@@ -33,6 +33,7 @@ struct expr {
 	const char *name;
 	int integer_value;
 	const char * string_literal;
+	struct symbol *symbol;
 };
 
 #endif
