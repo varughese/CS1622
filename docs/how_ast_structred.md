@@ -1,15 +1,15 @@
 # AST Structure
-This compiler was created following tips and tricks from a ree online text book by Douglas Thain viewable [here](https://www3.nd.edu/~dthain/compilerbook/). Chapter 6 in particular talks about the Abstract Syntax Tree.
+This compiler was created following tips and tricks from a free online text book by Douglas Thain that you can view [here](https://www3.nd.edu/~dthain/compilerbook/). Chapter 6 in particular talks about the Abstract Syntax Tree.
 
 I think the hardest part of understanding the compiler code is understanding how the AST
-is created. Bison has a steep learning curve, but once you are familiar with it it is not that bad.
+is created. Bison has a steep learning curve, but once you get a basic grammar to work, making a harder one is not that bad.
 
 There are four main terms discussed, declarations, statements, expressions, and types. I suggest reading Chapter 6 in that book first before reading this. Each of these has a C `struct` that defines it.
 
 ## Expressions
 I think of expressions of math expressions. Parsing expressions like `4*3+8` and the structure of the code is introduced very well in [Chapter 5 of the textbook](https://www3.nd.edu/~dthain/compilerbook/chapter5.pdf). Expressions can also be assigning values (`z=5`), or checking equality (`y == 5`).
 
-```
+```c
 struct expr {
 	expr_t kind;
 	struct expr *left;
@@ -22,7 +22,7 @@ struct expr {
 
 Say we have this code
 
-```
+```c
 z[0] = 0;
 ```
 
@@ -38,7 +38,7 @@ Drawing this out gets annoying, so I abbreviate it.
 
 For example
 
-```
+```c
 y = x * y + 2
 ```
 
@@ -75,7 +75,7 @@ t->params = NULL
 
 We have another structure for parameters. Here, the `params` field in the type struct would point to a `param_list` struct.
 
-```
+```c
 struct param_list {
 	char *name;
 	struct type *type;
@@ -84,7 +84,7 @@ struct param_list {
 ```
 
 Let's say we have a function declaration like this, and focus on the paramters only:
-```
+```c
 int foo(int x, int y, int z[])
 ```
 
@@ -111,7 +111,7 @@ struct decl {
 
 These are best explained with examples. Take this code:
 
-```
+```c
 int g;
 ```
 
