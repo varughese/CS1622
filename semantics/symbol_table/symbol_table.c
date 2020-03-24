@@ -46,6 +46,6 @@ struct symbol *scope_lookup(const char *name) {
 struct symbol *scope_lookup_current(const char *name) {
 	// TODO
 	printf("SYMBOL_TABLE [%d]: Looking Current [%s]\n", _scope_level, name);
-	return symbol_create(SYMBOL_LOCAL, NULL, NULL);
+	return NULL;
 }
 

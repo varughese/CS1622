@@ -44,6 +44,8 @@ void stmt_resolve(struct stmt *stmt) {
 	} else if (stmt->kind == STMT_RETURN) {
 		expr_resolve(stmt->expr);
 	}
+
+	stmt_resolve(stmt->next);
 }
 
 void param_list_resolve(struct param_list *p) {
@@ -54,7 +56,7 @@ void param_list_resolve(struct param_list *p) {
 	if(scope_lookup_current(p->name)) {
 		// If this parameter is already defined, error
 		// TODO(errorfn) 
-		printf("ERROR [%s] already defined.", p->name);
+		printf("ERROR [%s] already defined.\n", p->name);
 	}
 
 	scope_bind(p->name, p->symbol);
