@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
-#include "token.h"
 #include "ast/factory.h"
 #include "ast/tostring.h"
 #include "typecheck/name_resolution.h"
