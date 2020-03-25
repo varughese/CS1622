@@ -25,5 +25,10 @@ parser.tab.c parser.tokens.h: parser.bison
 test:
 	cd test/unit_tests/ && make test_symbol_table
 
+.PHONY: run
+run:
+	make && ./parser main.c main.ast && cat main.ast
+
+.PHONY: clean
 clean:
 	rm *.o ast/*.o typecheck/*.o main.ast parser parser.tab.c lex.yy.c parser.tokens.h parser.tokens.h parser.output
