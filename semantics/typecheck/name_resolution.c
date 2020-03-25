@@ -16,7 +16,7 @@ void expr_resolve(struct expr *expr) {
 		expr->symbol = scope_lookup(expr->name);
 		
 		if(expr->symbol == NULL) {
-			error_name_resolution(expr->name);
+			error_name_resolution("Name doesn't exist",expr->name);
 		}
 
 	} else {
@@ -61,9 +61,7 @@ void param_list_resolve(struct param_list *p) {
 	p->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
 
 	if(scope_lookup_current(p->name)) {
-		// If this parameter is already defined, error
-		// TODO(errorfn) 
-		printf("ERROR [%s] already defined.\n", p->name);
+		error_name_resolution("Param Already Defined", p->name);
 	}
 
 	scope_bind(p->name, p->symbol);

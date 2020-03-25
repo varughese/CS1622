@@ -1,1 +1,1 @@
-void error_name_resolution(const char* err);
+void error_name_resolution(const char* err, const char* sym_name);
