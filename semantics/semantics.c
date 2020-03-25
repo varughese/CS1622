@@ -33,6 +33,8 @@ int main(int argc, char* argv[]) {
 		yyparse();
 	} while(!feof(yyin));
 
+	// Initalize symbol table
+	init_symbol_table();
 	// Populate symbol table
 	decl_resolve(abstract_syntax_tree);
 
@@ -41,7 +43,7 @@ int main(int argc, char* argv[]) {
 		printf("%s\n", ast);
 		free(ast);
 	}
-	
+
 	fclose(stdout);
 	return 0;
 }

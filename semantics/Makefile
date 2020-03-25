@@ -21,5 +21,14 @@ parser: lex.yy.c semantics.c parser.c parser.tokens.h factory typecheck symbolta
 parser.tab.c parser.tokens.h: parser.bison
 	bison -v --defines=parser.tokens.h --output=parser.c parser.bison
 
+.PHONY: test
+test:
+	cd test/unit_tests/ && make test_symbol_table
+
+.PHONY: run
+run:
+	make && ./parser main.c main.ast && cat main.ast
+
+.PHONY: clean
 clean:
 	rm *.o ast/*.o typecheck/*.o main.ast parser parser.tab.c lex.yy.c parser.tokens.h parser.tokens.h parser.output

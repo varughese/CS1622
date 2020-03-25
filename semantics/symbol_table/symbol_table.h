@@ -6,6 +6,9 @@ struct symbol *symbol_create(
 	char *name
 );
 
+// because this is c, we need to have janky initialize methods
+void init_symbol_table();
+
 // causes a new hash table to be pushed on the top of the stack, 
 // representing a new scope.
 void scope_enter();
