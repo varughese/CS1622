@@ -41,13 +41,21 @@ void hash_table_stack_push(struct hash_table *h) {
 	stack_size++;
 }
 
-struct hash_table *hash_table_stack_pop(sh) {
-	// This will hold a reference to the node we want to free
-	struct stack_node_struct *zombie; 
-	
+struct hash_table *hash_table_stack_peek() {
+	if(stack_size <= 0 || stack == NULL) {
+		printf("Error: Peek called on empty hash table stack.");
+	}
+
+	return stack->h;
+}
+
+struct hash_table *hash_table_stack_pop() {
 	if(stack_size <= 0 || stack == NULL) {
 		printf("Error: Pop called on empty hash table stack.");
 	}
+
+	// This will hold a reference to the node we want to free
+	struct stack_node_struct *zombie; 
 
 	struct hash_table *h = stack->h;
 
@@ -63,35 +71,46 @@ struct hash_table *hash_table_stack_pop(sh) {
 
 int _scope_level = 1;
 
+void init_symbol_table() {
+	init_hash_table_stack();
+	_scope_level = 1;
+}
+
 void scope_enter() {
-	// TODO
+	struct hash_table *h = hash_table_create(0, 0);
+	hash_table_stack_push(h);
 	_scope_level++;
 }
 
 void scope_exit() {
-	// TODO
+	hash_table_stack_pop();
 	_scope_level--;
 }
 
 int scope_level() {
-	// TODO
 	return _scope_level;
 }
 
 void scope_bind(const char *name, struct symbol *sym) {
-	// TODO
-	printf("SYMBOL_TABLE [%d]: Binding [%s]\n", _scope_level, name);
+	struct hash_table *h = hash_table_stack_peek();
+	hash_table_insert(h, name, sym);
 }
 
 struct symbol *scope_lookup(const char *name) {
-	// TODO
-	printf("SYMBOL_TABLE [%d]: Looking [%s]\n", _scope_level, name);
-	return symbol_create(SYMBOL_LOCAL, NULL, NULL);
+	// We cheat a little bit here - we directly use the stack contents
+	// in order to traverse the stack like a linked list
+	struct stack_node_struct *current = stack;
+	while(current) {
+		struct hash_table *h = current->h;
+		struct symbol *sym = (struct symbol *) hash_table_lookup(h, name);
+		if (sym) return sym;
+		current = current->next;
+	}
+	return NULL;
 }
 
 struct symbol *scope_lookup_current(const char *name) {
-	// TODO
-	printf("SYMBOL_TABLE [%d]: Looking Current [%s]\n", _scope_level, name);
-	return NULL;
+	struct hash_table *h = hash_table_stack_peek();
+	return (struct symbol *) hash_table_lookup(h, name);
 }
 
