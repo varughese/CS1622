@@ -13,8 +13,8 @@ void expr_resolve(struct expr *expr) {
 
 	if(expr->kind == EXPR_NAME) {
 		// TODO(errorfn) if a scope lookup cannot find this name, error. We should
-		// have an error function somewhere that we include that does 
-		// whatever we need when it errors.
+		// have an error function somewhere that we can pass in a string, that way 
+		// when we debug we can know where the errors came from
 		expr->symbol = scope_lookup(expr->name);
 	} else {
 		expr_resolve(expr->left);
