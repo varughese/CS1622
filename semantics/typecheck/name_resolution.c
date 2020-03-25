@@ -39,8 +39,12 @@ void stmt_resolve(struct stmt *stmt) {
 		scope_exit();
 	} else if (stmt->kind == STMT_IF_ELSE) {
 		expr_resolve(stmt->expr);
+		scope_enter();
 		stmt_resolve(stmt->body);
+		scope_exit();
+		scope_enter();
 		stmt_resolve(stmt->else_body);
+		scope_exit();
 	} else if (stmt->kind == STMT_RETURN) {
 		expr_resolve(stmt->expr);
 	}
