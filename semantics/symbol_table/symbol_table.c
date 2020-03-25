@@ -72,7 +72,7 @@ struct hash_table *hash_table_stack_pop() {
 
 /** Symbol table API **/
 
-int _scope_level = 1;
+int _scope_level = -1;
 
 void init_symbol_table() {
 	init_hash_table_stack();
@@ -92,6 +92,7 @@ void scope_exit() {
 }
 
 int scope_level() {
+	if (_scope_level < 1) printf("ERROR: Uninialized symbol table. Make sure to call init_symbol_table().\n");
 	return _scope_level;
 }
 
