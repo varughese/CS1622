@@ -3,6 +3,7 @@
 #include "../ast/factory.h"
 #include "../symbol_table/symbol_table.h"
 #include "name_resolution.h"
+#include "helpers.h"
 
 void expr_resolve(struct expr *d);
 void stmt_resolve(struct stmt *d);
@@ -12,10 +13,12 @@ void expr_resolve(struct expr *expr) {
 	if(expr == NULL) return;
 
 	if(expr->kind == EXPR_NAME) {
-		// TODO(errorfn) if a scope lookup cannot find this name, error. We should
-		// have an error function somewhere that we can pass in a string, that way 
-		// when we debug we can know where the errors came from
 		expr->symbol = scope_lookup(expr->name);
+		
+		if(expr->symbol == NULL) {
+			error_name_resolution(expr->name);
+		}
+
 	} else {
 		expr_resolve(expr->left);
 		expr_resolve(expr->right);

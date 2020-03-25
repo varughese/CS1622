@@ -1,0 +1,1 @@
+void error_name_resolution(const char* err);
