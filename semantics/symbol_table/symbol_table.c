@@ -28,6 +28,9 @@ struct stack_node_struct *stack;
 void init_hash_table_stack() {
 	// We have to do this because we can only malloc inside of functions
 	stack = (struct stack_node_struct *) malloc(sizeof(struct stack_node_struct));
+	stack->next = NULL;
+	stack->h = hash_table_create(0, 0);;
+	stack_size = 1;
 }
 
 void hash_table_stack_push(struct hash_table *h) {
@@ -83,7 +86,8 @@ void scope_enter() {
 }
 
 void scope_exit() {
-	hash_table_stack_pop();
+	struct hash_table *h = hash_table_stack_pop();
+	free(h);
 	_scope_level--;
 }
 
@@ -100,11 +104,12 @@ struct symbol *scope_lookup(const char *name) {
 	// We cheat a little bit here - we directly use the stack contents
 	// in order to traverse the stack like a linked list
 	struct stack_node_struct *current = stack;
-	while(current) {
+	while(current != NULL) {
 		struct hash_table *h = current->h;
 		struct symbol *sym = (struct symbol *) hash_table_lookup(h, name);
 		if (sym) return sym;
-		current = current->next;
+		
+		current = current->next;		
 	}
 	return NULL;
 }
