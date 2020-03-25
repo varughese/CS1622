@@ -1,5 +1,6 @@
 #include "../ast/factory.h"
 #include "symbol_table.h"
+#include "hash_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +15,51 @@ struct symbol *symbol_create(
 	s->name = name;
 	return s;
 }
+
+/** Stack of hash tables implementation **/
+int stack_size = 0;
+struct stack_node_struct  {
+        struct hash_table *h;
+        struct stack_node_struct *next;
+};
+
+struct stack_node_struct *stack;
+
+void init_hash_table_stack() {
+	// We have to do this because we can only malloc inside of functions
+	stack = (struct stack_node_struct *) malloc(sizeof(struct stack_node_struct));
+}
+
+void hash_table_stack_push(struct hash_table *h) {
+	struct stack_node_struct *new_head = (struct stack_node_struct *) malloc(sizeof(struct stack_node_struct));
+	
+	// Add the new node to the beginning of this linked list
+	new_head->h = h;
+	new_head->next = stack;
+	stack = new_head;
+
+	stack_size++;
+}
+
+struct hash_table *hash_table_stack_pop(sh) {
+	// This will hold a reference to the node we want to free
+	struct stack_node_struct *zombie; 
+	
+	if(stack_size <= 0 || stack == NULL) {
+		printf("Error: Pop called on empty hash table stack.");
+	}
+
+	struct hash_table *h = stack->h;
+
+	zombie = stack;
+	stack = stack->next;
+	free(zombie);
+	stack_size--;
+
+	return h;
+}
+
+/** Symbol table API **/
 
 int _scope_level = 1;
 
