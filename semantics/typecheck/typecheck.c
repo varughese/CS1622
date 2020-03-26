@@ -5,6 +5,11 @@
 #include "helpers.h"
 #include "../symbol_table/symbol_table.h"
 
+void param_delete(struct param_list *params);
+struct symbol * symbol_copy(struct symbol *s);
+struct param_list* param_copy(struct param_list *params);
+struct type* type_copy(struct type *t);
+
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
 		if(a->kind == TYPE_ARRAY) {
@@ -20,15 +25,22 @@ int type_equals(struct type *a, struct type *b) {
 	}
 }
 
+struct symbol * symbol_copy(struct symbol *s) {
+    if (s == NULL) return 0;
+    struct symbol *copy;
+    copy = malloc(sizeof(*copy));
+    copy->kind = s->kind;
+    copy->which = s->which;
+    copy->type = type_copy(s->type);
+    return copy;
+}
+
 struct param_list* param_copy(struct param_list *params) {
 	if(params == NULL) return NULL;
 	struct param_list* new_list = malloc(sizeof(params));
 	new_list->name = params->name;
-	new_list->type = malloc(sizeof(params->type));
-	new_list->type->kind = params->type->kind;
-	new_list->type->subtype = params->type->subtype;
-	new_list->type->params = NULL;
-	// new_list->symbol = params->symbol;
+	new_list->type = type_copy(params->type);
+	new_list->symbol = symbol_copy(params->symbol);
 	new_list->next = param_copy(params->next);
 	return new_list;
 }
@@ -42,6 +54,19 @@ struct type* type_copy(struct type *t) {
 	return new_type; 
 }
 
+void type_delete(struct type *t) {
+	if(t == NULL) return;
+	type_delete(t->subtype);
+	param_delete(t->params);
+	free(t);
+}
+
+void symbol_delete(struct symbol *s) {
+    if (s == NULL) return;
+    type_delete(s->type);
+    free(s);
+}
+
 void param_delete(struct param_list *params) {
 	if(params == NULL) return;
 	param_delete(params->next);
@@ -49,14 +74,7 @@ void param_delete(struct param_list *params) {
 	free(params->type->subtype);
 	free(params->type);
 	free(params->next);
-	// free(params->symbol);
-}
-
-void type_delete(struct type *t) {
-	if(t == NULL) return;
-	type_delete(t->subtype);
-	param_delete(t->params);
-	free(t);
+	symbol_delete(params->symbol);
 }
 
 struct type *expr_typecheck(struct expr *e) {
@@ -153,21 +171,21 @@ void stmt_typecheck(struct stmt *s) {
 			break;
 
 		case STMT_IF_ELSE:
-			// t = expr_typecheck(s->expr);
-			// if(t->kind != TYPE_BOOLEAN) {
-			// 	error_type_check("Conditional isn't boolean!");
-			// }
-			// type_delete(t);
+			t = expr_typecheck(s->expr);
+			if(t->kind != TYPE_BOOLEAN) {
+				error_type_check("Conditional isn't boolean!");
+			}
+			type_delete(t);
 			stmt_typecheck(s->body);
 			stmt_typecheck(s->else_body);
 			break;
 
 		case STMT_ITERATION:
-			// t = expr_typecheck(s->expr);
-			// if(t->kind != TYPE_BOOLEAN) {
-			// 	error_type_check("Conditional ain't boolean!");
-			// }
-			// type_delete(t);
+			t = expr_typecheck(s->expr);
+			if(t->kind != TYPE_BOOLEAN) {
+				error_type_check("Conditional ain't boolean!");
+			}
+			type_delete(t);
 			stmt_typecheck(s->body);
 			break;
 
