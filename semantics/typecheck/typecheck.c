@@ -114,8 +114,16 @@ struct type *expr_typecheck(struct expr *e) {
 				result = type_copy(lt);
 			}
 			break;
-		// TODO: finish 
+
 		case EXPR_ASSIGN:
+			if(!type_equals(lt,rt)) {
+				error_type_check("Assigning mismatch typed values");
+			}
+			// I think the type of assignments are irrelevant since it won't have a parent node?
+			result = type_copy(lt);
+			break;
+
+		// TODO: finish 
 		case EXPR_CALL:
 		case EXPR_ARG:
 		case EXPR_NAME:
@@ -130,6 +138,7 @@ struct type *expr_typecheck(struct expr *e) {
 void stmt_typecheck(struct stmt *s) {
 	struct type *t;
 	switch(s->kind) {
+
 		case STMT_EXPR:
 			t = expr_typecheck(s->expr);
 			type_delete(t);
@@ -144,9 +153,18 @@ void stmt_typecheck(struct stmt *s) {
 			stmt_typecheck(s->body);
 			stmt_typecheck(s->else_body);
 			break;
+
+		case STMT_ITERATION:
+			t = expr_typecheck(s->expr);
+			if(t->kind != TYPE_BOOLEAN) {
+				error_type_check("Conditional ain't boolean!");
+			}
+			type_delete(t);
+			stmt_typecheck(body);
+			break;
+
 		// TODO: finish
 		case STMT_COMPOUND:
-		case STMT_ITERATION:
 		case STMT_RETURN:
 			break;
 	}
