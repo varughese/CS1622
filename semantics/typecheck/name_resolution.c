@@ -61,8 +61,7 @@ void param_list_resolve(struct param_list *p) {
 	p->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
 
 	if(scope_lookup_current(p->name)) {
-		error_name_resolution("Param Already Defined", p->name);
-		
+		error_name_resolution("Param Already Defined", p->name);	
 	}
 
 	scope_bind(p->name, p->symbol);
