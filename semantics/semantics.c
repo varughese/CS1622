@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 	// Populate symbol table
 	decl_resolve(abstract_syntax_tree);
 
-	if(!typecheck(abstract_syntax_tree)) {
+	if(pass_type_checks(abstract_syntax_tree)) {
 		char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	
 		printf("%s\n", ast);
 		free(ast);
