@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../ast/factory.h"
+#include "helpers.h"
 
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
@@ -67,7 +68,32 @@ struct type *expr_typecheck(struct expr *e) {
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
 			result = create_type(TYPE_INTEGER, 0, 0);
+			break;
+		case EXPR_STRING_LITERAL:
+			result = create_type(TYPE_STRING,0,0);
+			break;
+		case EXPR_ADD:
+			if(!type_equals(lt,rt)) {
+				error_type_check("Addition type mismatch!");
+			}
+			result = create_type(TYPE_INTEGER,0,0);
+			break;
+		case EXPR_EQ:
+		case EXPR_NEW:
+			if(!type_equals(lt,rt)) {
+				error_type_check("Equality type mismatch");
+			} 
+
+			if(lt->kind == TYPE_VOID ||
+			   lt->kind == TYPE_ARRAY ||
+			   lt->kind == TYPE_FUNCTION) {
+				error_type_check("Can't  equate the two types");
+			}
+			result = create_type(TYPE_BOOLEAN,0,0);
+			break;
 	}
+	type_delete(lt);
+	type_delete(rt);
 }
 
 
