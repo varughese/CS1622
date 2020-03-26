@@ -114,6 +114,13 @@ struct type *expr_typecheck(struct expr *e) {
 				result = type_copy(lt);
 			}
 			break;
+		// TODO: finish 
+		case EXPR_ASSIGN:
+		case EXPR_CALL:
+		case EXPR_ARG:
+		case EXPR_NAME:
+		case EXPR_SEMICOLON:
+			break;
 	}
 	type_delete(lt);
 	type_delete(rt);
@@ -127,8 +134,18 @@ void stmt_typecheck(struct stmt *s) {
 			t = expr_typecheck(s->expr);
 			type_delete(t);
 			break;
-		case STMT_COMPOUND:
+
 		case STMT_IF_ELSE:
+			t = expr_typecheck(s->expr);
+			if(t->kind != TYPE_BOOLEAN) {
+				error_type_check("Conditional isn't boolean!");
+			}
+			type_delete(t);
+			stmt_typecheck(s->body);
+			stmt_typecheck(s->else_body);
+			break;
+		// TODO: finish
+		case STMT_COMPOUND:
 		case STMT_ITERATION:
 		case STMT_RETURN:
 			break;
