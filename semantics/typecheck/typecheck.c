@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../ast/factory.h"
 #include "helpers.h"
+#include "../symbol_table/symbol_table.h"
 
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
@@ -69,17 +70,27 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_INTEGER_LITERAL:
 			result = create_type(TYPE_INTEGER, 0, 0);
 			break;
+
 		case EXPR_STRING_LITERAL:
 			result = create_type(TYPE_STRING,0,0);
 			break;
+
 		case EXPR_ADD:
+		case EXPR_SUB:
+		case EXPR_MUL:
+		case EXPR_DIV:
 			if(!type_equals(lt,rt)) {
-				error_type_check("Addition type mismatch!");
+				error_type_check("Arithmetic type mismatch!");
 			}
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
-		case EXPR_EQ:
-		case EXPR_NEW:
+
+		case EXPR_ISEQ:
+		case EXPR_NEQ:
+		case EXPR_LE:
+		case EXPR_LT:
+		case EXPR_GT:
+		case EXPR_GE:
 			if(!type_equals(lt,rt)) {
 				error_type_check("Equality type mismatch");
 			} 
@@ -91,17 +102,34 @@ struct type *expr_typecheck(struct expr *e) {
 			}
 			result = create_type(TYPE_BOOLEAN,0,0);
 			break;
+
 		case EXPR_SUBSCRIPT:
-		
+			if(lt->kind == TYPE_ARRAY) {
+				if(rt->kind != TYPE_INTEGER) {
+					error_type_check("Attempting to subscript an array with a non-integer");
+				}
+				result = type_copy(lt->subtype);
+			} else {
+				error_type_check("Attempting to subscript a non-array");
+				result = type_copy(lt);
+			}
+			break;
 	}
 	type_delete(lt);
 	type_delete(rt);
 }
 
+void decl_typecheck(struct decl *d) {
+	if(!d) return;
 
+	if(d->code) {
+		stmt_typecheck(d->code);
+	}
+	decl_typecheck(d->next);
+}
 
 int pass_type_checks(struct decl *root) {
 	if(root == NULL) return 0;
-
+	decl_typecheck(root);
 	return 1;
 }
