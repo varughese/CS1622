@@ -119,6 +119,24 @@ struct type *expr_typecheck(struct expr *e) {
 	type_delete(rt);
 }
 
+
+void stmt_typecheck(struct stmt *s) {
+	struct type *t;
+	switch(s->kind) {
+		case STMT_EXPR:
+			t = expr_typecheck(s->expr);
+			type_delete(t);
+			break;
+		case STMT_COMPOUND:
+		case STMT_IF_ELSE:
+		case STMT_ITERATION:
+		case STMT_RETURN:
+			break;
+	}
+
+	stmt_typecheck(s->next);
+}
+
 void decl_typecheck(struct decl *d) {
 	if(!d) return;
 
