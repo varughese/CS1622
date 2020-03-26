@@ -17,7 +17,7 @@ int type_equals(struct type *a, struct type *b) {
 	}
 }
 
-struct param_list* param_copy(struct param_list* params) {
+struct param_list* param_copy(struct param_list *params) {
 	if(params == NULL) return NULL;
 	struct param_list* new_list = malloc(sizeof(params));
 	new_list->name = params->name;
@@ -31,12 +31,31 @@ struct param_list* param_copy(struct param_list* params) {
 }
 
 struct type* type_copy(struct type *t) {
+	if(t == NULL) return NULL;
 	struct type* new_type = malloc(sizeof(t));
 	new_type->kind = t->kind;
 	new_type->subtype = type_copy(t->subtype);
 	new_type->params = param_copy(t->params);
 	return new_type; 
 }
+
+void param_delete(struct param_list *params) {
+	if(params == NULL) return;
+	param_delete(params->next);
+	free(params->name);
+	free(params->type->subtype);
+	free(params->type);
+	free(params->next);
+	free(params->symbol);
+}
+
+void type_delete(struct type *t) {
+	if(t == NULL) return;
+	type_delete(t->subtype);
+	param_delete(t->params);
+	free(t);
+}
+
 
 int pass_type_checks(struct decl *root) {
 	if(root == NULL) return 0;
