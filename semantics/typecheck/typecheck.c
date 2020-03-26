@@ -1,6 +1,7 @@
 #include "typecheck.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "../ast/factory.h"
 
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
@@ -55,6 +56,20 @@ void type_delete(struct type *t) {
 	param_delete(t->params);
 	free(t);
 }
+
+struct type *expr_typecheck(struct expr *e) {
+	if (!e) return 0;
+	struct type *lt = expr_typecheck(e->left);
+	struct type *rt = expr_typecheck(e->right);
+
+	struct type *result;
+
+	switch(e->kind) {
+		case EXPR_INTEGER_LITERAL:
+			result = create_type(TYPE_INTEGER, 0, 0);
+	}
+}
+
 
 
 int pass_type_checks(struct decl *root) {
