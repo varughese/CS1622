@@ -91,6 +91,8 @@ struct type *expr_typecheck(struct expr *e) {
 			}
 			result = create_type(TYPE_BOOLEAN,0,0);
 			break;
+		case EXPR_SUBSCRIPT:
+		
 	}
 	type_delete(lt);
 	type_delete(rt);
