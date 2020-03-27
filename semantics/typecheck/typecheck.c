@@ -100,7 +100,7 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_MUL:
 		case EXPR_DIV:
 			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-				printf("Arithmetic type mismatch. Adding a %p with a %p\n", lt->kind, rt->kind);
+				printf("Arithmetic type mismatch. Using a %p with a %p\n", lt->kind, rt->kind);
 			}
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
@@ -111,32 +111,31 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_LT:
 		case EXPR_GT:
 		case EXPR_GE:
-			// if(!type_equals(lt,rt)) {
-			// 	error_type_check("Equality type mismatch");
-			// } 
+			if(!type_equals(lt,rt)) {
+				error_type_check("Equality type mismatch");
+			} 
 
-			// if(lt->kind == TYPE_VOID ||
-			//    lt->kind == TYPE_ARRAY ||
-			//    lt->kind == TYPE_FUNCTION) {
-			// 	error_type_check("Can't  equate the two types");
-			// }
-			// result = create_type(TYPE_BOOLEAN,0,0);
-			// break;
+			if(lt->kind == TYPE_VOID ||
+			   lt->kind == TYPE_ARRAY ||
+			   lt->kind == TYPE_FUNCTION) {
+				error_type_check("Can't  equate the two types");
+			}
+			result = create_type(TYPE_BOOLEAN,0,0);
+			break;
 
 		case EXPR_SUBSCRIPT:
-			// if(lt->kind == TYPE_ARRAY) {
-			// 	if(rt->kind != TYPE_INTEGER) {
-			// 		error_type_check("Attempting to subscript an array with a non-integer");
-			// 	}
-			// 	result = type_copy(lt->subtype);
-			// } else {
-			// 	error_type_check("Attempting to subscript a non-array");
-			// 	result = type_copy(lt);
-			// }
-			// break;
+			if(lt->kind == TYPE_ARRAY) {
+				if(rt->kind != TYPE_INTEGER) {
+					error_type_check("Attempting to subscript an array with a non-integer");
+				}
+				result = type_copy(lt->subtype);
+			} else {
+				error_type_check("Attempting to subscript a non-array");
+				result = type_copy(lt);
+			}
+			break;
 
 		case EXPR_ASSIGN:
-			// original line: doesn't work
 			if(!type_equals(lt,rt)) {
 				printf("Assigning mismatch typed values: %p and %p\n", lt->kind, rt->kind);
 			}
@@ -144,13 +143,22 @@ struct type *expr_typecheck(struct expr *e) {
 			break;
 
 		case EXPR_NAME:
-			result = type_copy(e->symbol->type);
+			if(e->symbol->type == TYPE_FUNCTION || e->symbol->type == TYPE_ARRAY) {
+				result = type_copy(e->symbol->type->subtype);
+			} else {
+				result = type_copy(e->symbol->type);
+			}
 			break;
 
-		// TODO: finish 
 		case EXPR_CALL:
+			result = type_copy(lt);
+			break;
+
 		case EXPR_ARG:
+			break;
+
 		case EXPR_SEMICOLON:
+			result = create_type(TYPE_VOID,0,0);
 			break;
 	}
 	type_delete(lt);
@@ -163,11 +171,15 @@ struct type *expr_typecheck(struct expr *e) {
 }
 
 
-void stmt_typecheck(struct stmt *s) {
+void stmt_typecheck(struct stmt *s, struct type *subtype) {
 	if(s == NULL) return;
 
 	struct type *t = NULL;
 	switch(s->kind) {
+
+		case STMT_COMPOUND:
+			stmt_typecheck(s->body);
+			break;
 
 		case STMT_EXPR:
 			t = expr_typecheck(s->expr);
@@ -177,7 +189,7 @@ void stmt_typecheck(struct stmt *s) {
 		case STMT_IF_ELSE:
 			t = expr_typecheck(s->expr);
 			if(t->kind != TYPE_BOOLEAN) {
-				// error_type_check("Conditional isn't boolean!");
+				error_type_check("Conditional isn't boolean!");
 			}
 			type_delete(t);
 			stmt_typecheck(s->body);
@@ -187,18 +199,18 @@ void stmt_typecheck(struct stmt *s) {
 		case STMT_ITERATION:
 			t = expr_typecheck(s->expr);
 			if(t->kind != TYPE_BOOLEAN) {
-				// error_type_check("Conditional ain't boolean!");
+				error_type_check("Conditional ain't boolean!");
 			}
 			type_delete(t);
 			stmt_typecheck(s->body);
 			break;
 
-		case STMT_COMPOUND:
-			stmt_typecheck(s->body);
-			break;
-
+		// TODO: not done, have to compare type to the declared type
 		case STMT_RETURN:
 			t = expr_typecheck(s->expr);
+			if(!type_equals(t,subtype)) {
+				error_type_check("Return value doesn't match return type");
+			}
 			break;
 	}
 
@@ -209,7 +221,7 @@ void decl_typecheck(struct decl *d) {
 	if(d == NULL) return;
 
 	if(d->type->kind == TYPE_FUNCTION) {
-		stmt_typecheck(d->code);
+		stmt_typecheck(d->code, d->type->subtype);
 	}
 	
 	decl_typecheck(d->next);

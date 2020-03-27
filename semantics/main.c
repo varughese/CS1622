@@ -1,7 +1,10 @@
-void main(void)
-{
+int g;
+
+int foo(int x) {
+    return x * 2;
+}
+
+void main(void) {
     int y;
-    int x;
-    x = 2;
-    y = 4 * x + 1;
+    y = foo(2);
 }
