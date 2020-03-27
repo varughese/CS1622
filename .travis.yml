@@ -6,7 +6,7 @@ before_install:
 script:
   - cd semantics && make && make test
 
-after_success:
+after_script:
   - cd semantics && cat main.c && echo '\n' && make run 
 
 notifications:
