@@ -5,7 +5,7 @@ This is a project apart of `CS 1622` at Pitt taken the Spring '20 semester. The 
 
 The C- language is a subset of C, and more specifications can be read [here](https://github.com/varughese/CS1622/blob/master/docs/CMinus_Lang_Specification.md).
 
-**Read how the Abstract Syntax Tree which defines the code works [here](https://github.com/varughese/CS1622/blob/master/docs/how_ast_structred.md).**
+### *Read how the Abstract Syntax Tree is structured [here](https://github.com/varughese/CS1622/blob/master/docs/how_ast_structred.md). This is the key data structure used in compilation.*
 
 ## 1. Lexical Analysis
 Uses `flex` to find the tokens in a file.
@@ -68,7 +68,7 @@ void main(void) {
 ```
 
 **Output**
-This is a stringified version of the tree. Read how it is structured [here].
+This is a stringified version of the tree. Read how it is structured [here](https://github.com/varughese/CS1622/blob/master/docs/how_ast_structred.md).
 ```
 [program 
   [var-declaration [int] [g]]

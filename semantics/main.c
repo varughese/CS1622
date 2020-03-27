@@ -2,7 +2,7 @@ int g;
 
 int foo(int x, int y, int z[])
 {
-    q[0] = 0;
+    z[0] = 0;
     y = x * y + 2;
 
     if(y == 0)
