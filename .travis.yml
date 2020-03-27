@@ -5,7 +5,7 @@ before_install:
 
 script:
   - cd semantics && make && make test
-  - cat main.c && echo '\n' && make run 
+  - make run && echo '----' && cat main.c
 
 notifications:
   email: false
