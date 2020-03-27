@@ -5,3 +5,6 @@ before_install:
 
 script:
   - cd semantics && make && make test
+
+notifications:
+  email: false

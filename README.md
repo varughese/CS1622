@@ -1,6 +1,8 @@
 # CS 1622 C- Compiler
 By Mathew Varughese & Ming Wang
 
+[![Build Status](https://travis-ci.com/varughese/CS1622.svg?token=ycDVMyxyCzpQECLefYzY&branch=master)](https://travis-ci.com/varughese/CS1622)
+
 This is a project apart of `CS 1622` at Pitt taken the Spring '20 semester. The project is broken up into four parts which are put in their own folders. The lexical analysis, syntatic analysis, semantic analysis, and code generation.
 
 The C- language is a subset of C, and more specifications can be read [here](https://github.com/varughese/CS1622/blob/master/docs/CMinus_Lang_Specification.md).
