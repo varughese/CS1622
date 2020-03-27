@@ -1,0 +1,9 @@
+install: make get-deps
+compiler: gcc
+
+before_install:
+  - test -n $CC && unset CC
+
+
+script:
+  - cd semantics && make && make test
