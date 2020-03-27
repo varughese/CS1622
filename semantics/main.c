@@ -1,24 +1,10 @@
 int g;
 
-int foo(int x, int y, int z[])
-{
-    z[0] = 0;
-    y = x * y + 2;
-
-    if(y == 0)
-    {
-        y = 1;
-    }
-
-    return y;
+int foo(int x) {
+    return x * 2;
 }
 
-void main(void)
-{
-    int a[10];
-    while(g < 10)
-    {
-        g = foo(g, 2, a);
-        ;
-    }
+void main(void) {
+    int y;
+    y = foo(2);
 }

@@ -5,6 +5,11 @@
 #include "helpers.h"
 #include "../symbol_table/symbol_table.h"
 
+void param_delete(struct param_list *params);
+struct symbol * symbol_copy(struct symbol *s);
+struct param_list* param_copy(struct param_list *params);
+struct type* type_copy(struct type *t);
+
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
 		if(a->kind == TYPE_ARRAY) {
@@ -20,15 +25,22 @@ int type_equals(struct type *a, struct type *b) {
 	}
 }
 
+struct symbol * symbol_copy(struct symbol *s) {
+    if (s == NULL) return 0;
+    struct symbol *copy;
+    copy = malloc(sizeof(*copy));
+    copy->kind = s->kind;
+    copy->which = s->which;
+    copy->type = type_copy(s->type);
+    return copy;
+}
+
 struct param_list* param_copy(struct param_list *params) {
 	if(params == NULL) return NULL;
 	struct param_list* new_list = malloc(sizeof(params));
 	new_list->name = params->name;
-	new_list->type = malloc(sizeof(params->type));
-	new_list->type->kind = params->type->kind;
-	new_list->type->subtype = params->type->subtype;
-	new_list->type->params = NULL;
-	new_list->symbol = params->symbol;
+	new_list->type = type_copy(params->type);
+	new_list->symbol = symbol_copy(params->symbol);
 	new_list->next = param_copy(params->next);
 	return new_list;
 }
@@ -37,19 +49,9 @@ struct type* type_copy(struct type *t) {
 	if(t == NULL) return NULL;
 	struct type* new_type = malloc(sizeof(t));
 	new_type->kind = t->kind;
-	new_type->subtype = type_copy(t->subtype);
 	new_type->params = param_copy(t->params);
+	new_type->subtype = type_copy(t->subtype);
 	return new_type; 
-}
-
-void param_delete(struct param_list *params) {
-	if(params == NULL) return;
-	param_delete(params->next);
-	free(params->name);
-	free(params->type->subtype);
-	free(params->type);
-	free(params->next);
-	free(params->symbol);
 }
 
 void type_delete(struct type *t) {
@@ -59,16 +61,34 @@ void type_delete(struct type *t) {
 	free(t);
 }
 
+void symbol_delete(struct symbol *s) {
+    if (s == NULL) return;
+    type_delete(s->type);
+    free(s);
+}
+
+void param_delete(struct param_list *params) {
+	if(params == NULL) return;
+	param_delete(params->next);
+	free(params->name);
+	free(params->type->subtype);
+	free(params->type);
+	free(params->next);
+	symbol_delete(params->symbol);
+}
+
 struct type *expr_typecheck(struct expr *e) {
-	if (!e) return 0;
+	if (e == NULL) return create_type(TYPE_VOID,0,0);
+
 	struct type *lt = expr_typecheck(e->left);
 	struct type *rt = expr_typecheck(e->right);
 
-	struct type *result;
+	struct type *result = NULL;
 
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
-			result = create_type(TYPE_INTEGER, 0, 0);
+			// printf("%p\n",e->name);
+			result = create_type(TYPE_INTEGER,0,0);
 			break;
 
 		case EXPR_STRING_LITERAL:
@@ -79,8 +99,8 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_SUB:
 		case EXPR_MUL:
 		case EXPR_DIV:
-			if(!type_equals(lt,rt)) {
-				error_type_check("Arithmetic type mismatch!");
+			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+				printf("Arithmetic type mismatch. Using a %p with a %p\n", lt->kind, rt->kind);
 			}
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
@@ -117,27 +137,49 @@ struct type *expr_typecheck(struct expr *e) {
 
 		case EXPR_ASSIGN:
 			if(!type_equals(lt,rt)) {
-				error_type_check("Assigning mismatch typed values");
+				printf("Assigning mismatch typed values: %p and %p\n", lt->kind, rt->kind);
 			}
-			// I think the type of assignments are irrelevant since it won't have a parent node?
 			result = type_copy(lt);
 			break;
 
-		// TODO: finish 
-		case EXPR_CALL:
-		case EXPR_ARG:
 		case EXPR_NAME:
+			// if(e->symbol->type == TYPE_FUNCTION || e->symbol->type == TYPE_ARRAY) {
+			// 	result = type_copy(e->symbol->type->subtype);
+			// } else {
+			// 	result = type_copy(e->symbol->type);
+			// }
+			break;
+
+		case EXPR_CALL:
+			// result = type_copy(lt);
+			break;
+
+		case EXPR_ARG:
+			break;
+
 		case EXPR_SEMICOLON:
+			result = create_type(TYPE_VOID,0,0);
 			break;
 	}
 	type_delete(lt);
 	type_delete(rt);
+	if(result == NULL) {
+		// printf("err\n");
+		return create_type(TYPE_VOID, 0 ,0);
+	}
+	return result;
 }
 
 
-void stmt_typecheck(struct stmt *s) {
-	struct type *t;
+void stmt_typecheck(struct stmt *s, struct type *subtype) {
+	if(s == NULL) return;
+
+	struct type *t = NULL;
 	switch(s->kind) {
+
+		case STMT_COMPOUND:
+			stmt_typecheck(s->body,subtype);
+			break;
 
 		case STMT_EXPR:
 			t = expr_typecheck(s->expr);
@@ -150,8 +192,8 @@ void stmt_typecheck(struct stmt *s) {
 				error_type_check("Conditional isn't boolean!");
 			}
 			type_delete(t);
-			stmt_typecheck(s->body);
-			stmt_typecheck(s->else_body);
+			stmt_typecheck(s->body,subtype);
+			stmt_typecheck(s->else_body,subtype);
 			break;
 
 		case STMT_ITERATION:
@@ -160,24 +202,28 @@ void stmt_typecheck(struct stmt *s) {
 				error_type_check("Conditional ain't boolean!");
 			}
 			type_delete(t);
-			stmt_typecheck(body);
+			stmt_typecheck(s->body,subtype);
 			break;
 
-		// TODO: finish
-		case STMT_COMPOUND:
+		// TODO: not sure if working
 		case STMT_RETURN:
+			t = expr_typecheck(s->expr);
+			if(!type_equals(t,subtype)) {
+				error_type_check("Return value doesn't match return type");
+			}
 			break;
 	}
 
-	stmt_typecheck(s->next);
+	stmt_typecheck(s->next,subtype);
 }
 
 void decl_typecheck(struct decl *d) {
-	if(!d) return;
+	if(d == NULL) return;
 
-	if(d->code) {
-		stmt_typecheck(d->code);
+	if(d->type->kind == TYPE_FUNCTION) {
+		stmt_typecheck(d->code, d->type->subtype);
 	}
+	
 	decl_typecheck(d->next);
 }
 
