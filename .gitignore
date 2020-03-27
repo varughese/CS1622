@@ -12,4 +12,6 @@ parser.tab.h
 parser/lex.yy.c
 parser/main.ast
 parser/parser.zip
-sftp-config.json
+
+working
+semantics/parser 

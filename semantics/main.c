@@ -1,6 +1,6 @@
 int g;
 
-int foo(int x, int x, int z[])
+int foo(int x, int y, int z[])
 {
     q[0] = 0;
     y = x * y + 2;
