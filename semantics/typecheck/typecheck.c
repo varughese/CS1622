@@ -143,15 +143,15 @@ struct type *expr_typecheck(struct expr *e) {
 			break;
 
 		case EXPR_NAME:
-			if(e->symbol->type == TYPE_FUNCTION || e->symbol->type == TYPE_ARRAY) {
-				result = type_copy(e->symbol->type->subtype);
-			} else {
-				result = type_copy(e->symbol->type);
-			}
+			// if(e->symbol->type == TYPE_FUNCTION || e->symbol->type == TYPE_ARRAY) {
+			// 	result = type_copy(e->symbol->type->subtype);
+			// } else {
+			// 	result = type_copy(e->symbol->type);
+			// }
 			break;
 
 		case EXPR_CALL:
-			result = type_copy(lt);
+			// result = type_copy(lt);
 			break;
 
 		case EXPR_ARG:
@@ -178,7 +178,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 	switch(s->kind) {
 
 		case STMT_COMPOUND:
-			stmt_typecheck(s->body);
+			stmt_typecheck(s->body,subtype);
 			break;
 
 		case STMT_EXPR:
@@ -192,8 +192,8 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 				error_type_check("Conditional isn't boolean!");
 			}
 			type_delete(t);
-			stmt_typecheck(s->body);
-			stmt_typecheck(s->else_body);
+			stmt_typecheck(s->body,subtype);
+			stmt_typecheck(s->else_body,subtype);
 			break;
 
 		case STMT_ITERATION:
@@ -202,10 +202,10 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 				error_type_check("Conditional ain't boolean!");
 			}
 			type_delete(t);
-			stmt_typecheck(s->body);
+			stmt_typecheck(s->body,subtype);
 			break;
 
-		// TODO: not done, have to compare type to the declared type
+		// TODO: not sure if working
 		case STMT_RETURN:
 			t = expr_typecheck(s->expr);
 			if(!type_equals(t,subtype)) {
@@ -214,7 +214,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 			break;
 	}
 
-	stmt_typecheck(s->next);
+	stmt_typecheck(s->next,subtype);
 }
 
 void decl_typecheck(struct decl *d) {
