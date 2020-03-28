@@ -32,12 +32,13 @@ struct symbol * symbol_copy(struct symbol *s) {
     copy->kind = s->kind;
     copy->which = s->which;
     copy->type = type_copy(s->type);
+	copy->name = s->name;
     return copy;
 }
 
 struct param_list* param_copy(struct param_list *params) {
 	if(params == NULL) return NULL;
-	struct param_list* new_list = malloc(sizeof(params));
+	struct param_list* new_list = malloc(sizeof(*params));
 	new_list->name = params->name;
 	new_list->type = type_copy(params->type);
 	new_list->symbol = symbol_copy(params->symbol);
@@ -47,7 +48,7 @@ struct param_list* param_copy(struct param_list *params) {
 
 struct type* type_copy(struct type *t) {
 	if(t == NULL) return NULL;
-	struct type* new_type = malloc(sizeof(t));
+	struct type* new_type = malloc(sizeof(*t));
 	new_type->kind = t->kind;
 	new_type->params = param_copy(t->params);
 	new_type->subtype = type_copy(t->subtype);
@@ -56,8 +57,8 @@ struct type* type_copy(struct type *t) {
 
 void type_delete(struct type *t) {
 	if(t == NULL) return;
-	type_delete(t->subtype);
 	param_delete(t->params);
+	type_delete(t->subtype);
 	free(t);
 }
 
@@ -67,14 +68,37 @@ void symbol_delete(struct symbol *s) {
     free(s);
 }
 
-void param_delete(struct param_list *params) {
-	if(params == NULL) return;
-	param_delete(params->next);
-	free(params->name);
-	free(params->type->subtype);
-	free(params->type);
-	free(params->next);
-	symbol_delete(params->symbol);
+void param_delete(struct param_list *param) {
+	if(param == NULL) return;
+	type_delete(param->type);
+	symbol_delete(param->symbol);
+	param_delete(param->next);
+	free(param);
+}
+
+
+struct type *expr_typecheck(struct expr *e);
+
+
+void function_typecheck(struct expr *current_arg, struct param_list *current_param) {
+	if (current_arg == NULL && current_param == NULL) {
+		return;
+	}
+	if (current_arg == NULL) {
+		error_type_check("Function call missing argument");
+		return;
+	}
+	if (current_param == NULL) {
+		error_type_check("Function called with too many arguments");
+		return;
+	}
+
+	struct type *arg_type = expr_typecheck(current_arg);
+	struct type *param_type = current_param->type;
+
+	if(!type_equals(arg_type, param_type)) {
+		error_type_check("Function called with unexpected argument type");
+	}
 }
 
 struct type *expr_typecheck(struct expr *e) {
@@ -137,25 +161,34 @@ struct type *expr_typecheck(struct expr *e) {
 
 		case EXPR_ASSIGN:
 			if(!type_equals(lt,rt)) {
-				printf("Assigning mismatch typed values: %p and %p\n", lt->kind, rt->kind);
+				error_type_check("Assigning mismatch values");
+				printf("Assigning mismatch typed values: %d and %d\n", lt->kind, rt->kind);
 			}
 			result = type_copy(lt);
 			break;
 
 		case EXPR_NAME:
-			// TODO check if this actually works
-			if(e->symbol->type->kind == TYPE_FUNCTION || e->symbol->type->kind == TYPE_ARRAY) {
-				result = type_copy(e->symbol->type->subtype);
+			if (e->symbol == NULL) {
+				error_type_check("Variable name not in correct scope");
 			} else {
+				printf("FUCK this expression named [%s] [%d]\n", e->name, e->symbol->type->kind);
 				result = type_copy(e->symbol->type);
 			}
 			break;
 
 		case EXPR_CALL:
-			// result = type_copy(lt);
-			break;
+			// if (lt->kind != TYPE_FUNCTION) {
+			// 	error_type_check("Trying to call a non-function");
+			// 	result = create_type(TYPE_VOID, 0 ,0);
+			// } else {
+			// 	// function_typecheck(e->right, e->left->symbol->type->params);
+			// 	result = type_copy(lt->subtype);
+			// }
+			// break;
 
 		case EXPR_ARG:
+			// The name or value of an argument is on the left
+			result = type_copy(lt);
 			break;
 
 		case EXPR_SEMICOLON:
@@ -165,7 +198,7 @@ struct type *expr_typecheck(struct expr *e) {
 	type_delete(lt);
 	type_delete(rt);
 	if(result == NULL) {
-		// printf("err\n");
+		printf("TODO - this should not happne\n");
 		return create_type(TYPE_VOID, 0 ,0);
 	}
 	return result;
