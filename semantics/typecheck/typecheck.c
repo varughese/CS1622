@@ -5,10 +5,7 @@
 #include "helpers.h"
 #include "../symbol_table/symbol_table.h"
 
-void param_delete(struct param_list *params);
-struct symbol * symbol_copy(struct symbol *s);
-struct param_list* param_copy(struct param_list *params);
-struct type* type_copy(struct type *t);
+
 
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
@@ -75,10 +72,6 @@ void param_delete(struct param_list *param) {
 	param_delete(param->next);
 	free(param);
 }
-
-
-struct type *expr_typecheck(struct expr *e);
-
 
 void function_typecheck(struct expr *current_arg, struct param_list *current_param) {
 	if (current_arg == NULL && current_param == NULL) {
@@ -272,5 +265,6 @@ void decl_typecheck(struct decl *d) {
 int pass_type_checks(struct decl *root) {
 	if(root == NULL) return 0;
 	decl_typecheck(root);
-	return 1;
+
+	return get_num_errors() == 0;
 }
