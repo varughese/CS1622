@@ -5,6 +5,8 @@
 #include "helpers.h"
 #include "../symbol_table/symbol_table.h"
 
+int num_errors = 0;
+
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
 		if(a->kind == TYPE_ARRAY) {
@@ -76,10 +78,12 @@ void function_typecheck(struct expr *current_arg, struct param_list *current_par
 		return;
 	}
 	if (current_arg == NULL) {
+		num_errors++;
 		error_type_check("Function call missing argument");
 		return;
 	}
 	if (current_param == NULL) {
+		num_errors++;
 		error_type_check("Function called with too many arguments");
 		return;
 	}
@@ -88,6 +92,7 @@ void function_typecheck(struct expr *current_arg, struct param_list *current_par
 	struct type *param_type = current_param->type;
 
 	if(!type_equals(arg_type, param_type)) {
+		num_errors++;
 		error_type_check("Function called with unexpected argument type");
 	}
 
@@ -131,12 +136,14 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_GT:
 		case EXPR_GE:
 			if(!type_equals(lt,rt)) {
+				num_errors++;
 				error_type_check("Equality type mismatch");
 			} 
 
 			if(lt->kind == TYPE_VOID ||
 			   lt->kind == TYPE_ARRAY ||
 			   lt->kind == TYPE_FUNCTION) {
+				num_errors++;
 				error_type_check("Can't  equate the two types");
 			}
 			result = create_type(TYPE_BOOLEAN,0,0);
@@ -145,10 +152,12 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_SUBSCRIPT:
 			if(lt->kind == TYPE_ARRAY) {
 				if(rt->kind != TYPE_INTEGER) {
+					num_errors++;
 					error_type_check("Attempting to subscript an array with a non-integer");
 				}
 				result = type_copy(lt->subtype);
 			} else {
+				num_errors++;
 				error_type_check("Attempting to subscript a non-array");
 				result = type_copy(lt);
 			}
@@ -156,6 +165,7 @@ struct type *expr_typecheck(struct expr *e) {
 
 		case EXPR_ASSIGN:
 			if(!type_equals(lt,rt)) {
+				num_errors++;
 				error_type_check("Assigning mismatch values");
 				printf("Assigning mismatch typed values: %d and %d\n", lt->kind, rt->kind);
 			}
@@ -169,6 +179,7 @@ struct type *expr_typecheck(struct expr *e) {
 			// foo(q);
 			// this shouldnt work cuz q is not given a value bu its used
 			if (e->symbol == NULL) {
+				num_errors++;
 				error_type_check("Variable name not in correct scope");
 			} else {
 				result = type_copy(e->symbol->type);
@@ -177,6 +188,7 @@ struct type *expr_typecheck(struct expr *e) {
 
 		case EXPR_CALL:
 			if (lt->kind != TYPE_FUNCTION) {
+				num_errors++;
 				error_type_check("Trying to call a non-function");
 				result = create_type(TYPE_VOID, 0 ,0);
 			} else {
@@ -222,6 +234,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 		case STMT_IF_ELSE:
 			t = expr_typecheck(s->expr);
 			if(t->kind != TYPE_BOOLEAN) {
+				num_errors++;
 				error_type_check("Conditional isn't boolean!");
 			}
 			type_delete(t);
@@ -232,6 +245,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 		case STMT_ITERATION:
 			t = expr_typecheck(s->expr);
 			if(t->kind != TYPE_BOOLEAN) {
+				num_errors++;
 				error_type_check("Conditional ain't boolean!");
 			}
 			type_delete(t);
@@ -242,6 +256,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 		case STMT_RETURN:
 			t = expr_typecheck(s->expr);
 			if(!type_equals(t,subtype)) {
+				num_errors++;
 				error_type_check("Return value doesn't match return type");
 			}
 			break;
@@ -263,5 +278,6 @@ void decl_typecheck(struct decl *d) {
 int pass_type_checks(struct decl *root) {
 	if(root == NULL) return 0;
 	decl_typecheck(root);
-	return 1;
+
+	return num_errors == 0 ? 1 : 0;
 }
