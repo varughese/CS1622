@@ -14,4 +14,5 @@ parser/main.ast
 parser/parser.zip
 
 working
-semantics/parser 
+semantics/parser
+sftp-config.json
