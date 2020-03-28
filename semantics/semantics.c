@@ -28,19 +28,18 @@ int main(int argc, char* argv[]) {
 	freopen (argv[2],"w",stdout);
 	yyin = fopen(argv[1],"r"); 
 
-	do {
-		yyparse();
-	} while(!feof(yyin));
+	int parse_succesful = yyparse() == 0;
+	if(parse_succesful) {
+		// Initalize symbol table
+		init_symbol_table();
+		// Populate symbol table
+		decl_resolve(abstract_syntax_tree);
 
-	// Initalize symbol table
-	init_symbol_table();
-	// Populate symbol table
-	decl_resolve(abstract_syntax_tree);
-
-	if(pass_type_checks(abstract_syntax_tree)) {
-		char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	
-		printf("%s\n", ast);
-		free(ast);
+		if(pass_type_checks(abstract_syntax_tree)) {
+			char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	
+			printf("%s\n", ast);
+			free(ast);
+		}
 	}
 
 	fclose(stdout);
