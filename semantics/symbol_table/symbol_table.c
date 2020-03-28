@@ -73,6 +73,7 @@ struct hash_table *hash_table_stack_pop() {
 /** Symbol table API **/
 
 int _scope_level = -1;
+int _current_param_count = 0;
 
 void init_symbol_table() {
 	init_hash_table_stack();
@@ -83,12 +84,14 @@ void scope_enter() {
 	struct hash_table *h = hash_table_create(0, 0);
 	hash_table_stack_push(h);
 	_scope_level++;
+	_current_param_count = 0;
 }
 
 void scope_exit() {
 	struct hash_table *h = hash_table_stack_pop();
 	free(h);
 	_scope_level--;
+	_current_param_count = 0;
 }
 
 int scope_level() {
@@ -97,6 +100,7 @@ int scope_level() {
 }
 
 void scope_bind(const char *name, struct symbol *sym) {
+	if(sym->kind == SYMBOL_PARAM) sym->which = _current_param_count++;
 	struct hash_table *h = hash_table_stack_peek();
 	hash_table_insert(h, name, sym);
 }
