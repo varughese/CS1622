@@ -100,7 +100,7 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_MUL:
 		case EXPR_DIV:
 			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-				printf("Arithmetic type mismatch. Using a %p with a %p\n", lt->kind, rt->kind);
+				printf("Arithmetic type mismatch. Using a %d with a %d\n", lt->kind, rt->kind);
 			}
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
@@ -143,11 +143,12 @@ struct type *expr_typecheck(struct expr *e) {
 			break;
 
 		case EXPR_NAME:
-			// if(e->symbol->type == TYPE_FUNCTION || e->symbol->type == TYPE_ARRAY) {
-			// 	result = type_copy(e->symbol->type->subtype);
-			// } else {
-			// 	result = type_copy(e->symbol->type);
-			// }
+			// TODO check if this actually works
+			if(e->symbol->type->kind == TYPE_FUNCTION || e->symbol->type->kind == TYPE_ARRAY) {
+				result = type_copy(e->symbol->type->subtype);
+			} else {
+				result = type_copy(e->symbol->type);
+			}
 			break;
 
 		case EXPR_CALL:
