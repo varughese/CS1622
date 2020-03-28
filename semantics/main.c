@@ -1,6 +1,6 @@
 int g;
 
-int foo(int x) {
+int foo(int x, int x) {
     return x * 2;
 }
 
