@@ -99,6 +99,10 @@ void function_typecheck(struct expr *current_arg, struct param_list *current_par
 	if(!type_equals(arg_type, param_type)) {
 		error_type_check("Function called with unexpected argument type");
 	}
+
+	type_delete(arg_type);
+
+	function_typecheck(current_arg->right, current_param->next);
 }
 
 struct type *expr_typecheck(struct expr *e) {
@@ -168,23 +172,27 @@ struct type *expr_typecheck(struct expr *e) {
 			break;
 
 		case EXPR_NAME:
+			// TODO need to check if a name is defined
+			// int q;
+			// int x[3];
+			// foo(q);
+			// this shouldnt work cuz q is not given a value bu its used
 			if (e->symbol == NULL) {
 				error_type_check("Variable name not in correct scope");
 			} else {
-				printf("FUCK this expression named [%s] [%d]\n", e->name, e->symbol->type->kind);
 				result = type_copy(e->symbol->type);
 			}
 			break;
 
 		case EXPR_CALL:
-			// if (lt->kind != TYPE_FUNCTION) {
-			// 	error_type_check("Trying to call a non-function");
-			// 	result = create_type(TYPE_VOID, 0 ,0);
-			// } else {
-			// 	// function_typecheck(e->right, e->left->symbol->type->params);
-			// 	result = type_copy(lt->subtype);
-			// }
-			// break;
+			if (lt->kind != TYPE_FUNCTION) {
+				error_type_check("Trying to call a non-function");
+				result = create_type(TYPE_VOID, 0 ,0);
+			} else {
+				function_typecheck(e->right, e->left->symbol->type->params);
+				result = type_copy(lt->subtype);
+			}
+			break;
 
 		case EXPR_ARG:
 			// The name or value of an argument is on the left

@@ -7,5 +7,5 @@ int foo(int x) {
 void main(void) {
     int q;
     int x[3];
-    foo(4);
+    foo(5, 4);
 }
