@@ -4,8 +4,7 @@
 #include "../ast/factory.h"
 #include "helpers.h"
 #include "../symbol_table/symbol_table.h"
-
-
+#include <string.h>
 
 int type_equals(struct type *a, struct type *b) {
 	if(a->kind == b->kind) {
@@ -253,6 +252,27 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 	stmt_typecheck(s->next,subtype);
 }
 
+void typecheck_last_method(struct decl *root) {
+	struct decl *last_fn = root;
+	while (last_fn->next != NULL) {
+		last_fn = last_fn->next;
+	}
+
+	if(strcmp(last_fn->name, "main") != 0) {
+		error_type_check("Last declaration must be named main");
+	}
+	if(last_fn->type->kind != TYPE_FUNCTION) {
+		error_type_check("Last declaration must be a function");
+	} else {
+		if(last_fn->type->subtype->kind != TYPE_VOID) {
+			error_type_check("Main method must have return type void");
+		}
+		if(last_fn->type->params != NULL) {
+			error_type_check("Main method takes no arguments");
+		}
+	}
+}
+
 void decl_typecheck(struct decl *d) {
 	if(d == NULL) return;
 
@@ -266,6 +286,7 @@ void decl_typecheck(struct decl *d) {
 int pass_type_checks(struct decl *root) {
 	if(root == NULL) return 0;
 	decl_typecheck(root);
+	typecheck_last_method(root);
 
 	return get_num_errors() == 0;
 }
