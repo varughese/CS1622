@@ -213,6 +213,7 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 	switch(s->kind) {
 
 		case STMT_COMPOUND:
+			decl_typecheck(s->decl);
 			stmt_typecheck(s->body,subtype);
 			break;
 
@@ -278,6 +279,8 @@ void decl_typecheck(struct decl *d) {
 
 	if(d->type->kind == TYPE_FUNCTION) {
 		stmt_typecheck(d->code, d->type->subtype);
+	} else if(d->type->kind == TYPE_VOID) {
+		error_type_check("Cannot have a 'void' variable type");
 	}
 	
 	decl_typecheck(d->next);
