@@ -129,6 +129,7 @@ os.makedirs("test/out_test/", exist_ok=True)
 def trim(str):
 	return re.sub('[\s+]', '', str)
 
+correct = 0
 for file in files:
 	os.system("./run.sh test/cases/{}.in test/out_test/{}.out".format(file, file))
 	expected = ""
@@ -152,4 +153,6 @@ for file in files:
 		print(actual)
 	else:
 		print_green(file)
+		correct += 1
 
+print("\nPassing [{}/{}]".format(correct, len(files)))
