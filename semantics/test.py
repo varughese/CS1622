@@ -124,6 +124,7 @@ def print_blue(txt):
 	print(OKBLUE + txt + RESETCOLOR)
 
 os.system("./compile.sh")
+os.makedirs("test/out_test/", exist_ok=True)
 
 def trim(str):
 	return re.sub('[\s+]', '', str)
