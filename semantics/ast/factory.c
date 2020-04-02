@@ -52,6 +52,7 @@ struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R ) {
 	e->integer_value = 0;
 	e->string_literal = 0;
 	e->name = 0;
+	return e;
 }
 
 struct expr *expr_create_name( const char *name ) {
@@ -117,6 +118,7 @@ struct type *create_type(
 	t->kind = kind;
 	t->subtype = subtype;
 	t->params = params;
+	return t;
 }
 
 
