@@ -25,6 +25,10 @@ parser.tab.c parser.tokens.h: parser.bison
 test:
 	cd test/unit_tests/ && make test_symbol_table
 
+.PHONY: run_test_cases
+run_test_cases:
+	python3 test.py
+
 .PHONY: run
 run:
 	make && ./parser main.c main.ast && cat main.ast
