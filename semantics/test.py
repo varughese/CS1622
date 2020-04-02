@@ -148,9 +148,7 @@ for file in files:
 		infile = f.read()
 		print(infile)
 		print('---')
-		print_blue("Expected")
-		print(expected)
-		print_blue("Actual")
+		print_blue("Output")
 		print(actual)
 	else:
 		print_green(file)
