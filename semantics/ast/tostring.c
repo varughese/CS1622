@@ -62,6 +62,9 @@ char *expr_to_string(struct expr *expr) {
 		case EXPR_INTEGER_LITERAL:
 			sprintf(operation, "%d", expr->integer_value);
 			break;
+		case EXPR_ARG:
+		case EXPR_STRING_LITERAL:
+			break;
 	}
 	return operation;
 }
@@ -86,7 +89,7 @@ char *stringify_array(struct expr *expr) {
 	if (expr == NULL) { return ""; }
 	if (expr->kind != EXPR_SUBSCRIPT) return "Error, stringify_array called on non EXPR_SUBSCRIPT node";
 	if (expr->left->kind != EXPR_NAME) return "Error, EXPR_SUBSCRIPT node does not have var on left";
-	char *left = stringify_expr(expr->left);
+
 	char *right = stringify_expr(expr->right);
 	sprintf(output, "[var [%s]%s]", expr->left->name, right);
 	return output;
@@ -189,7 +192,7 @@ char *stringify_stmt(struct stmt *stmt) {
 char *stringify_stmt_list(struct stmt *stmt_list) {
 	if (stmt_list == NULL) return "";
 	char *stmt_list_str = malloc(1000);
-	sprintf(stmt_list_str, "");
+	stmt_list_str[0] = 0;
 	struct stmt *current = stmt_list;
 	while (current != NULL) {
 		char *stmt_str = stringify_stmt(current);
@@ -269,7 +272,7 @@ char *stringify_params(struct param_list *params) {
 
 char *stringify_decl_list(struct decl* root) {
 	char *decl_list_string = malloc(5000);
-	sprintf(decl_list_string, "");
+	decl_list_string[0] = 0;
 	struct decl* current = root;
 	while (current != NULL) {
 		char *decl_str = stringify_decl(current);

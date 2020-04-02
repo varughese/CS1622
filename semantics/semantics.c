@@ -5,6 +5,7 @@
 #include <strings.h>
 #include "ast/factory.h"
 #include "ast/tostring.h"
+#include "symbol_table/symbol_table.h"
 #include "typecheck/name_resolution.h"
 #include "typecheck/typecheck.h"
 
