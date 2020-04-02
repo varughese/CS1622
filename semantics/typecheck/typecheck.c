@@ -158,8 +158,7 @@ struct type *expr_typecheck(struct expr *e) {
 
 		case EXPR_ASSIGN:
 			if(!type_equals(lt,rt)) {
-				error_type_check("Assigning mismatch values");
-				printf("Assigning mismatch typed values: %d and %d\n", lt->kind, rt->kind);
+				error_type_check("Assigning a value of one type to variable of other type.");
 			}
 			result = type_copy(lt);
 			break;
@@ -171,7 +170,9 @@ struct type *expr_typecheck(struct expr *e) {
 			// foo(q);
 			// this shouldnt work cuz q is not given a value bu its used
 			if (e->symbol == NULL) {
-				error_type_check("Variable name not in correct scope");
+				error_type_check("Variable name not in correct scope! Name resolution likely caught this error");
+				// In order to not break the AST, we just say it is void
+				result = create_type(TYPE_VOID, 0 ,0);
 			} else {
 				result = type_copy(e->symbol->type);
 			}

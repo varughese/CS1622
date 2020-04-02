@@ -155,4 +155,4 @@ for file in files:
 		print_green(file)
 		correct += 1
 
-print("\nPassing [{}/{}]".format(correct, len(files)))
+print_green("\nPassing [{}/{}]".format(correct, len(files)))

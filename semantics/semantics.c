@@ -5,7 +5,6 @@
 #include <strings.h>
 #include "ast/factory.h"
 #include "ast/tostring.h"
-#include "symbol_table/symbol_table.h"
 #include "typecheck/name_resolution.h"
 #include "typecheck/typecheck.h"
 
@@ -28,13 +27,11 @@ int main(int argc, char* argv[]) {
 	}
 	freopen (argv[2],"w",stdout);
 	yyin = fopen(argv[1],"r"); 
-
 	int parse_succesful = yyparse() == 0;
+	
 	if(parse_succesful) {
-		// Initalize symbol table
-		init_symbol_table();
-		// Populate symbol table
-		decl_resolve(abstract_syntax_tree);
+		// Create symbol table and perform name resolution
+		resolve_symbol_table(abstract_syntax_tree);
 
 		if(pass_type_checks(abstract_syntax_tree)) {
 			char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	

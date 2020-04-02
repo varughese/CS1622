@@ -86,3 +86,25 @@ void decl_resolve(struct decl *d) {
 
 	decl_resolve(d->next);
 }
+
+void resolve_symbol_table(struct decl *abstract_syntax_tree) {
+	init_symbol_table();
+
+	// We have the reserved functions "input" and "output"
+	// int input(void)  {...}
+	// void output(int x) {...}
+	// We manually add these to our symbol table
+	struct decl *input_fn = create_function_declaration("input", create_type(TYPE_INTEGER, 0, 0), 0, 0); 
+	struct decl *output_fn = create_function_declaration("output", 
+		create_type(TYPE_VOID, 0, 0), 
+		create_param_list(
+			"x",
+			create_type(TYPE_INTEGER, 0, 0),
+			0
+		),
+		0
+	); 
+	decl_resolve(input_fn);
+	decl_resolve(output_fn);
+	decl_resolve(abstract_syntax_tree);
+}
