@@ -1,7 +1,6 @@
 import os
 import sys
 import re
-from difflib import context_diff as diff
 
 files=[
 	"test-call-missing-paren",

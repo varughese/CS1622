@@ -1,0 +1,40 @@
+int x;
+
+void setglobalx(void)
+{
+    x = 10;
+}
+
+void printglobalx(void)
+{
+    output(x);
+}
+
+void foo(int x)
+{
+    output(x);
+    {
+        int x;
+        x = 2000;
+        {
+            int x;
+            x = 3000;
+        }
+        output(x);
+    }
+    output(x);
+}
+
+void main(void)
+{
+    int x;
+
+    setglobalx();
+    x = 100;
+    printglobalx();
+
+    foo(1000);
+
+    output(x);
+    printglobalx();
+}
