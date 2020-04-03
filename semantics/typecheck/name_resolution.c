@@ -5,6 +5,7 @@
 #include "name_resolution.h"
 #include "helpers.h"
 
+void check_for_param_redeclarations(struct decl *d);
 void expr_resolve(struct expr *d);
 void stmt_resolve(struct stmt *d);
 void param_list_resolve(struct param_list *pl);
@@ -29,6 +30,7 @@ void stmt_resolve(struct stmt *stmt) {
 	if(stmt == NULL) return;
 
 	if (stmt->kind == STMT_COMPOUND) {
+		check_for_param_redeclarations(stmt->decl);
 		scope_enter();
 		decl_resolve(stmt->decl);
 		stmt_resolve(stmt->body);
@@ -67,6 +69,21 @@ void param_list_resolve(struct param_list *p) {
 	scope_bind(p->name, p->symbol);
 	param_list_resolve(p->next);
 }
+
+void check_for_param_redeclarations(struct decl *d) {
+	if (d == NULL) return;
+	// Local variables cannot redeclare parameters. So,
+	// This function specifically ensures that no symbols
+	// are on the current scope that are SYMBOL_PARAMs
+
+	struct symbol *sym = scope_lookup_current(d->name);
+	if (sym != NULL && sym->kind == SYMBOL_PARAM) {
+		error_name_resolution("Local variable cannot redeclare parameter name", d->name);
+	}
+	
+	check_for_param_redeclarations(d->next);
+}
+
 
 void decl_resolve(struct decl *d) {
 	if(d == NULL) return;

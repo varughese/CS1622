@@ -1,5 +1,8 @@
-void main(void)
+void foo(int x)
 {
     int x;
-    x= 999999999999999999999999;
+}
+
+void main(void)
+{
 }
