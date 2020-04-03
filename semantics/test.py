@@ -152,7 +152,7 @@ for file in files:
 		print_blue("Output")
 		print(actual)
 	else:
-		# print_green(file)
+		print_green(file)
 		correct += 1
 
 print_green("\nPassing [{}/{}]".format(correct, len(files)))
