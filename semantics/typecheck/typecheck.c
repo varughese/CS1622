@@ -203,10 +203,7 @@ struct type *expr_typecheck(struct expr *e) {
 	}
 	type_delete(lt);
 	type_delete(rt);
-	if(result == NULL) {
-		printf("TODO - this should not happne\n");
-		return create_type(TYPE_VOID, 0 ,0);
-	}
+
 	return result;
 }
 
