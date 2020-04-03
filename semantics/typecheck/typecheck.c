@@ -158,6 +158,9 @@ struct type *expr_typecheck(struct expr *e) {
 			if(!type_equals(lt,rt)) {
 				error_type_check("Assigning a value of one type to variable of other type.");
 			}
+			if (lt->kind == TYPE_ARRAY || rt->kind == TYPE_ARRAY) {
+				error_type_check("You cannot use arrays except in function calls");
+			}
 			result = type_copy(lt);
 			break;
 
