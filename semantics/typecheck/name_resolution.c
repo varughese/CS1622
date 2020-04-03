@@ -74,6 +74,10 @@ void decl_resolve(struct decl *d) {
 	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 	d->symbol = symbol_create(kind, d->type, d->name);
 
+	if(scope_lookup_current(d->name)) {
+		error_name_resolution("Variable already declared", d->name);	
+	}
+
 	scope_bind(d->name,d->symbol);
 	
 	if(d->code) {
