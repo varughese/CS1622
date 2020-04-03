@@ -221,8 +221,12 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 		case STMT_EXPR:
 			if (s->expr->kind == EXPR_NAME) {
 				// This is just a singular expression, like "a;"
-				if (s->expr->symbol->type->kind == TYPE_ARRAY) {
+				t = s->expr->symbol->type;
+				if (t->kind == TYPE_ARRAY) {
 					error_type_check("Use of an array name anywhere is invalid except in arguments of function calls.");
+				}
+				if (t->kind == TYPE_FUNCTION) {
+					error_type_check("There is a function name with no function call.");
 				}
 			} else {
 				t = expr_typecheck(s->expr);
