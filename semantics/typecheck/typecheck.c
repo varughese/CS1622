@@ -279,10 +279,21 @@ void typecheck_last_method(struct decl *root) {
 	}
 }
 
+void param_list_typecheck(struct param_list *p) {
+	struct param_list *current_param = p;
+	while(current_param != NULL) {
+		if (current_param->type->kind == TYPE_VOID) {
+			error_type_check("Parameters cannot have type void");
+		}
+		current_param = current_param->next;
+	}
+}
+
 void decl_typecheck(struct decl *d) {
 	if(d == NULL) return;
 
 	if(d->type->kind == TYPE_FUNCTION) {
+		param_list_typecheck(d->type->params);
 		stmt_typecheck(d->code, d->type->subtype);
 	} else if(d->type->kind == TYPE_VOID) {
 		error_type_check("Cannot have a 'void' variable type");
