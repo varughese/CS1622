@@ -1,7 +1,4 @@
-void foo(void x)
-{
-}
-
 void main(void)
 {
+    if(1) {}
 }

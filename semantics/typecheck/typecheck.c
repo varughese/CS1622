@@ -229,8 +229,8 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 
 		case STMT_IF_ELSE:
 			t = expr_typecheck(s->expr);
-			if(t->kind != TYPE_BOOLEAN) {
-				error_type_check("Conditional isn't boolean!");
+			if(t->kind != TYPE_BOOLEAN && t->kind != TYPE_INTEGER) {
+				error_type_check("If/Else conditional is not boolean");
 			}
 			type_delete(t);
 			stmt_typecheck(s->body,subtype);
@@ -239,8 +239,8 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 
 		case STMT_ITERATION:
 			t = expr_typecheck(s->expr);
-			if(t->kind != TYPE_BOOLEAN) {
-				error_type_check("Conditional ain't boolean!");
+			if(t->kind != TYPE_BOOLEAN && t->kind != TYPE_INTEGER) {
+				error_type_check("Iteration conditional is not boolean");
 			}
 			type_delete(t);
 			stmt_typecheck(s->body,subtype);
