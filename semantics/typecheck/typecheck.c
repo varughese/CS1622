@@ -107,7 +107,6 @@ struct type *expr_typecheck(struct expr *e) {
 
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
-			// printf("%p\n",e->name);
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
 
@@ -120,7 +119,7 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_MUL:
 		case EXPR_DIV:
 			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-				printf("Arithmetic type mismatch. Using a %d with a %d\n", lt->kind, rt->kind);
+				error_type_check("Arithmetic expression type mismatch.");
 			}
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
@@ -138,7 +137,7 @@ struct type *expr_typecheck(struct expr *e) {
 			if(lt->kind == TYPE_VOID ||
 			   lt->kind == TYPE_ARRAY ||
 			   lt->kind == TYPE_FUNCTION) {
-				error_type_check("Can't  equate the two types");
+				error_type_check("Can't equate the two types");
 			}
 			result = create_type(TYPE_BOOLEAN,0,0);
 			break;
@@ -208,7 +207,6 @@ struct type *expr_typecheck(struct expr *e) {
 
 void stmt_typecheck(struct stmt *s, struct type *subtype) {
 	if(s == NULL) return;
-
 	struct type *t = NULL;
 	switch(s->kind) {
 
@@ -218,8 +216,15 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 			break;
 
 		case STMT_EXPR:
-			t = expr_typecheck(s->expr);
-			type_delete(t);
+			if (s->expr->kind == EXPR_NAME) {
+				// This is just a singular expression, like "a;"
+				if (s->expr->symbol->type->kind == TYPE_ARRAY) {
+					error_type_check("Use of an array name anywhere is invalid except in arguments of function calls.");
+				}
+			} else {
+				t = expr_typecheck(s->expr);
+				type_delete(t);
+			}
 			break;
 
 		case STMT_IF_ELSE:
