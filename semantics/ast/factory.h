@@ -52,7 +52,7 @@ struct decl *create_array_var_declaration(
 
 struct expr *create_expr(expr_t kind, struct expr *L, struct expr *R );
 struct expr *expr_create_name( const char *name );
-struct expr *expr_create_integer_literal(int i);
+struct expr *expr_create_integer_literal(char *int_str);
 
 /************* STMT ***************/
 

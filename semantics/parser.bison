@@ -172,7 +172,7 @@ mulop : T_MUL { $$ = EXPR_MUL; }
 factor : T_LPAREN expression T_RPAREN { $$ = $2; }
 	   | var { $$ = $1; }
 	   | call { $$ = $1; } 
-	   | T_NUM { $$ = expr_create_integer_literal(atoi(yytext)); }
+	   | T_NUM { $$ = expr_create_integer_literal(yytext); }
 
 call : T_ID T_LPAREN args T_RPAREN { 
 	struct expr *n = expr_create_name($1);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "factory.h"
 
 struct decl *create_decl(
@@ -61,9 +62,24 @@ struct expr *expr_create_name( const char *name ) {
 	return e;
 };
 
-struct expr * expr_create_integer_literal(int i) {
+int integer_literal_overflows(char *int_str, int i) {
+	// If the num is 999999999999, we check to make sure
+	// it did not overflow by converting the string to an int,
+	// then converting that back to a string and making sure that
+	// they are the same.
+	char *str_int = malloc(strlen(int_str) + 1);
+	sprintf(str_int, "%d", i);
+	return strcmp(str_int, int_str) != 0;
+}
+
+struct expr *expr_create_integer_literal(char *int_str) {
+	int i = atoi(int_str);
 	struct expr *e = create_expr(EXPR_INTEGER_LITERAL, 0,0);
 	e->integer_value = i;
+	if (integer_literal_overflows(int_str, i)) {
+		// Integer Overflow! Handle this error in typechecking
+		e->kind = EXPR_INTEGER_OVERFLOW;
+	}
 	return e;
 };
 

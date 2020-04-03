@@ -1,4 +1,5 @@
 void main(void)
 {
-    return main();
+    int x;
+    x= 999999999999999999999999;
 }

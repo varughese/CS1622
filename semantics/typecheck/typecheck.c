@@ -109,7 +109,10 @@ struct type *expr_typecheck(struct expr *e) {
 		case EXPR_INTEGER_LITERAL:
 			result = create_type(TYPE_INTEGER,0,0);
 			break;
-
+		case EXPR_INTEGER_OVERFLOW:
+			error_type_check("Numbers are too big, size matters in this language");
+			result = create_type(TYPE_INTEGER,0,0);
+			break;
 		case EXPR_STRING_LITERAL:
 			result = create_type(TYPE_STRING,0,0);
 			break;
