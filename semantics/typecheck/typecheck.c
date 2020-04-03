@@ -248,6 +248,11 @@ void stmt_typecheck(struct stmt *s, struct type *subtype) {
 
 		// TODO: not sure if working
 		case STMT_RETURN:
+			if(subtype->kind == TYPE_VOID) {
+				if (s->expr != NULL) {
+					error_type_check("Void function cannot return a value");
+				}
+			}
 			t = expr_typecheck(s->expr);
 			if(!type_equals(t,subtype)) {
 				error_type_check("Return value doesn't match return type");
