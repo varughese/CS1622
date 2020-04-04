@@ -6,6 +6,8 @@ before_install:
 script:
   - cd semantics && make && make test
   - make run && echo '----' && cat main.c
+  - echo '----'
+  - make run_test_cases
 
 notifications:
   email: false

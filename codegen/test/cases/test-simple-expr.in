@@ -1,0 +1,54 @@
+void main(void)
+{
+    int x;
+    int y;
+    int tmp;
+
+    x = input();
+    y = input();
+
+    output(x);
+    output(y);
+    output(input());
+    output(149);
+
+    output(x < y);
+    output(x <= y);
+    output(x > y);
+    output(x >= y);
+    output(x == y);
+    output(x != y);
+    output(x + y);
+    output(x - y);
+    output(x * y);
+    output(x / y);
+
+    tmp = x;
+    x = y;
+    y = tmp;
+
+    output(x < y);
+    output(x <= y);
+    output(x > y);
+    output(x >= y);
+    output(x == y);
+    output(x != y);
+    output(x + y);
+    output(x - y);
+    output(x * y);
+    output(x / y);
+
+    x = 1;
+    y = 1;
+
+    output(x < y);
+    output(x <= y);
+    output(x > y);
+    output(x >= y);
+    output(x == y);
+    output(x != y);
+    output(x + y);
+    output(x - y);
+    output(x * y);
+    output(x / y);
+}
