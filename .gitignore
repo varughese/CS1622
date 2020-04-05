@@ -13,6 +13,10 @@ parser/lex.yy.c
 parser/main.ast
 parser/parser.zip
 
+codegen/parser.c
+codegen/parser.tokens.h
+lex.yy.c
+
 working
 semantics/parser
 sftp-config.json
