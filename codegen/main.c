@@ -1,8 +1,5 @@
-void foo(int x)
-{
-    int x;
-}
-
 void main(void)
 {
+    int x;
+    x =1;
 }

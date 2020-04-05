@@ -16,7 +16,7 @@ lex.yy.c: scanner.l parser.tokens.h
 	flex scanner.l
 
 codegen: lex.yy.c codegen.c parser.c parser.tokens.h factory typecheck symboltable
-	gcc -o compiler parser.c lex.yy.c ast/*.c symbol_table/*.c typecheck/*.c codegen.c 
+	gcc -o codegen parser.c lex.yy.c ast/*.c symbol_table/*.c typecheck/*.c codegen.c 
 
 parser.tab.c parser.tokens.h: parser.bison
 	bison -v --defines=parser.tokens.h --output=parser.c parser.bison
@@ -31,8 +31,8 @@ run_test_cases:
 
 .PHONY: run
 run:
-	make && ./parser main.c main.ast && cat main.ast
+	make && ./codegen main.c main.ast && cat main.ast
 
 .PHONY: clean
 clean:
-	rm *.o ast/*.o typecheck/*.o main.ast parser parser.tab.c lex.yy.c parser.tokens.h parser.tokens.h parser.output
+	rm *.o ast/*.o typecheck/*.o main.ast codegen parser.tab.c lex.yy.c parser.tokens.h parser.tokens.h parser.output
