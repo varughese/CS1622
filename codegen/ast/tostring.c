@@ -64,6 +64,7 @@ char *expr_to_string(struct expr *expr) {
 			break;
 		case EXPR_ARG:
 		case EXPR_STRING_LITERAL:
+		case EXPR_INTEGER_OVERFLOW:
 			break;
 	}
 	return operation;
@@ -225,7 +226,7 @@ char *stringify_decl(struct decl *decl) {
 		char *function_name = decl->name;
 		// Parameters
 		char *param_str = malloc(500);
-		sprintf(param_str, stringify_params(decl->type->params));
+		sprintf(param_str, "%s", stringify_params(decl->type->params));
 		// Function Body
 		char *function_body = stringify_stmt_list(decl->code);
 		// Concatenate them together

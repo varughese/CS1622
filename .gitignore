@@ -14,9 +14,12 @@ parser/lex.yy.c
 parser/main.ast
 parser/parser.zip
 
+codegen/codegen
 codegen/parser.c
 codegen/parser.tokens.h
 lex.yy.c
+
+**/out_test
 
 working
 semantics/parser
