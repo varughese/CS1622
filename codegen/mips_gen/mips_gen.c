@@ -38,6 +38,8 @@ const char *symbol_codegen(struct symbol *s) {
 }
 
 void expr_codegen(struct expr *e) {
+	if (e == NULL) return;
+
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
 			e->reg = scratch_alloc();
@@ -75,8 +77,14 @@ void expr_codegen(struct expr *e) {
 		case EXPR_SUBSCRIPT:
 			break;
 		case EXPR_CALL:
+			expr_codegen(e->right);
+			printf("jal _f_%s\n", e->left->symbol->name);
 			break;
 		case EXPR_ARG:
+			expr_codegen(e->right);
+			expr_codegen(e->left);
+			printf("sub $sp, $sp, 4\n");
+			printf("sw  %s, ($sp)\n", scratch_name(e->left->reg));
 			break;
 
 		default:
@@ -198,7 +206,8 @@ void decl_codegen(struct decl *d) {
 
 void include_output_input_functions() {
 	printf("_f_output:\nsub $sp, $sp, 4\nsw $ra, 0($sp)\nlw $a0, 4($sp)\n");
-	printf("li $v0, 1\nsyscall\nli $v0, 11\nli $a0, 0x0a\nsyscall\n\n");
+	printf("li $v0, 1\nsyscall\nli $v0, 11\nli $a0, 0x0a\nsyscall\n");
+	printf("lw $ra, ($sp)\nadd $sp, $sp, 4\nadd $sp, $sp, 4\nj $ra\n\n");
 }
 
 void ast_to_mips(struct decl *root) {

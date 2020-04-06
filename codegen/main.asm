@@ -8,36 +8,23 @@ syscall
 li $v0, 11
 li $a0, 0x0a
 syscall
-
-_f_f:
-# parameter [a0], position [3]
-# parameter [a1], position [4]
-	 # f() [2] params, [3] local vars
-sub $sp, $sp, 4 # push ra
-sw  $ra, 0($sp)
-sub $sp, $sp, 12 # push local vars
-# {
-# declare local variable [x], pos [0] 
-# declare local variable [y], pos [1] 
-# declare local variable [z], pos [2] 
-# }
-add $sp, $sp, 12 # pop local vars
-lw  $ra, ($sp)
+lw $ra, ($sp)
 add $sp, $sp, 4
-add $sp, $sp, 8 # pop arguments 
+add $sp, $sp, 4
 j $ra
 
 _f_main:
-	 # main() [0] params, [1] local vars
+	 # main() [0] params, [0] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 4 # push local vars
+sub $sp, $sp, 0 # push local vars
 # {
-# declare local variable [x0], pos [0] 
-li  $t0, 696969
-sw  $t0, 0($sp)
+li  $t0, 5928176
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
 # }
-add $sp, $sp, 4 # pop local vars
+add $sp, $sp, 0 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 
