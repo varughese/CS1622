@@ -7,14 +7,13 @@ li $v0, 11
 li $a0, 0x0a
 syscall
 
-.data
-globaljawn: .word 622 # Globals are not initialized in C-, so we put Mings bday. 
-
 _f_main:
 # push ra
 sub $sp, $sp, 4
 sw $ra, 0($sp)
 # {
+#local variable [x0]
+lw $<> 4($sp)
 # }
 # pop ra
 lw $ra, ($sp)

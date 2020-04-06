@@ -149,6 +149,8 @@ main:
 # When you start a function, load arg from stack
 	lw $a0, 4($sp)
 	# parameter_i = 4*i+4 ($sp)
+	# update - whenever you see a parameter or local variable, you
+	# 	replace the pointer to it on the stack
 
 # When you end a function, clean the arguments
 	add $sp, $sp, 4

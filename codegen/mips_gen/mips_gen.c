@@ -19,11 +19,14 @@ const char *label_name(int label) {
 }
 
 const char *symbol_codegen(struct symbol *s) {
+	char *name;
 	switch(s->kind) {
 		case SYMBOL_GLOBAL:
 			return s->name;
 		case SYMBOL_LOCAL:
-			return "local";
+			name = malloc(128);
+			sprintf(name, "%d($sp)", 4*s->which+4);
+			return name;
 		case SYMBOL_PARAM:
 			return "param";
 	}
@@ -86,14 +89,27 @@ void decl_codegen(struct decl *d) {
 
 	if (d->type->kind == TYPE_INTEGER) {
 		const char *var_name = symbol_codegen(sym);
-		if(sym->kind == SYMBOL_GLOBAL) {
-			printf(".data\n%s: .word 622 # Globals are not initialized in C-, so we put Mings bday. \n\n", var_name);
-		}	
+		switch (sym->kind) {
+			case SYMBOL_GLOBAL:
+				printf(".data\n%s: .word 622 # Globals are not initialized in C-, so we put Mings bday. \n\n", var_name);
+				break;
+			case SYMBOL_LOCAL:
+				printf("#local variable [%s]\n", sym->name);
+				printf("lw $<> %s\n", var_name);
+				break;
+			case SYMBOL_PARAM:
+				printf("TODO - I do not think this should ever happen\n.");
+				break;
+		}
 	}
 
 	if (d->type->kind == TYPE_FUNCTION) {
 		printf("_f_%s:\n", d->symbol->name);
 		pre_function();
+		stmt_codegen(d->code);
+		// TODO, we need to clear up the stack, so, we need
+		// to figure out how many parameters + variables there were,
+		// probably with the last ->which, and then `add $sp, $sp, 4` for each
 		post_function();
 	}
 
