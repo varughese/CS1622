@@ -12,8 +12,9 @@ typecheck: symboltable typecheck/name_resolution.c typecheck/typecheck.c
 	gcc -c typecheck/typecheck.c -o typecheck/typecheck.o
 	gcc -c typecheck/name_resolution.c -o typecheck/name_resolution.o
 
-mips_gen: mips_gen/mips_gen.c
+mips_gen: mips_gen/mips_gen.c mips_gen/scratch.c
 	gcc -c mips_gen/mips_gen.c -o mips_gen/mips_gen.o
+	gcc -c mips_gen/scratch.c -o mips_gen/scratch.o
 
 lex.yy.c: scanner.l parser.tokens.h
 	flex scanner.l
