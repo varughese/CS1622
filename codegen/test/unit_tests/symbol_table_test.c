@@ -100,10 +100,12 @@ int main() {
 	scope_bind("paramf1", paramf1);
 	struct symbol *paramf2 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramf2");
 	scope_bind("paramf2", paramf2);
-	scope_bind("local_variable", symbol_create(SYMBOL_LOCAL, create_int_type(), "local_variable"));
+	struct symbol *local_variable3 = symbol_create(SYMBOL_LOCAL, create_int_type(), "local_variable");
+	scope_bind("local_variable", local_variable3);
 	assert(paramf0->which == 0);
 	assert(paramf1->which == 1);
 	assert(paramf2->which == 2);
+	assert(local_variable3->which == 3);
 	//create a new function to make sure the symbols match
 	scope_exit();
 	struct symbol *func2 = symbol_create(SYMBOL_GLOBAL, create_int_type(), "function_with_params2");

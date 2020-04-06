@@ -105,11 +105,11 @@ void include_output_input_functions() {
 }
 
 void ast_to_mips(struct decl *root) {
-	include_output_input_functions();
-	decl_codegen(root);
-	printf("\n# TODO - Turn ast into MIPS lol\n");
-	printf("main:\n");
-	printf("\tjal _f_main\n");
-	printf("\tli $v0, 10 # We need to do this syscall to exit\n");
-	printf("\tsyscall # Or else it will error!\n");
+	// include_output_input_functions();
+	// decl_codegen(root);
+	// printf("\n# TODO - Turn ast into MIPS lol\n");
+	// printf("main:\n");
+	// printf("\tjal _f_main\n");
+	// printf("\tli $v0, 10 # We need to do this syscall to exit\n");
+	// printf("\tsyscall # Or else it will error!\n");
 }

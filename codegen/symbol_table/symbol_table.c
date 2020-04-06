@@ -86,7 +86,6 @@ void scope_enter() {
 	struct hash_table *h = hash_table_create(0, 0);
 	hash_table_stack_push(h);
 	_scope_level++;
-	_current_function_variable_count = 0;
 }
 
 void scope_exit() {
@@ -104,6 +103,7 @@ int scope_level() {
 void scope_bind(const char *name, struct symbol *sym) {
 	if (sym->kind != SYMBOL_GLOBAL) {
 		sym->which = _current_function_variable_count++;
+		printf("Symbol [%s] %d\n", sym->name, sym->which);
 	}
 	struct hash_table *h = hash_table_stack_peek();
 	hash_table_insert(h, name, sym);
