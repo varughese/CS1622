@@ -19,6 +19,8 @@ const char *label_name(int label) {
 }
 
 const char *symbol_codegen(struct symbol *s) {
+	// "Stack and Variables Example" section of README.md in example_mips folder 
+	// explains the calculations here
 	char *name;
 	switch(s->kind) {
 		case SYMBOL_GLOBAL:
@@ -28,7 +30,10 @@ const char *symbol_codegen(struct symbol *s) {
 			sprintf(name, "%d($sp)", 4*s->which);
 			return name;
 		case SYMBOL_PARAM:
-			return "param";
+			name = malloc(128);
+			// We add 4, because $ra is in that spot
+			sprintf(name, "%d($sp)", 4*s->which + 4);
+			return name;
 	}
 }
 
@@ -124,7 +129,7 @@ void pre_function(struct decl *d) {
 	increase_param_symbol_which(d->type->params, d->symbol->local_vars_count);
 	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
 	// push $ra
-	printf("sub $sp, $sp, 4\n");
+	printf("sub $sp, $sp, 4 # push ra\n");
 	printf("sw $ra, 0($sp)\n");
 
 	// By convention, the caller pushes arguments onto the stack before
@@ -134,7 +139,8 @@ void pre_function(struct decl *d) {
 	// Stack [param1, param0, RA]
 
 	// Now, we also reserve spots on the stack for all of the local variables
-	printf("sub $sp, $sp, %d\n", 4 * d->symbol->local_vars_count);
+	// push local vars
+	printf("sub $sp, $sp, %d # push local vars\n", 4 * d->symbol->local_vars_count);
 
 	printf("# {\n");
 }
@@ -142,13 +148,13 @@ void pre_function(struct decl *d) {
 
 void post_function(struct decl *d) {
 	printf("# }\n");
-	// Pop off all of the local variables
-	printf("add $sp, $sp, %d # Pop local vars\n", 4 * d->symbol->local_vars_count);
+	// pop local vars
+	printf("add $sp, $sp, %d # pop local vars\n", 4 * d->symbol->local_vars_count);
 	// pop ra
 	printf("lw $ra, ($sp)\n");
 	printf("add $sp, $sp, 4\n");
 	// pop all arguments
-	printf("add $sp, $sp, %d # Pop arguments \n", 4 * d->symbol->params_count);
+	printf("add $sp, $sp, %d # pop arguments \n", 4 * d->symbol->params_count);
 	// return
 	printf("j $ra\n");
 }

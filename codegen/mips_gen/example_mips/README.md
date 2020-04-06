@@ -199,8 +199,8 @@ void main() {
 So in this example, `main` calls `f` with the two arguments `100` and `200`. Before main calls `f`, it puts those values on the stack. `f` then puts the $ra onto the stack. Then, it allocates memory for its 3 local variables on the stack. So, the stack looks like:
 
 ```
-200 # a0
 100 # a1
+200 # a0
 $ra
 x
 y
@@ -208,11 +208,17 @@ z		<- $sp
 ```
 
 In the compiler, each symbol has a `which` variable to indicate the position it is located.
+In mips_gen, we call `increase_param_symbol_which` to increase the `which` of the arguments.
 
 ```
-a1->which	1	20 ($sp)
-a0->which	0	16 ($sp)
+a1->which	4	20 ($sp)
+a0->which	3	16 ($sp)
+// 				12 ($sp) contains $ra
 z->which	2	8 ($sp)
 y->which	1	4 ($sp)
 x->which	0	0 ($sp)
 ```
+
+So, for local variables, we can just do `<which * 4> $sp`.
+
+For parameters, we can do `<which * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.
