@@ -109,7 +109,19 @@ void stmt_codegen(struct stmt *s) {
 	stmt_codegen(s->next);	
 }
 
+// To make argument stack calculation easier, we increase the `which` on
+// the parameters so symbol_codegen() can easily determine its position on the stack
+void increase_param_symbol_which(struct param_list* params, int local_vars_count) {
+	struct param_list *current = params;
+	while(current != NULL) {
+		current->symbol->which += local_vars_count;
+		printf("# parameter [%s], position [%d]\n", current->symbol->name, current->symbol->which);
+		current = current->next;
+	}
+}
+
 void pre_function(struct decl *d) {
+	increase_param_symbol_which(d->type->params, d->symbol->local_vars_count);
 	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
 	// push $ra
 	printf("sub $sp, $sp, 4\n");

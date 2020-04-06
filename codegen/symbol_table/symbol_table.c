@@ -127,6 +127,7 @@ void scope_bind(const char *name, struct symbol *sym) {
 		// void f(int a0, int a1) { 
 		// 	int v0; int v1; 
 		//  { int v2  } }
+		// In code generation, we update these arguments to make calculation easier.
 		if (sym->kind == SYMBOL_LOCAL) 
 			sym->which = _current_function_variable_count - _current_param_count - 1;
 	} else {

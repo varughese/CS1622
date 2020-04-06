@@ -10,6 +10,8 @@ li $a0, 0x0a
 syscall
 
 _f_f:
+# parameter [a0], position [3]
+# parameter [a1], position [4]
 	 # f() [2] params, [3] local vars
 sub $sp, $sp, 4
 sw $ra, 0($sp)

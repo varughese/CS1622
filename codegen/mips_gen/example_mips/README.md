@@ -180,3 +180,39 @@ Stack grows down.
 1. Restore any callee saved across call
 2. Pop stack frame (subtract frame size from `$sp`)
 3. Return to address in `$ra`
+
+
+## Stack and Variables Example
+The stack seems scary, but it really is not that bad after staring at it for 30 minutes.
+```c
+void f(int a0, int a1) {
+	int x;
+	int y;
+	int z;
+}
+
+void main() {
+	f(100, 200);
+}
+```
+
+So in this example, `main` calls `f` with the two arguments `100` and `200`. Before main calls `f`, it puts those values on the stack. `f` then puts the $ra onto the stack. Then, it allocates memory for its 3 local variables on the stack. So, the stack looks like:
+
+```
+200 # a0
+100 # a1
+$ra
+x
+y
+z		<- $sp
+```
+
+In the compiler, each symbol has a `which` variable to indicate the position it is located.
+
+```
+a1->which	1	20 ($sp)
+a0->which	0	16 ($sp)
+z->which	2	8 ($sp)
+y->which	1	4 ($sp)
+x->which	0	0 ($sp)
+```
