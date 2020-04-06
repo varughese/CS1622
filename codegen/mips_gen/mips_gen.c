@@ -6,6 +6,8 @@
 #include "scratch.h"
 #include "mips_gen.h"
 
+void decl_codegen(struct decl *d);
+
 int _label_count = 0;
 int label_create() {
 	return _label_count++;
@@ -39,6 +41,40 @@ void post_function() {
 	printf("lw $ra, ($sp)\n");
 	printf("add $sp, $sp, 4\n");
 	printf("j $ra\n");
+}
+
+void expr_codegen(struct expr *expr) {
+
+}
+
+void stmt_codegen(struct stmt *s) {
+	if(s == NULL) return;
+	switch(s->kind) {
+		case STMT_COMPOUND:
+			decl_codegen(s->decl);
+			stmt_codegen(s->body);
+			break;
+
+		case STMT_EXPR:
+			expr_codegen(s->expr);
+			break;
+
+		case STMT_IF_ELSE:
+			// stmt_codegen(s->body);
+			// stmt_codegen(s->else_body);
+			break;
+
+		case STMT_ITERATION:
+			// expr_codegen(s->expr);
+			// stmt_codegen(s->body);
+			break;
+
+		case STMT_RETURN:
+			// expr_codegen(s->expr);
+			break;
+	}
+
+	stmt_codegen(s->next);	
 }
 
 void decl_codegen(struct decl *d) {
