@@ -27,6 +27,20 @@ const char *symbol_codegen(struct symbol *s) {
 	}
 }
 
+void pre_function() {
+	printf("# push ra\n");
+	printf("sub $sp, $sp, 4\n");
+	printf("sw $ra, 0($sp)\n");
+}
+
+
+void post_function() {
+	printf("# pop ra\n");
+	printf("lw $ra, ($sp)\n");
+	printf("add $sp, $sp, 4\n");
+	printf("j $ra\n");
+}
+
 void decl_codegen(struct decl *d) {
 	if (d == NULL) return;
 
@@ -41,6 +55,8 @@ void decl_codegen(struct decl *d) {
 
 	if (d->type->kind == TYPE_FUNCTION) {
 		printf("_f_%s:\n", d->symbol->name);
+		pre_function();
+		post_function();
 	}
 
 	decl_codegen(d->next);

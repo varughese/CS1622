@@ -11,6 +11,13 @@ syscall
 a: .word 622
 
 _f_main:
+# push ra
+sub $sp, $sp, 4
+sw $ra, 0($sp)
+# pop ra
+lw $ra, ($sp)
+add $sp, $sp, 4
+j $ra
 
 # TODO - Turn ast into MIPS lol
 main:
