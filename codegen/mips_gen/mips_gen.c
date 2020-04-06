@@ -83,9 +83,9 @@ void decl_codegen(struct decl *d) {
 	struct symbol *sym = d->symbol;
 
 	if (d->type->kind == TYPE_INTEGER) {
+		const char *var_name = symbol_codegen(sym);
 		if(sym->kind == SYMBOL_GLOBAL) {
-			const char *var_name = symbol_codegen(sym);
-			printf(".data\n%s: .word 622\n\n", var_name);
+			printf(".data\n%s: .word 622 # Globals are not initialized in C-\n\n", var_name);
 		}	
 	}
 

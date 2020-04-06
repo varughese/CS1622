@@ -16,8 +16,8 @@ parser/main.ast
 parser/parser.zip
 
 codegen/codegen
-codegen/parser.c
-codegen/parser.tokens.h
+parser.c
+parser.tokens.h
 lex.yy.c
 
 **/out_test

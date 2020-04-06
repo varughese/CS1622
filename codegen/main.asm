@@ -8,8 +8,16 @@ li $a0, 0x0a
 syscall
 
 .data
-a: .word 622
+a: .word 622 # Globals are not initialized in C-
 
+_f_f:
+# push ra
+sub $sp, $sp, 4
+sw $ra, 0($sp)
+# pop ra
+lw $ra, ($sp)
+add $sp, $sp, 4
+j $ra
 _f_main:
 # push ra
 sub $sp, $sp, 4

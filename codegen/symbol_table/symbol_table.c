@@ -73,7 +73,9 @@ struct hash_table *hash_table_stack_pop() {
 /** Symbol table API **/
 
 int _scope_level = -1;
-int _current_param_count = 0;
+// This is used to fill `sym->which`. In code generation, this tells us where on the
+// stack our variable is defined
+int _current_function_variable_count = 0;
 
 void init_symbol_table() {
 	init_hash_table_stack();
@@ -84,23 +86,25 @@ void scope_enter() {
 	struct hash_table *h = hash_table_create(0, 0);
 	hash_table_stack_push(h);
 	_scope_level++;
-	_current_param_count = 0;
+	_current_function_variable_count = 0;
 }
 
 void scope_exit() {
 	struct hash_table *h = hash_table_stack_pop();
 	free(h);
 	_scope_level--;
-	_current_param_count = 0;
+	_current_function_variable_count = 0;
 }
 
 int scope_level() {
-	if (_scope_level < 1) printf("ERROR: Uninialized symbol table. Make sure to call init_symbol_table().\n");
+	if (_scope_level < 1) printf("ERROR: Uninitialized symbol table. Make sure to call init_symbol_table().\n");
 	return _scope_level;
 }
 
 void scope_bind(const char *name, struct symbol *sym) {
-	if(sym->kind == SYMBOL_PARAM) sym->which = _current_param_count++;
+	if (sym->kind != SYMBOL_GLOBAL) {
+		sym->which = _current_function_variable_count++;
+	}
 	struct hash_table *h = hash_table_stack_peek();
 	hash_table_insert(h, name, sym);
 }

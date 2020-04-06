@@ -14,6 +14,7 @@ struct type *create_int_type() {
 	t->kind = TYPE_INTEGER;
 	t->subtype = NULL;
 	t->params = NULL;
+	return t;
 }
 
 int main() {
