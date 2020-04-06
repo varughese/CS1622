@@ -105,7 +105,8 @@ int main() {
 	assert(paramf0->which == 0);
 	assert(paramf1->which == 1);
 	assert(paramf2->which == 2);
-	assert(local_variable3->which == 3);
+	// We reset the count at local variables
+	assert(local_variable3->which == 0);
 	//create a new function to make sure the symbols match
 	scope_exit();
 	struct symbol *func2 = symbol_create(SYMBOL_GLOBAL, create_int_type(), "function_with_params2");

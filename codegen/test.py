@@ -3,19 +3,19 @@ import sys
 import re
 
 files=[
-	"test-call-byref",
-	"test-name-scope",
-	"test-nested-expr",
-	"test-program-dijkstra",
-	"test-program-fibonacci-bottomup",
-	"test-program-fibonacci-topdown",
-	"test-program-gcd",
-	"test-program-selection-sort",
+	# "test-call-byref",
+	# "test-name-scope",
+	# "test-nested-expr",
+	# "test-program-dijkstra",
+	# "test-program-fibonacci-bottomup",
+	# "test-program-fibonacci-topdown",
+	# "test-program-gcd",
+	# "test-program-selection-sort",
 	"test-program-simple",
-	"test-simple-expr",
-	"test-simple-if",
-	"test-simple-return",
-	"test-simple-while"
+	# "test-simple-expr",
+	# "test-simple-if",
+	# "test-simple-return",
+	# "test-simple-while"
 ]
 
 RED='\033[0;31m'
@@ -37,30 +37,35 @@ os.makedirs("test/out_test/", exist_ok=True)
 def trim(str):
 	return re.sub('[\s+]', '', str)
 
+def execute_mips(asm_path):
+	# return 'f'
+	spim_output = os.popen("spim -file {}".format(asm_path)).read()
+	return '\n'.join(spim_output.splitlines()[5:])
+
 correct = 0
 for file in files:
-	os.system("./run.sh test/cases/{}.in test/out_test/{}.out".format(file, file))
-	expected = ""
-	out_file_path = "test/cases/{}.out".format(file)
-	if os.path.exists(out_file_path):
-		f = open(out_file_path, 'r')
-		expected = f.read()
+	input_path = f"test/cases/{file}.in"
+	asm_path = f"test/out_test/{file}.asm"
+	os.system("./run.sh {} {}".format(input_path, asm_path))
+	expected_stdout = ""
+	stdout_path = "test/cases/{}.stdout".format(file)
+	stdin_path = "test/cases/{}.stdin".format(file)
+	if os.path.exists(stdout_path):
+		f = open(stdout_path, 'r')
+		expected_stdout = f.read()
 		f.close()
-	actual = ""
-	with open("test/out_test/{}.out".format(file)) as f:
-		actual = f.read()
 
-	if trim(actual) != trim(expected):
+	
+	mips_output = execute_mips(asm_path)
+	if expected_stdout != mips_output:
 		print_red(file)
-		print('---')
-		f = open('test/cases/{}.in'.format(file))
-		infile = f.read()
-		print(infile)
-		print('---')
-		print_blue("Output")
-		print(actual)
+		print_blue("Expected");
+		print(expected_stdout)
+		print_blue("Actual")
+		print(mips_output)
 	else:
 		print_green(file)
-		correct += 1
+		correct = correct + 1
+
 
 print_green("\nPassing [{}/{}]".format(correct, len(files)))
