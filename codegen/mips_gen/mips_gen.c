@@ -41,7 +41,7 @@ void pre_function(struct decl *d) {
 	// By convention, the caller pushes arguments onto the stack before
 	// they are called. So, when this function is called, those will be
 	// on the stack.
-	// So stack looks like this:
+	// So stack looks like this, after we place the RA:
 	// Stack [param1, param0, RA]
 
 	// Now, we also reserve spots on the stack for all of the local variables
@@ -53,14 +53,57 @@ void pre_function(struct decl *d) {
 
 void post_function(struct decl *d) {
 	printf("# }\n");
-	printf("# pop ra\n");
+	// pop ra, and return to calee
 	printf("lw $ra, ($sp)\n");
 	printf("add $sp, $sp, 4\n");
 	printf("j $ra\n");
 }
 
-void expr_codegen(struct expr *expr) {
+void expr_codegen(struct expr *e) {
+	switch(e->kind) {
+		case EXPR_INTEGER_LITERAL:
+			e->reg = scratch_alloc();
+			printf("li %s, %d\n", scratch_name(e->reg), e->integer_value);
+			break;
 
+		case EXPR_NAME:
+			e->reg = scratch_alloc();
+			printf("lw %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+			break;
+		case EXPR_ASSIGN:
+			expr_codegen(e->right);
+			// `x = 4.` 
+			// codegen(e->right) will generate: li $t 4
+			// here, we want to do sw $t x
+			// where $t is e->right's register, and x is the variable
+			// The value we want to store into is now in e->right's register
+			printf("sw %s %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+			break;
+
+		case EXPR_ADD:
+		case EXPR_SUB:
+		case EXPR_MUL:
+		case EXPR_DIV:
+			break;
+
+		case EXPR_ISEQ:
+		case EXPR_NEQ:
+		case EXPR_LE:
+		case EXPR_LT:
+		case EXPR_GT:
+		case EXPR_GE:
+			break;
+
+		case EXPR_SUBSCRIPT:
+			break;
+		case EXPR_CALL:
+			break;
+		case EXPR_ARG:
+			break;
+
+		default:
+			break;
+	}
 }
 
 void stmt_codegen(struct stmt *s) {
@@ -129,7 +172,7 @@ void decl_codegen(struct decl *d) {
 
 
 void include_output_input_functions() {
-	printf("_f_output:\nsub $sp, $sp, 4\nsw $ra, 0($sp)\nlw $a0, 4($sp)");
+	printf("_f_output:\nsub $sp, $sp, 4\nsw $ra, 0($sp)\nlw $a0, 4($sp)\n");
 	printf("li $v0, 1\nsyscall\nli $v0, 11\nli $a0, 0x0a\nsyscall\n\n");
 }
 
@@ -138,7 +181,7 @@ void ast_to_mips(struct decl *root) {
 	decl_codegen(root);
 	printf("\n# TODO - Turn ast into MIPS lol\n");
 	printf("main:\n");
-	printf("\tjal _f_main\n");
-	printf("\tli $v0, 10 # We need to do this syscall to exit\n");
-	printf("\tsyscall # Or else it will error!\n");
+	printf("jal _f_main\n");
+	printf("li $v0, 10 # We need to do this syscall to exit\n");
+	printf("syscall # Or else it will error!\n");
 }
