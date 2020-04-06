@@ -1,7 +1,16 @@
 
+int g;
+
+void j(int y) {
+    output(y+g);
+}
+
+void f(int x) {
+    g = 4;
+    j(9);
+}
+
 void main(void)
 {
-    int x0;
-    x0 = input();
-    output(x0);
+    f(3);
 }

@@ -18,23 +18,67 @@ li  $v0, 5
 syscall
 j $ra
 
-_f_main:
-	 # main() [0] params, [1] local vars
+.data
+g: .word 622 # Globals are not initialized in C-, so we put Mings bday. 
+
+.text
+_f_j:
+# parameter [y], position [0]
+	 # j() [1] params, [0] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 4 # push local vars
+sub $sp, $sp, 0 # push local vars
 # {
-# declare local variable [x0], pos [0] 
-jal _f_input
-move $t0 $v0
-sw  $t0, 0($sp)
-lw  $t1, 0($sp)
+lw  $t0, 4($sp)
+lw  $t1, g
+add $t2, $t0, $t1
+li  $t0, 69
+add $t1, $t2, $t0
 sub $sp, $sp, 4
 sw  $t1, ($sp)
 jal _f_output
-move $t2 $v0
+move $t0 $v0
 # }
-add $sp, $sp, 4 # pop local vars
+add $sp, $sp, 0 # pop local vars
+lw  $ra, ($sp)
+add $sp, $sp, 4
+add $sp, $sp, 4 # pop arguments 
+j $ra
+
+_f_f:
+# parameter [x], position [0]
+	 # f() [1] params, [0] local vars
+sub $sp, $sp, 4 # push ra
+sw  $ra, 0($sp)
+sub $sp, $sp, 0 # push local vars
+# {
+li  $t2, 4
+sw  $t2, g
+li  $t2, 9
+sub $sp, $sp, 4
+sw  $t2, ($sp)
+jal _f_j
+move $t3 $v0
+# }
+add $sp, $sp, 0 # pop local vars
+lw  $ra, ($sp)
+add $sp, $sp, 4
+add $sp, $sp, 4 # pop arguments 
+j $ra
+
+_f_main:
+	 # main() [0] params, [0] local vars
+sub $sp, $sp, 4 # push ra
+sw  $ra, 0($sp)
+sub $sp, $sp, 0 # push local vars
+# {
+li  $t4, 3
+sub $sp, $sp, 4
+sw  $t4, ($sp)
+jal _f_f
+move $t5 $v0
+# }
+add $sp, $sp, 0 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 
