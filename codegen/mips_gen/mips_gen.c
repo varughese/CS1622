@@ -25,38 +25,11 @@ const char *symbol_codegen(struct symbol *s) {
 			return s->name;
 		case SYMBOL_LOCAL:
 			name = malloc(128);
-			sprintf(name, "%d($sp)", 4*s->which+4);
+			sprintf(name, "%d($sp)", 4*s->which);
 			return name;
 		case SYMBOL_PARAM:
 			return "param";
 	}
-}
-
-void pre_function(struct decl *d) {
-	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
-	// push $ra
-	printf("sub $sp, $sp, 4\n");
-	printf("sw $ra, 0($sp)\n");
-
-	// By convention, the caller pushes arguments onto the stack before
-	// they are called. So, when this function is called, those will be
-	// on the stack.
-	// So stack looks like this, after we place the RA:
-	// Stack [param1, param0, RA]
-
-	// Now, we also reserve spots on the stack for all of the local variables
-	printf("sub $sp, $sp, %d\n", 4 * d->symbol->local_vars_count);
-
-	printf("# {\n");
-}
-
-
-void post_function(struct decl *d) {
-	printf("# }\n");
-	// pop ra, and return to calee
-	printf("lw $ra, ($sp)\n");
-	printf("add $sp, $sp, 4\n");
-	printf("j $ra\n");
 }
 
 void expr_codegen(struct expr *e) {
@@ -110,6 +83,7 @@ void stmt_codegen(struct stmt *s) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
+			decl_codegen(s->decl);
 			stmt_codegen(s->body);
 			break;
 
@@ -135,6 +109,38 @@ void stmt_codegen(struct stmt *s) {
 	stmt_codegen(s->next);	
 }
 
+void pre_function(struct decl *d) {
+	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
+	// push $ra
+	printf("sub $sp, $sp, 4\n");
+	printf("sw $ra, 0($sp)\n");
+
+	// By convention, the caller pushes arguments onto the stack before
+	// they are called. So, when this function is called, those will be
+	// on the stack.
+	// So stack looks like this, after we place the RA:
+	// Stack [param1, param0, RA]
+
+	// Now, we also reserve spots on the stack for all of the local variables
+	printf("sub $sp, $sp, %d\n", 4 * d->symbol->local_vars_count);
+
+	printf("# {\n");
+}
+
+
+void post_function(struct decl *d) {
+	printf("# }\n");
+	// Pop off all of the local variables
+	printf("add $sp, $sp, %d # Pop local vars\n", 4 * d->symbol->local_vars_count);
+	// pop ra
+	printf("lw $ra, ($sp)\n");
+	printf("add $sp, $sp, 4\n");
+	// pop all arguments
+	printf("add $sp, $sp, %d # Pop arguments \n", 4 * d->symbol->params_count);
+	// return
+	printf("j $ra\n");
+}
+
 void decl_codegen(struct decl *d) {
 	if (d == NULL) return;
 
@@ -145,15 +151,16 @@ void decl_codegen(struct decl *d) {
 		switch (sym->kind) {
 			case SYMBOL_GLOBAL:
 				printf(".data\n%s: .word 622 # Globals are not initialized in C-, so we put Mings bday. \n\n", var_name);
+				printf(".text\n");
 				break;
 			case SYMBOL_LOCAL:
-				printf("#local variable [%s]\n", sym->name);
-				printf("lw $<> %s\n", var_name);
+				printf("# declare local variable [%s], pos [%d] \n", sym->name, sym->which);
 				break;
 			case SYMBOL_PARAM:
 				printf("TODO - I do not think this should ever happen\n.");
 				break;
 		}
+		free((char *) var_name);
 	}
 
 	if (d->type->kind == TYPE_FUNCTION) {
@@ -164,9 +171,9 @@ void decl_codegen(struct decl *d) {
 		// to figure out how many parameters + variables there were,
 		// probably with the last ->which, and then `add $sp, $sp, 4` for each
 		post_function(d);
+		printf("\n");
 	}
 
-	printf("\n");
 	decl_codegen(d->next);
 }
 
@@ -177,6 +184,7 @@ void include_output_input_functions() {
 }
 
 void ast_to_mips(struct decl *root) {
+	printf(".text\n");
 	include_output_input_functions();
 	decl_codegen(root);
 	printf("\n# TODO - Turn ast into MIPS lol\n");
