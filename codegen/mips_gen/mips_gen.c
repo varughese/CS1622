@@ -33,10 +33,12 @@ void pre_function() {
 	printf("# push ra\n");
 	printf("sub $sp, $sp, 4\n");
 	printf("sw $ra, 0($sp)\n");
+	printf("# {\n");
 }
 
 
 void post_function() {
+	printf("# }\n");
 	printf("# pop ra\n");
 	printf("lw $ra, ($sp)\n");
 	printf("add $sp, $sp, 4\n");
@@ -85,7 +87,7 @@ void decl_codegen(struct decl *d) {
 	if (d->type->kind == TYPE_INTEGER) {
 		const char *var_name = symbol_codegen(sym);
 		if(sym->kind == SYMBOL_GLOBAL) {
-			printf(".data\n%s: .word 622 # Globals are not initialized in C-\n\n", var_name);
+			printf(".data\n%s: .word 622 # Globals are not initialized in C-, so we put Mings bday. \n\n", var_name);
 		}	
 	}
 
@@ -105,11 +107,11 @@ void include_output_input_functions() {
 }
 
 void ast_to_mips(struct decl *root) {
-	// include_output_input_functions();
-	// decl_codegen(root);
-	// printf("\n# TODO - Turn ast into MIPS lol\n");
-	// printf("main:\n");
-	// printf("\tjal _f_main\n");
-	// printf("\tli $v0, 10 # We need to do this syscall to exit\n");
-	// printf("\tsyscall # Or else it will error!\n");
+	include_output_input_functions();
+	decl_codegen(root);
+	printf("\n# TODO - Turn ast into MIPS lol\n");
+	printf("main:\n");
+	printf("\tjal _f_main\n");
+	printf("\tli $v0, 10 # We need to do this syscall to exit\n");
+	printf("\tsyscall # Or else it will error!\n");
 }

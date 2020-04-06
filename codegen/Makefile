@@ -35,7 +35,7 @@ run_test_cases:
 
 .PHONY: run
 run:
-	make && echo '\n\n' && ./codegen main.c main.asm && cat main.asm
+	make && echo '---' && ./codegen main.c main.asm && cat main.asm
 
 .PHONY: clean
 clean:
