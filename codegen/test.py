@@ -44,8 +44,8 @@ def execute_mips(asm_path):
 
 correct = 0
 for file in files:
-	input_path = f"test/cases/{file}.in"
-	asm_path = f"test/out_test/{file}.asm"
+	input_path = "test/cases/{}.in".format(file)
+	asm_path = "test/out_test/{}.asm".format(file)
 	os.system("./run.sh {} {}".format(input_path, asm_path))
 	expected_stdout = ""
 	stdout_path = "test/cases/{}.stdout".format(file)
