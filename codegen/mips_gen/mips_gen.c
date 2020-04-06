@@ -61,6 +61,12 @@ void expr_codegen(struct expr *e) {
 			break;
 
 		case EXPR_ADD:
+			expr_codegen(e->left);
+			expr_codegen(e->right);
+			e->reg = scratch_alloc();
+			printf("add %s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg),  scratch_name(e->right->reg));
+			break;
+
 		case EXPR_SUB:
 		case EXPR_MUL:
 		case EXPR_DIV:

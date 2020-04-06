@@ -57,7 +57,7 @@ for file in files:
 
 	
 	mips_output = execute_mips(asm_path)
-	if expected_stdout != mips_output:
+	if trim(expected_stdout) != trim(mips_output):
 		print_red(file)
 		print_blue("Expected");
 		print(expected_stdout)
