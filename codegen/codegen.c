@@ -34,7 +34,11 @@ int main(int argc, char* argv[]) {
 
 		if(pass_type_checks(abstract_syntax_tree)) {
 			ast_to_mips(abstract_syntax_tree);
+		} else {
+			fprintf(stderr, "Typechecking error.\n");
 		}
+	} else {
+		fprintf(stderr, "Parsing error.\n");
 	}
 
 	fclose(stdout);
