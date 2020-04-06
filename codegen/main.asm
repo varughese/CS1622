@@ -1,6 +1,10 @@
+Symbol [x] 0
 Symbol [a0] 0
 Symbol [a1] 1
 Symbol [a2] 2
-Symbol [localvar3] 3
-Symbol [localvar4] 4
+Symbol [f] 3
+Symbol [localvar3] 4
+Symbol [localvar4] 5
+Symbol [localvar4] 6
+Symbol [localvar4] 7
 Symbol [x0] 0

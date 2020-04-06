@@ -92,7 +92,6 @@ void scope_exit() {
 	struct hash_table *h = hash_table_stack_pop();
 	free(h);
 	_scope_level--;
-	_current_function_variable_count = 0;
 }
 
 int scope_level() {
@@ -103,6 +102,10 @@ int scope_level() {
 void scope_bind(const char *name, struct symbol *sym) {
 	if (sym->kind != SYMBOL_GLOBAL) {
 		sym->which = _current_function_variable_count++;
+	} else {
+		// Whenever we see a new GLOBAL variable, we have entered
+		// a new function
+		_current_function_variable_count = 0;
 	}
 	struct hash_table *h = hash_table_stack_peek();
 	hash_table_insert(h, name, sym);
