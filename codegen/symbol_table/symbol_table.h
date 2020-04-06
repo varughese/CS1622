@@ -6,8 +6,13 @@ struct symbol *symbol_create(
 	char *name
 );
 
+
 // because this is c, we need to have janky initialize methods
 void init_symbol_table();
+
+// This is used to know how many variables will be stored on the stack for 
+// a function
+int get_current_variable_count();
 
 // causes a new hash table to be pushed on the top of the stack, 
 // representing a new scope.

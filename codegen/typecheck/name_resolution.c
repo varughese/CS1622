@@ -101,7 +101,9 @@ void decl_resolve(struct decl *d) {
 		// This is declaration is a function, so enter a new scope.
 		scope_enter();
 		param_list_resolve(d->type->params);
+		d->symbol->params_count = get_current_variable_count();
 		stmt_resolve(d->code);
+		d->symbol->local_vars_count = get_current_variable_count() - d->symbol->params_count;
 		scope_exit();
 	}
 

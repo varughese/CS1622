@@ -7,18 +7,30 @@ li $v0, 11
 li $a0, 0x0a
 syscall
 
-_f_main:
-# push ra
+_f_f:
+	 # f() [7] params, [2] local vars
 sub $sp, $sp, 4
 sw $ra, 0($sp)
+sub $sp, $sp, 8
 # {
-#local variable [x0]
-lw $<> 4($sp)
 # }
 # pop ra
 lw $ra, ($sp)
 add $sp, $sp, 4
 j $ra
+
+_f_main:
+	 # main() [0] params, [1] local vars
+sub $sp, $sp, 4
+sw $ra, 0($sp)
+sub $sp, $sp, 4
+# {
+# }
+# pop ra
+lw $ra, ($sp)
+add $sp, $sp, 4
+j $ra
+
 
 # TODO - Turn ast into MIPS lol
 main:

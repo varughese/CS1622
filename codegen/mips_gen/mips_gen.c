@@ -32,15 +32,26 @@ const char *symbol_codegen(struct symbol *s) {
 	}
 }
 
-void pre_function() {
-	printf("# push ra\n");
+void pre_function(struct decl *d) {
+	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
+	// push $ra
 	printf("sub $sp, $sp, 4\n");
 	printf("sw $ra, 0($sp)\n");
+
+	// By convention, the caller pushes arguments onto the stack before
+	// they are called. So, when this function is called, those will be
+	// on the stack.
+	// So stack looks like this:
+	// Stack [param1, param0, RA]
+
+	// Now, we also reserve spots on the stack for all of the local variables
+	printf("sub $sp, $sp, %d\n", 4 * d->symbol->local_vars_count);
+
 	printf("# {\n");
 }
 
 
-void post_function() {
+void post_function(struct decl *d) {
 	printf("# }\n");
 	printf("# pop ra\n");
 	printf("lw $ra, ($sp)\n");
@@ -56,7 +67,6 @@ void stmt_codegen(struct stmt *s) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
-			decl_codegen(s->decl);
 			stmt_codegen(s->body);
 			break;
 
@@ -105,14 +115,15 @@ void decl_codegen(struct decl *d) {
 
 	if (d->type->kind == TYPE_FUNCTION) {
 		printf("_f_%s:\n", d->symbol->name);
-		pre_function();
+		pre_function(d);
 		stmt_codegen(d->code);
 		// TODO, we need to clear up the stack, so, we need
 		// to figure out how many parameters + variables there were,
 		// probably with the last ->which, and then `add $sp, $sp, 4` for each
-		post_function();
+		post_function(d);
 	}
 
+	printf("\n");
 	decl_codegen(d->next);
 }
 

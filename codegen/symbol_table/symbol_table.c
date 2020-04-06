@@ -13,6 +13,7 @@ struct symbol *symbol_create(
 	s->kind = kind;
 	s->type = type;
 	s->name = name;
+	s->params_count = 0;
 	return s;
 }
 
@@ -99,12 +100,19 @@ int scope_level() {
 	return _scope_level;
 }
 
+int get_current_variable_count() {
+	// We store the total function variable count
+	// on this function's declaration, which is used in MIPS generation
+	// to know how big to make the stack!
+	return _current_function_variable_count;
+}
+
 void scope_bind(const char *name, struct symbol *sym) {
 	if (sym->kind != SYMBOL_GLOBAL) {
 		sym->which = _current_function_variable_count++;
 	} else {
 		// Whenever we see a new GLOBAL variable, we have entered
-		// a new function
+		// a new function. 
 		_current_function_variable_count = 0;
 	}
 	struct hash_table *h = hash_table_stack_peek();
