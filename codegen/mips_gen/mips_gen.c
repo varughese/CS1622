@@ -41,12 +41,12 @@ void expr_codegen(struct expr *e) {
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
 			e->reg = scratch_alloc();
-			printf("li %s, %d\n", scratch_name(e->reg), e->integer_value);
+			printf("li  %s, %d\n", scratch_name(e->reg), e->integer_value);
 			break;
 
 		case EXPR_NAME:
 			e->reg = scratch_alloc();
-			printf("lw %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+			printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
 			break;
 		case EXPR_ASSIGN:
 			expr_codegen(e->right);
@@ -55,7 +55,7 @@ void expr_codegen(struct expr *e) {
 			// here, we want to do sw $t x
 			// where $t is e->right's register, and x is the variable
 			// The value we want to store into is now in e->right's register
-			printf("sw %s %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+			printf("sw  %s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
 			break;
 
 		case EXPR_ADD:
@@ -130,7 +130,7 @@ void pre_function(struct decl *d) {
 	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
 	// push $ra
 	printf("sub $sp, $sp, 4 # push ra\n");
-	printf("sw $ra, 0($sp)\n");
+	printf("sw  $ra, 0($sp)\n");
 
 	// By convention, the caller pushes arguments onto the stack before
 	// they are called. So, when this function is called, those will be
@@ -151,7 +151,7 @@ void post_function(struct decl *d) {
 	// pop local vars
 	printf("add $sp, $sp, %d # pop local vars\n", 4 * d->symbol->local_vars_count);
 	// pop ra
-	printf("lw $ra, ($sp)\n");
+	printf("lw  $ra, ($sp)\n");
 	printf("add $sp, $sp, 4\n");
 	// pop all arguments
 	printf("add $sp, $sp, %d # pop arguments \n", 4 * d->symbol->params_count);

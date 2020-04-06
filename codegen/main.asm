@@ -14,7 +14,7 @@ _f_f:
 # parameter [a1], position [4]
 	 # f() [2] params, [3] local vars
 sub $sp, $sp, 4 # push ra
-sw $ra, 0($sp)
+sw  $ra, 0($sp)
 sub $sp, $sp, 12 # push local vars
 # {
 # declare local variable [x], pos [0] 
@@ -22,7 +22,7 @@ sub $sp, $sp, 12 # push local vars
 # declare local variable [z], pos [2] 
 # }
 add $sp, $sp, 12 # pop local vars
-lw $ra, ($sp)
+lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 8 # pop arguments 
 j $ra
@@ -30,15 +30,15 @@ j $ra
 _f_main:
 	 # main() [0] params, [1] local vars
 sub $sp, $sp, 4 # push ra
-sw $ra, 0($sp)
+sw  $ra, 0($sp)
 sub $sp, $sp, 4 # push local vars
 # {
 # declare local variable [x0], pos [0] 
-li $t0, 696969
-sw $t0 0($sp)
+li  $t0, 696969
+sw  $t0, 0($sp)
 # }
 add $sp, $sp, 4 # pop local vars
-lw $ra, ($sp)
+lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 
 j $ra
