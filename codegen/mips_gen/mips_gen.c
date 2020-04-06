@@ -79,6 +79,8 @@ void expr_codegen(struct expr *e) {
 		case EXPR_CALL:
 			expr_codegen(e->right);
 			printf("jal _f_%s\n", e->left->symbol->name);
+			e->reg = scratch_alloc();
+			printf("move %s $v0\n", scratch_name(e->reg));
 			break;
 		case EXPR_ARG:
 			expr_codegen(e->right);
@@ -190,12 +192,9 @@ void decl_codegen(struct decl *d) {
 	}
 
 	if (d->type->kind == TYPE_FUNCTION) {
-		printf("_f_%s:\n", d->symbol->name);
+		printf("_f_%s:\n", sym->name);
 		pre_function(d);
 		stmt_codegen(d->code);
-		// TODO, we need to clear up the stack, so, we need
-		// to figure out how many parameters + variables there were,
-		// probably with the last ->which, and then `add $sp, $sp, 4` for each
 		post_function(d);
 		printf("\n");
 	}
@@ -205,9 +204,12 @@ void decl_codegen(struct decl *d) {
 
 
 void include_output_input_functions() {
+	// void output(int x)
 	printf("_f_output:\nsub $sp, $sp, 4\nsw $ra, 0($sp)\nlw $a0, 4($sp)\n");
 	printf("li $v0, 1\nsyscall\nli $v0, 11\nli $a0, 0x0a\nsyscall\n");
 	printf("lw $ra, ($sp)\nadd $sp, $sp, 4\nadd $sp, $sp, 4\nj $ra\n\n");
+	// int input()
+	printf("_f_input:\nli  $v0, 5\nsyscall\nj $ra\n\n");
 }
 
 void ast_to_mips(struct decl *root) {

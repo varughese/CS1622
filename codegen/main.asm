@@ -13,18 +13,28 @@ add $sp, $sp, 4
 add $sp, $sp, 4
 j $ra
 
+_f_input:
+li  $v0, 5
+syscall
+j $ra
+
 _f_main:
-	 # main() [0] params, [0] local vars
+	 # main() [0] params, [1] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 0 # push local vars
+sub $sp, $sp, 4 # push local vars
 # {
-li  $t0, 5928176
+# declare local variable [x0], pos [0] 
+jal _f_input
+move $t0 $v0
+sw  $t0, 0($sp)
+lw  $t1, 0($sp)
 sub $sp, $sp, 4
-sw  $t0, ($sp)
+sw  $t1, ($sp)
 jal _f_output
+move $t2 $v0
 # }
-add $sp, $sp, 0 # pop local vars
+add $sp, $sp, 4 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 

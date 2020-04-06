@@ -1,7 +1,7 @@
 
 void main(void)
 {
-    /*int x0;
-    x0 = 696969;*/
-    output(5928176);
+    int x0;
+    x0 = input();
+    output(x0);
 }
