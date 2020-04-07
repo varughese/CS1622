@@ -33,13 +33,15 @@ sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 24 # push local vars
 # {
-lw  $t0, 28($sp)
-lw  $t1, 32($sp)
-add $t2, $t0, $t1
+lw  $t0, 0($sp)
+lw  $t1, 20($sp)
+lw  $t2, 28($sp)
+lw  $t3, 32($sp)
+add $t4, $t2, $t3
 sub $sp, $sp, 4
-sw  $t2, ($sp)
+sw  $t4, ($sp)
 jal _f_output
-move $t0 $v0
+move $t2 $v0
 # }
 add $sp, $sp, 24 # pop local vars
 lw  $ra, ($sp)
@@ -53,14 +55,14 @@ sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 0 # push local vars
 # {
-li  $t1, 3
-sub $sp, $sp, 4
-sw  $t1, ($sp)
-li  $t3, 2
+li  $t3, 3
 sub $sp, $sp, 4
 sw  $t3, ($sp)
+li  $t5, 2
+sub $sp, $sp, 4
+sw  $t5, ($sp)
 jal _f_f
-move $t4 $v0
+move $t6 $v0
 # }
 add $sp, $sp, 0 # pop local vars
 lw  $ra, ($sp)
