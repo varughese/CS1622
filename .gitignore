@@ -4,6 +4,7 @@ xv6-public
 linux-2.6.23.1
 .vscode
 *.o
+spim
 
 parser/parser 
 parser.output
@@ -13,6 +14,13 @@ parser.tab.h
 parser/lex.yy.c
 parser/main.ast
 parser/parser.zip
+
+codegen/codegen
+parser.c
+parser.tokens.h
+lex.yy.c
+
+**/out_test
 
 working
 semantics/parser

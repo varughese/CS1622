@@ -188,7 +188,7 @@ arg_list : expression T_COMMA arg_list { $$ = create_expr(EXPR_ARG, $1, $3); }
 %%
 
 void yyerror(const char* s) {
-	// This would display the syntax error - printf("ERROR! %s\n", s);
+	fprintf(stderr, "Parsing error %s\n", s);
 	printf("\n");
 	exit(1);
 }

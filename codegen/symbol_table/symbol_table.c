@@ -13,6 +13,7 @@ struct symbol *symbol_create(
 	s->kind = kind;
 	s->type = type;
 	s->name = name;
+	s->params_count = 0;
 	return s;
 }
 
@@ -73,6 +74,9 @@ struct hash_table *hash_table_stack_pop() {
 /** Symbol table API **/
 
 int _scope_level = -1;
+// These are used to fill `sym->which`. In code generation, this tells us where on the
+// stack our variable is defined
+int _current_function_variable_count = 0;
 int _current_param_count = 0;
 
 void init_symbol_table() {
@@ -84,23 +88,57 @@ void scope_enter() {
 	struct hash_table *h = hash_table_create(0, 0);
 	hash_table_stack_push(h);
 	_scope_level++;
-	_current_param_count = 0;
 }
 
 void scope_exit() {
 	struct hash_table *h = hash_table_stack_pop();
 	free(h);
 	_scope_level--;
-	_current_param_count = 0;
 }
 
 int scope_level() {
-	if (_scope_level < 1) printf("ERROR: Uninialized symbol table. Make sure to call init_symbol_table().\n");
+	if (_scope_level < 1) printf("ERROR: Uninitialized symbol table. Make sure to call init_symbol_table().\n");
 	return _scope_level;
 }
 
+int get_current_variable_count() {
+	// We store the total function variable count
+	// on this function's declaration, which is used in MIPS generation
+	// to know how big to make the stack!
+	return _current_function_variable_count;
+}
+
 void scope_bind(const char *name, struct symbol *sym) {
-	if(sym->kind == SYMBOL_PARAM) sym->which = _current_param_count++;
+	if (sym->kind != SYMBOL_GLOBAL) {
+		// All of this code is just to identify the ordinal position
+		// on the stack the current variable we are binding will point to
+		// We count the number of parameters, and the total number of variables
+		// in the function (this includes parameters)
+		_current_function_variable_count++;
+
+		// For parameters, it is just the position in the function header
+		if (sym->kind == SYMBOL_PARAM) 
+			sym->which = _current_param_count++;
+
+		// For local variables, it is the position in the function, but, we
+		//	restart at 0. In the code below, I numbered the variables to show
+		// what the `which` would be
+		//
+		// void f(int a0, int a1) { 
+		// 	int v0; int v1; 
+		//  { int v2  } }
+		// In code generation, we update these arguments to make calculation easier.
+		if (sym->kind == SYMBOL_LOCAL) 
+			sym->which = _current_function_variable_count - _current_param_count - 1;
+	} else {
+		// We can have nested scopes inside of functions (like an if statement),
+		//  so that is a reason why this code seems more convulted than it needs to be and
+		//  we keep track of param_count and the total function_variable_count
+		// Whenever we see a new GLOBAL variable, we have entered
+		// a new function, so restart the counters
+		_current_param_count = 0;
+		_current_function_variable_count = 0;
+	}
 	struct hash_table *h = hash_table_stack_peek();
 	hash_table_insert(h, name, sym);
 }

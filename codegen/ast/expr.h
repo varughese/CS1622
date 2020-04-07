@@ -35,6 +35,7 @@ struct expr {
 	int integer_value;
 	const char * string_literal;
 	struct symbol *symbol;
+	int reg;
 };
 
 #endif

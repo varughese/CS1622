@@ -7,6 +7,7 @@
 #include "ast/tostring.h"
 #include "typecheck/name_resolution.h"
 #include "typecheck/typecheck.h"
+#include "./mips_gen/mips_gen.h"
 
 extern int yylex();
 extern int yyparse();
@@ -32,10 +33,12 @@ int main(int argc, char* argv[]) {
 		resolve_symbol_table(abstract_syntax_tree);
 
 		if(pass_type_checks(abstract_syntax_tree)) {
-			char *ast = stringify_abstract_syntax_tree(abstract_syntax_tree);	
-			printf("%s\n", ast);
-			free(ast);
+			ast_to_mips(abstract_syntax_tree);
+		} else {
+			fprintf(stderr, "Typechecking error.\n");
 		}
+	} else {
+		fprintf(stderr, "Parsing error.\n");
 	}
 
 	fclose(stdout);

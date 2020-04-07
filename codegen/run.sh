@@ -1,1 +1,1 @@
-./parser $1 $2
+./codegen $1 $2

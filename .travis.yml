@@ -1,10 +1,11 @@
 compiler: gcc
 
 before_install:
+  - sudo apt-get install -y spim
   - test -n $CC && unset CC
 
 script:
-  - cd semantics && make && make test
+  - cd codegen && make && make test
   - make run && echo '----' && cat main.c
   - echo '----'
   - make run_test_cases
