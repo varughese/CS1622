@@ -37,6 +37,10 @@ run_test_cases:
 run:
 	make && echo '---' && ./codegen main.c main.asm && cat main.asm
 
+.PHONY: runspim
+runspim:
+	make && ./codegen main.c main.asm && spim -file main.asm
+
 .PHONY: clean
 clean:
 	rm *.o ast/*.o typecheck/*.o main.ast codegen parser.tab.c lex.yy.c parser.tokens.h parser.tokens.h parser.output

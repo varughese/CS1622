@@ -87,11 +87,9 @@ la $t0, garr
 # 14 * 4 = 56
 sw $t5, 56($t0)
 
-li $t2 800 # just want to clear the register for testing
-
-lw $t2, 56($t0)
+lw $t0, 56($t0)
 sub $sp, $sp, 4 # push arg and call output
-sw  $t2, ($sp)
+sw  $t0, ($sp)
 jal _f_output
 
 

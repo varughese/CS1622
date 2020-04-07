@@ -16,7 +16,8 @@ files=[
 	# "test-simple-if",
 	# "test-simple-return",
 	# "test-simple-while",
-	"test-mingmat-var-decl"
+	"test-mingmat-var-decl",
+	"test-mingmat-arrays-numeric-index"
 ]
 
 RED='\033[0;31m'

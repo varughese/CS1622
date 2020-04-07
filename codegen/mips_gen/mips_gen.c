@@ -38,6 +38,20 @@ const char *symbol_codegen(struct symbol *s) {
 	}
 }
 
+// This loads the array at an index into an address and returns the address pointer in MIPS
+const char *array_index_address_codegen(struct expr *e) {
+	if (e->left->kind != EXPR_NAME) {
+		printf("# TODO - i do not think this should happen\n");
+	}
+	e->reg = scratch_alloc();
+	const char *array_pointer = symbol_codegen(e->left->symbol);
+	printf("la  %s, %s\n", scratch_name(e->reg), array_pointer);
+	int index = e->right->integer_value;
+	char *array_with_index_pointer = malloc(128);
+	sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
+	return array_with_index_pointer;
+}
+
 void expr_codegen(struct expr *e) {
 	if (e == NULL) return;
 
@@ -58,7 +72,16 @@ void expr_codegen(struct expr *e) {
 			// here, we want to do sw $t x
 			// where $t is e->right's register, and x is the variable
 			// The value we want to store into is now in e->right's register
-			printf("sw  %s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+			const char *variable_address;
+			// Things get a little more complicated if it is an array
+			if (e->left->kind == EXPR_SUBSCRIPT) {
+				variable_address = array_index_address_codegen(e->left);
+				scratch_free(e->left->reg);
+			} else {
+				variable_address = symbol_codegen(e->left->symbol);
+			}
+
+			printf("sw  %s, %s\n", scratch_name(e->right->reg), variable_address);
 			scratch_free(e->right->reg);
 			break;
 
@@ -87,10 +110,16 @@ void expr_codegen(struct expr *e) {
 		case EXPR_GE:
 			break;
 
-		case EXPR_SUBSCRIPT:
+		case EXPR_SUBSCRIPT: {
 			// A subscript is different than declaring an array
 			// This is only accessing elements in an array
+			const char *array_with_index_address = array_index_address_codegen(e);
+			// Use the variable address register as the same register for
+			// both loading the address and then store the value of the
+			// array in that register too
+			printf("lw  %s, %s\n", scratch_name(e->reg), array_with_index_address);
 			break;
+		}
 		case EXPR_CALL:
 			expr_codegen(e->right);
 			printf("jal _f_%s\n", e->left->symbol->name);
@@ -102,6 +131,7 @@ void expr_codegen(struct expr *e) {
 			expr_codegen(e->left);
 			printf("sub $sp, $sp, 4\n");
 			printf("sw  %s, ($sp)\n", scratch_name(e->left->reg));
+			scratch_free(e->left->reg);
 			break;
 
 		default:
