@@ -1,20 +1,21 @@
 int garr[15];
 
+void foo(int a[], int a1) {
+    output(a[1]);  /* 103 */
+}
+
+void food(int a) {
+    output(a);
+}
+
 void main(void) {
-    int x[30];
-    x[6] = 6000;
-    garr[1] = 100;
-    garr[3] = 300;
-    output(garr[1]);
-    output(garr[3]);
-    output(x[6]);
-    {
-        int x[10];
-        int y[200];
-        x[6] = 60000;
-        y[4] = 40000;
-        output(x[6]);
-        output(y[4]);
-    }
-    /* garr[3+2] = 696969;*/
+    int y[4];
+
+    y[0] = 102;
+    y[1] = 103;
+    y[2] = 104;
+    y[3] = 105;
+/*int y;
+y = 6999; */
+    foo(y, 4);
 }

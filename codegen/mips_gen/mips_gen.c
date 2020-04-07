@@ -150,6 +150,7 @@ void stmt_codegen(struct stmt *s) {
 
 		case STMT_EXPR:
 			expr_codegen(s->expr);
+			scratch_free(s->expr->reg);
 			break;
 
 		case STMT_IF_ELSE:

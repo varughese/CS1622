@@ -22,62 +22,80 @@ j $ra
 garr: .word 0:15 
 
 .text
-_f_main:
-# Local variable [x], stack_pos [0] 
-# Local variable [x], stack_pos [30] 
-# Local variable [y], stack_pos [40] 
-	 # main() [0] params, [240] local vars
+_f_foo:
+# parameter [a], position [0]
+# parameter [a1], position [1]
+	 # foo() [2] params, [0] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 960 # push local vars
+sub $sp, $sp, 0 # push local vars
 # {
-li  $t0, 6000
-la  $t1, 0($sp)
-sw  $t0, 24($t1)
-li  $t0, 100
-la  $t1, garr
-sw  $t0, 4($t1)
-li  $t0, 300
-la  $t1, garr
-sw  $t0, 12($t1)
-la  $t0, garr
+la  $t0, 4($sp)
 lw  $t0, 4($t0)
 sub $sp, $sp, 4
 sw  $t0, ($sp)
 jal _f_output
 move $t0 $v0
-la  $t1, garr
-lw  $t1, 12($t1)
-sub $sp, $sp, 4
-sw  $t1, ($sp)
-jal _f_output
-move $t1 $v0
-la  $t2, 0($sp)
-lw  $t2, 24($t2)
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t2 $v0
-li  $t3, 60000
-la  $t4, 120($sp)
-sw  $t3, 24($t4)
-li  $t3, 40000
-la  $t4, 160($sp)
-sw  $t3, 16($t4)
-la  $t3, 120($sp)
-lw  $t3, 24($t3)
-sub $sp, $sp, 4
-sw  $t3, ($sp)
-jal _f_output
-move $t3 $v0
-la  $t4, 160($sp)
-lw  $t4, 16($t4)
-sub $sp, $sp, 4
-sw  $t4, ($sp)
-jal _f_output
-move $t4 $v0
 # }
-add $sp, $sp, 960 # pop local vars
+add $sp, $sp, 0 # pop local vars
+lw  $ra, ($sp)
+add $sp, $sp, 4
+add $sp, $sp, 8 # pop arguments 
+j $ra
+
+_f_food:
+# parameter [a], position [0]
+	 # food() [1] params, [0] local vars
+sub $sp, $sp, 4 # push ra
+sw  $ra, 0($sp)
+sub $sp, $sp, 0 # push local vars
+# {
+lw  $t0, 4($sp)
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+# }
+add $sp, $sp, 0 # pop local vars
+lw  $ra, ($sp)
+add $sp, $sp, 4
+add $sp, $sp, 4 # pop arguments 
+j $ra
+
+_f_main:
+# Local variable [y], stack_pos [0] 
+	 # main() [0] params, [4] local vars
+sub $sp, $sp, 4 # push ra
+sw  $ra, 0($sp)
+sub $sp, $sp, 16 # push local vars
+# {
+li  $t0, 102
+la  $t1, 0($sp)
+sw  $t0, 0($t1)
+li  $t0, 103
+la  $t1, 0($sp)
+sw  $t0, 4($t1)
+li  $t0, 104
+la  $t1, 0($sp)
+sw  $t0, 8($t1)
+li  $t0, 105
+la  $t1, 0($sp)
+sw  $t0, 12($t1)
+
+#a1
+li  $t0, 4
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+#a0
+la  $t0, 4($sp)
+
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+
+jal _f_foo
+move $t0 $v0
+# }
+add $sp, $sp, 16 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 

@@ -3,7 +3,7 @@ import sys
 import re
 
 files=[
-	# "test-call-byref",
+	"test-call-byref",
 	# "test-name-scope",
 	# "test-nested-expr",
 	# "test-program-dijkstra",
@@ -11,7 +11,7 @@ files=[
 	# "test-program-fibonacci-topdown",
 	# "test-program-gcd",
 	# "test-program-selection-sort",
-	"test-program-simple",
+	# "test-program-simple",
 	# "test-simple-expr",
 	# "test-simple-if",
 	# "test-simple-return",
@@ -39,9 +39,11 @@ os.makedirs("test/out_test/", exist_ok=True)
 def trim(str):
 	return re.sub('[\s+]', '', str)
 
-def execute_mips(asm_path):
-	# return 'f'
-	spim_output = os.popen("spim -file {}".format(asm_path)).read()
+def execute_mips(asm_path, stdin_path):
+	stdin = ""
+	if os.path.exists(stdin_path):
+		stdin = " < {}".format(stdin_path)
+	spim_output = os.popen("spim -file {} {}".format(asm_path, stdin)).read()
 	return '\n'.join(spim_output.splitlines()[5:])
 
 correct = 0
@@ -58,7 +60,7 @@ for file in files:
 		f.close()
 
 	
-	mips_output = execute_mips(asm_path)
+	mips_output = execute_mips(asm_path, stdin_path)
 	if trim(expected_stdout) != trim(mips_output):
 		print_red(file)
 		print_blue("Expected");
