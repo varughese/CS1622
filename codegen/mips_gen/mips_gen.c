@@ -51,16 +51,21 @@ void load_array_codegen(struct expr *e, int reg) {
 
 // This loads the array AT A SPECIFIC INDEX (like a[1]) into an address and returns the address pointer in MIPS
 const char *array_at_index_codegen(struct expr *e) {
-	if (e->left->kind != EXPR_NAME) {
-		printf("# TODO - i do not think this should happen\n");
-	}
-	if (e->right->kind != EXPR_INTEGER_LITERAL) {
+	int index;
+
+	if (e->right->kind == EXPR_INTEGER_LITERAL) {
+		index = e->right->integer_value;
+	} else {
+		// expr_codegen(e->right);
 		printf("# TODO , expressions in arrays does not work yet\n");
 		return "(null)";
+		// TODO ugh gotta code gen the right, and then you need
+		// to get the value in a register, left shift that by 2 (multiply by 4)
+		// to get the index. then, you need have to load the array address
+		// add the index, and then return that.
 	}
 	e->reg = scratch_alloc();
-	load_array_codegen(e->left, e->reg);\
-	int index = e->right->integer_value;
+	load_array_codegen(e->left, e->reg);
 	char *array_with_index_pointer = malloc(128);
 	sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
 	return array_with_index_pointer;
@@ -132,7 +137,7 @@ void expr_codegen(struct expr *e) {
 		case EXPR_SUBSCRIPT: {
 			// A subscript is different than declaring an array
 			// This is only accessing elements in an array
-			const char *array_with_index_address = array_index_address_codegen(e);
+			const char *array_with_index_address = array_at_index_codegen(e);
 			// Use the variable address register as the same register for
 			// both loading the address and then store the value of the
 			// array in that register too
