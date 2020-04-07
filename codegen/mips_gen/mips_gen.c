@@ -28,12 +28,12 @@ const char *symbol_codegen(struct symbol *s) {
 			return s->name;
 		case SYMBOL_LOCAL:
 			name = malloc(128);
-			sprintf(name, "%d($sp)", 4*s->stack_position);
+			sprintf(name, "%d($fp)", 4*s->stack_position);
 			return name;
 		case SYMBOL_PARAM:
 			name = malloc(128);
 			// We add 4, because $ra is in that spot
-			sprintf(name, "%d($sp)", 4*s->stack_position + 4);
+			sprintf(name, "%d($fp)", 4*s->stack_position + 4);
 			return name;
 	}
 }

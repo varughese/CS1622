@@ -123,7 +123,7 @@ void pre_function(struct decl *d) {
 	// Now, we also reserve spots on the stack for all of the local variables
 	// push local vars
 	printf("sub $sp, $sp, %d # push local vars\n", 4 * d->symbol->local_vars_count);
-
+	printf("move $fp, $sp\n");
 	printf("# {\n");
 }
 
@@ -137,6 +137,7 @@ void post_function(struct decl *d) {
 	printf("add $sp, $sp, 4\n");
 	// pop all arguments
 	printf("add $sp, $sp, %d # pop arguments \n", 4 * d->symbol->params_count);
+	printf("move $fp, $sp\n");
 	// return
 	printf("j $ra\n");
 }
