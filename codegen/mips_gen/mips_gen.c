@@ -51,7 +51,7 @@ const char *array_index_address_codegen(struct expr *e) {
 	const char *array_pointer = symbol_codegen(e->left->symbol);
 	if (e->left->symbol->kind == SYMBOL_PARAM) {
 		// parameters are pass by value!
-		printf("# Symbol is an array param. Load the pointer.\n");
+		printf("# array parameter, load pointer\n");
 		printf("lw  %s, %s\n", scratch_name(e->reg), array_pointer);
 	} else {
 		printf("la  %s, %s\n", scratch_name(e->reg), array_pointer);
@@ -74,7 +74,12 @@ void expr_codegen(struct expr *e) {
 		case EXPR_NAME:
 			e->reg = scratch_alloc();
 			if (e->symbol->type->kind == TYPE_ARRAY) {
-				printf("la  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
+				if (e->symbol->kind == SYMBOL_PARAM) {
+					printf("# array parameter, load pointer\n");
+					printf("lw  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
+				} else {
+					printf("la  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
+				}
 			} else {
 				printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
 			}
