@@ -16,8 +16,8 @@ struct symbol {
 	struct type *type;
 	// name : int x, name is x
 	char *name;
-	// which : ordinal position of local variables and parameters
-	int which;
+	// stack_position : ordinal position of local variables and parameters
+	int stack_position;
 	// params_count : for a function, we store the number of parameters
 	int params_count;
 	// local_vars_count : for a function, we store the number of local variables

@@ -207,18 +207,18 @@ y
 z		<- $sp
 ```
 
-In the compiler, each symbol has a `which` variable to indicate the position it is located.
-In mips_gen, we call `increase_param_symbol_which` to increase the `which` of the arguments.
+In the compiler, each symbol has a `stack_position` variable to indicate the position it is located on the stack.
+In mips_gen, we call functions in `stack_calculation` to figure this out.
 
 ```
-a1->which	4	20 ($sp)
-a0->which	3	16 ($sp)
-// 				12 ($sp) contains $ra
-z->which	2	8 ($sp)
-y->which	1	4 ($sp)
-x->which	0	0 ($sp)
+a1->stack_position	4	20 ($sp)
+a0->stack_position	3	16 ($sp)
+// 						12 ($sp) contains $ra
+z->stack_position	2	8 ($sp)
+y->stack_position	1	4 ($sp)
+x->stack_position	0	0 ($sp)
 ```
 
-So, for local variables, we can just do `<which * 4> $sp`.
+So, for local variables, we can just do `<stack_position * 4> $sp`.
 
-For parameters, we can do `<which * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.
+For parameters, we can do `<stack_position * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.

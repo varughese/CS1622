@@ -19,26 +19,27 @@ syscall
 j $ra
 
 _f_f:
-Running thru ordinal counter
-Local variable [b], which [0] 
-Local variable [x], which [1] 
-Local variable [c], which [5] 
-# parameter [a0], position [6]
-# parameter [a1], position [7]
-	 # f() [0] params, [6] local vars
+# Running thru ordinal counter
+# Local variable [b], stack_pos [0] 
+# Local variable [x], stack_pos [1] 
+# Local variable [c], stack_pos [5] 
+# Running thru ordinal counter
+# Local variable [d], stack_pos [6] 
+# parameter [a0], position [7]
+# parameter [a1], position [8]
+	 # f() [0] params, [7] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 24 # push local vars
+sub $sp, $sp, 28 # push local vars
 # {
 # }
-add $sp, $sp, 24 # pop local vars
+add $sp, $sp, 28 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 
 j $ra
 
 _f_main:
-Running thru ordinal counter
 	 # main() [0] params, [0] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)

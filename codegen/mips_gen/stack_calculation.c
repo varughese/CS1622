@@ -4,7 +4,31 @@
 #include "../symbol_table/symbol.h"
 #include "stack_calculation.h"
 
-void set_which_ordinals_for_stack_calculation(struct decl *d) {
+void set_stack_positions_on_variables(struct decl *fd, struct decl *local_decl);
+void set_stack_positions_for_parameters(struct param_list* params, int local_vars_count);
+
+void find_variables_in_stmt(struct decl *d, struct stmt *stmt) {
+	if(stmt == NULL) return;
+
+	// We need this helper function to recursively traverse the tree and find
+	// all compound statements in this function
+
+	if (stmt->kind == STMT_COMPOUND) {
+		if (stmt->decl != NULL) {
+			set_stack_positions_on_variables(d, stmt->decl);
+		}
+		find_variables_in_stmt(d, stmt->body);
+	} else if (stmt->kind == STMT_ITERATION) {
+		find_variables_in_stmt(d, stmt->body);
+	} else if (stmt->kind == STMT_IF_ELSE) {
+		find_variables_in_stmt(d, stmt->body);
+		find_variables_in_stmt(d, stmt->else_body);
+	}
+
+	find_variables_in_stmt(d, stmt->next);	
+}
+
+void set_stack_positions_on_variables(struct decl *fd, struct decl *local_decl) {
 	// This function exists because we need to set the appropiate indicators
 	// on variables in order to make variable address calculation on the stack possible
 	// Things to keep in mind:
@@ -16,74 +40,71 @@ void set_which_ordinals_for_stack_calculation(struct decl *d) {
 	// 		int b; int x[4]; int c;
 	// }
 	
-	// We need to update the `which` value on all of the symbols so that stack
+	// We need to update the `stack_pos` value on all of the symbols so that stack
 	// calculation is easy. Note an array counts as as many local variables as space
 	// it takes up. so x[4] counts as 4 local ariables.
-	int local_variables = 0;
-	struct decl *local_declaration = d->code->decl;
-	printf("# Running thru ordinal counter\n");
-	while (local_declaration != NULL) {
-		local_declaration->symbol->which = local_variables;
-		if(local_declaration->type->kind == TYPE_ARRAY) {
-			local_variables += local_declaration->array_size;
-		} else {
-			local_variables++;
+
+	// We compute this recursively, because every compound statement in a function
+	// can have more local declarations. Like an if statement might contain variables,
+	// which we need to put on the stack.
+
+	if (local_decl == NULL) {
+		// This algorithm is messy
+		// Loop thru the rest of decl recursively to find ALL local variables
+		find_variables_in_stmt(fd, fd->code);
+		// Now, local_vars_count is populated with the correct number, since the above
+		// call is recursive.
+		set_stack_positions_for_parameters(fd->type->params, fd->symbol->local_vars_count);
+	} else {
+		int local_variables = fd->symbol->local_vars_count;
+		while (local_decl != NULL) {
+			local_decl->symbol->stack_position = local_variables;
+			if(local_decl->type->kind == TYPE_ARRAY) {
+				local_variables += local_decl->array_size;
+			} else {
+				local_variables++;
+			}
+			printf("# Local variable [%s], stack_pos [%d] \n", local_decl->symbol->name, local_decl->symbol->stack_position);
+			local_decl = local_decl->next;
 		}
-		printf("# Local variable [%s], which [%d] \n", local_declaration->symbol->name, local_declaration->symbol->which);
-		local_declaration = local_declaration->next;
+		fd->symbol->local_vars_count = local_variables;
 	}
-	d->symbol->local_vars_count = local_variables;
-	// Loop thru the rest of decl recursively to find ALL local variables
-	increase_param_symbol_which(d->type->params, d->symbol->local_vars_count);
 }
 
 
-// To make argument stack calculation easier, we increase the `which` on
+// To make argument stack calculation easier, we increase the `stack_pos` on
 // the parameters so symbol_codegen() can easily determine its position on the stack
-void increase_param_symbol_which(struct param_list* params, int local_vars_count) {
+void set_stack_positions_for_parameters(struct param_list* params, int local_vars_count) {
 	struct param_list *current = params;
 	int param_count = 0;
 
-// 	if (sym->kind != SYMBOL_GLOBAL) {
-// 		// All of this code is just to identify the ordinal position
-// 		// on the stack the current variable we are binding will point to
-// 		// We count the number of parameters, and the total number of variables
-// 		// in the function (this includes parameters)
-// 		_current_function_variable_count++;
+	// In the code below, I numbered the variables to show what the `stack_pos` would be
+	//
+	// void f(int a3, int a4) { 
+	// 	int v0; 
+	//  int v1; 
+	//  { 
+	//		int v2 
+	//	} 
+	// }
+	// We can calculate the address of a variable based on this number.
 
-// 		// For parameters, it is just the position in the function header
-// 		if (sym->kind == SYMBOL_PARAM) 
-// 			sym->which = _current_param_count++;
-
-// 		// For local variables, it is the position in the function, but, we
-// 		//	restart at 0. In the code below, I numbered the variables to show
-// 		// what the `which` would be
-// 		//
-// 		// void f(int a0, int a1) { 
-// 		// 	int v0; int v1; 
-// 		//  { int v2  } }
-// 		// In code generation, we update these arguments to make calculation easier.
-// 		if (sym->kind == SYMBOL_LOCAL) 
-// 			sym->which = _current_function_variable_count - _current_param_count - 1;
-// 	} else {
-// 		// We can have nested scopes inside of functions (like an if statement),
-// 		//  so that is a reason why this code seems more convulted than it needs to be and
-// 		//  we keep track of param_count and the total function_variable_count
-// 		// Whenever we see a new GLOBAL variable, we have entered
-// 		// a new function, so restart the counters
-// 		_current_param_count = 0;
-// 		_current_function_variable_count = 0;
-// 	}
+	// We can have nested scopes inside of functions (like an if statement),
+	//  so that is a reason why this file seems so convuluted.
+	//  we keep track of param_count and the total function_variable_count
+	//  so we know exactly how to clear the stack.
 
 	while(current != NULL) {
-		current->symbol->which = param_count++ + local_vars_count;
-		printf("# parameter [%s], position [%d]\n", current->symbol->name, current->symbol->which);
+		current->symbol->stack_position = param_count++ + local_vars_count;
+		printf("# parameter [%s], position [%d]\n", current->symbol->name, current->symbol->stack_position);
 		current = current->next;
 	}
 }
 
 void pre_function(struct decl *d) {
-	set_which_ordinals_for_stack_calculation(d);
+	// The set_stack_positions_on_variables() function will count how many
+	// local vars there are and do all stack position calculations for us
+	set_stack_positions_on_variables(d, NULL);
 	
 	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
 	// push $ra

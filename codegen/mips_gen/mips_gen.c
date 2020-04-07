@@ -28,12 +28,12 @@ const char *symbol_codegen(struct symbol *s) {
 			return s->name;
 		case SYMBOL_LOCAL:
 			name = malloc(128);
-			sprintf(name, "%d($sp)", 4*s->which);
+			sprintf(name, "%d($sp)", 4*s->stack_position);
 			return name;
 		case SYMBOL_PARAM:
 			name = malloc(128);
 			// We add 4, because $ra is in that spot
-			sprintf(name, "%d($sp)", 4*s->which + 4);
+			sprintf(name, "%d($sp)", 4*s->stack_position + 4);
 			return name;
 	}
 }
@@ -153,7 +153,7 @@ void decl_codegen(struct decl *d) {
 				printf(".text\n");
 				break;
 			case SYMBOL_LOCAL:
-				printf("# declare local variable [%s], pos [%d] \n", sym->name, sym->which);
+				printf("# declare local variable [%s], pos [%d] \n", sym->name, sym->stack_position);
 				break;
 			case SYMBOL_PARAM:
 				printf("TODO - I do not think this should ever happen\n.");
