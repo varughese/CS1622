@@ -144,30 +144,33 @@ void decl_codegen(struct decl *d) {
 	if (d == NULL) return;
 
 	struct symbol *sym = d->symbol;
-
-	if (d->type->kind == TYPE_INTEGER) {
-		const char *var_name = symbol_codegen(sym);
-		switch (sym->kind) {
-			case SYMBOL_GLOBAL:
-				printf(".data\n%s: .word 622 # Globals are not initialized in C-, so we put Mings bday. \n\n", var_name);
-				printf(".text\n");
-				break;
-			case SYMBOL_LOCAL:
-				printf("# declare local variable [%s], pos [%d] \n", sym->name, sym->stack_position);
-				break;
-			case SYMBOL_PARAM:
-				printf("TODO - I do not think this should ever happen\n.");
-				break;
-		}
-		free((char *) var_name);
+	if (sym->kind != SYMBOL_GLOBAL) {
+		printf("TODO - I do not think this should ever happen\n.");
+		return;
 	}
 
-	if (d->type->kind == TYPE_FUNCTION) {
-		printf("_f_%s:\n", sym->name);
-		pre_function(d);
-		stmt_codegen(d->code);
-		post_function(d);
-		printf("\n");
+	const char *var_name = symbol_codegen(sym);
+	switch(d->type->kind) {
+		case TYPE_INTEGER:
+			printf(".data\n%s: .word 0\n\n", var_name);
+			printf(".text\n");
+			break;
+
+		case TYPE_ARRAY:
+			printf(".data\n%s: .word 0:%d \n\n", var_name, d->array_size);
+			printf(".text\n");
+			break;
+
+		case TYPE_FUNCTION:
+			printf("_f_%s:\n", sym->name);
+			pre_function(d);
+			stmt_codegen(d->code);
+			post_function(d);
+			printf("\n");
+			break;
+		
+		default:
+			break;
 	}
 
 	decl_codegen(d->next);
