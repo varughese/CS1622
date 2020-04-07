@@ -38,8 +38,19 @@ const char *symbol_codegen(struct symbol *s) {
 	}
 }
 
-// This loads the array at an index into an address and returns the address pointer in MIPS
-const char *array_index_address_codegen(struct expr *e) {
+// This finds the array in memory and loads it into the specified register
+void load_array_codegen(struct expr *e, int reg) {
+	if (e->symbol->kind == SYMBOL_PARAM) {
+		// arrays are passed by reference, so the variable on the stack contains 
+		// the address already since it is a parameter
+		printf("lw  %s, %s\n",  scratch_name(reg), symbol_codegen(e->symbol));
+	} else {
+		printf("la  %s, %s\n",  scratch_name(reg), symbol_codegen(e->symbol));
+	}
+}
+
+// This loads the array AT A SPECIFIC INDEX (like a[1]) into an address and returns the address pointer in MIPS
+const char *array_at_index_codegen(struct expr *e) {
 	if (e->left->kind != EXPR_NAME) {
 		printf("# TODO - i do not think this should happen\n");
 	}
@@ -48,14 +59,7 @@ const char *array_index_address_codegen(struct expr *e) {
 		return "(null)";
 	}
 	e->reg = scratch_alloc();
-	const char *array_pointer = symbol_codegen(e->left->symbol);
-	if (e->left->symbol->kind == SYMBOL_PARAM) {
-		// parameters are pass by value!
-		printf("# array parameter, load pointer\n");
-		printf("lw  %s, %s\n", scratch_name(e->reg), array_pointer);
-	} else {
-		printf("la  %s, %s\n", scratch_name(e->reg), array_pointer);
-	}
+	load_array_codegen(e->left, e->reg);\
 	int index = e->right->integer_value;
 	char *array_with_index_pointer = malloc(128);
 	sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
@@ -74,12 +78,7 @@ void expr_codegen(struct expr *e) {
 		case EXPR_NAME:
 			e->reg = scratch_alloc();
 			if (e->symbol->type->kind == TYPE_ARRAY) {
-				if (e->symbol->kind == SYMBOL_PARAM) {
-					printf("# array parameter, load pointer\n");
-					printf("lw  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
-				} else {
-					printf("la  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
-				}
+				load_array_codegen(e, e->reg);
 			} else {
 				printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
 			}
@@ -95,7 +94,7 @@ void expr_codegen(struct expr *e) {
 			// Things get a little more complicated if it is an array
 			// We handle the case of `arr[3] = 4` here
 			if (e->left->kind == EXPR_SUBSCRIPT) {
-				variable_address = array_index_address_codegen(e->left);
+				variable_address = array_at_index_codegen(e->left);
 				scratch_free(e->left->reg);
 			} else {
 				variable_address = symbol_codegen(e->left->symbol);
@@ -163,8 +162,6 @@ void stmt_codegen(struct stmt *s) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
-			// decl_codegen(s->decl); TODO... i dont think we need to do this bc local
-			// 	decl's will get taken care of pre_function() method
 			stmt_codegen(s->body);
 			break;
 

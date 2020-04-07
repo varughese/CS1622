@@ -4,7 +4,7 @@ import re
 
 files=[
 	"test-call-byref",
-	# "test-name-scope",
+	"test-name-scope",
 	# "test-nested-expr",
 	# "test-program-dijkstra",
 	# "test-program-fibonacci-bottomup",
