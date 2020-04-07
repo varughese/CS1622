@@ -4,6 +4,7 @@
 #include "../symbol_table/symbol.h"
 #include <string.h>
 #include "scratch.h"
+#include "stack_calculation.h"
 #include "mips_gen.h"
 
 void decl_codegen(struct decl *d);
@@ -87,6 +88,8 @@ void expr_codegen(struct expr *e) {
 			break;
 
 		case EXPR_SUBSCRIPT:
+			// A subscript is different than declaring an array
+			// This is only accessing elements in an array
 			break;
 		case EXPR_CALL:
 			expr_codegen(e->right);
@@ -110,7 +113,8 @@ void stmt_codegen(struct stmt *s) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
-			decl_codegen(s->decl);
+			// decl_codegen(s->decl); TODO... i dont think we need to do this bc local
+			// 	decl's will get taken care of pre_function() method
 			stmt_codegen(s->body);
 			break;
 
@@ -134,51 +138,6 @@ void stmt_codegen(struct stmt *s) {
 	}
 
 	stmt_codegen(s->next);	
-}
-
-// To make argument stack calculation easier, we increase the `which` on
-// the parameters so symbol_codegen() can easily determine its position on the stack
-void increase_param_symbol_which(struct param_list* params, int local_vars_count) {
-	struct param_list *current = params;
-	while(current != NULL) {
-		current->symbol->which += local_vars_count;
-		printf("# parameter [%s], position [%d]\n", current->symbol->name, current->symbol->which);
-		current = current->next;
-	}
-}
-
-void pre_function(struct decl *d) {
-	increase_param_symbol_which(d->type->params, d->symbol->local_vars_count);
-	printf("\t # %s() [%d] params, [%d] local vars\n", d->name, d->symbol->params_count, d->symbol->local_vars_count);
-	// push $ra
-	printf("sub $sp, $sp, 4 # push ra\n");
-	printf("sw  $ra, 0($sp)\n");
-
-	// By convention, the caller pushes arguments onto the stack before
-	// they are called. So, when this function is called, those will be
-	// on the stack.
-	// So stack looks like this, after we place the RA:
-	// Stack [param1, param0, RA]
-
-	// Now, we also reserve spots on the stack for all of the local variables
-	// push local vars
-	printf("sub $sp, $sp, %d # push local vars\n", 4 * d->symbol->local_vars_count);
-
-	printf("# {\n");
-}
-
-
-void post_function(struct decl *d) {
-	printf("# }\n");
-	// pop local vars
-	printf("add $sp, $sp, %d # pop local vars\n", 4 * d->symbol->local_vars_count);
-	// pop ra
-	printf("lw  $ra, ($sp)\n");
-	printf("add $sp, $sp, 4\n");
-	// pop all arguments
-	printf("add $sp, $sp, %d # pop arguments \n", 4 * d->symbol->params_count);
-	// return
-	printf("j $ra\n");
 }
 
 void decl_codegen(struct decl *d) {
@@ -227,8 +186,7 @@ void include_output_input_functions() {
 void ast_to_mips(struct decl *root) {
 	printf(".text\n");
 	include_output_input_functions();
-	decl_codegen(root);
-	printf("\n# TODO - Turn ast into MIPS lol\n");
+	decl_codegen(root);\
 	printf("main:\n");
 	printf("jal _f_main\n");
 	printf("li $v0, 10 # We need to do this syscall to exit\n");

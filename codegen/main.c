@@ -1,16 +1,10 @@
-
-int g;
-
-void j(int y) {
-    output(y+g);
-}
-
-void f(int x) {
-    g = 4;
-    j(9);
+void f(int a0, int a1) {
+    int b;
+    int x[4];
+    int c;
 }
 
 void main(void)
 {
-    f(3);
+    f(2, 3);
 }
