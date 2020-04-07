@@ -43,9 +43,19 @@ const char *array_index_address_codegen(struct expr *e) {
 	if (e->left->kind != EXPR_NAME) {
 		printf("# TODO - i do not think this should happen\n");
 	}
+	if (e->right->kind != EXPR_INTEGER_LITERAL) {
+		printf("# TODO , expressions in arrays does not work yet\n");
+		return "(null)";
+	}
 	e->reg = scratch_alloc();
 	const char *array_pointer = symbol_codegen(e->left->symbol);
-	printf("la  %s, %s\n", scratch_name(e->reg), array_pointer);
+	if (e->left->symbol->kind == SYMBOL_PARAM) {
+		// parameters are pass by value!
+		printf("# Symbol is an array param. Load the pointer.\n");
+		printf("lw  %s, %s\n", scratch_name(e->reg), array_pointer);
+	} else {
+		printf("la  %s, %s\n", scratch_name(e->reg), array_pointer);
+	}
 	int index = e->right->integer_value;
 	char *array_with_index_pointer = malloc(128);
 	sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
@@ -63,7 +73,11 @@ void expr_codegen(struct expr *e) {
 
 		case EXPR_NAME:
 			e->reg = scratch_alloc();
-			printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+			if (e->symbol->type->kind == TYPE_ARRAY) {
+				printf("la  %s, %s\n",  scratch_name(e->reg), symbol_codegen(e->symbol));
+			} else {
+				printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+			}
 			break;
 		case EXPR_ASSIGN:
 			expr_codegen(e->right);
@@ -74,6 +88,7 @@ void expr_codegen(struct expr *e) {
 			// The value we want to store into is now in e->right's register
 			const char *variable_address;
 			// Things get a little more complicated if it is an array
+			// We handle the case of `arr[3] = 4` here
 			if (e->left->kind == EXPR_SUBSCRIPT) {
 				variable_address = array_index_address_codegen(e->left);
 				scratch_free(e->left->reg);
