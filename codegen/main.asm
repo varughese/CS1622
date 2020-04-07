@@ -19,24 +19,41 @@ syscall
 j $ra
 
 _f_f:
-# Running thru ordinal counter
 # Local variable [b], stack_pos [0] 
 # Local variable [x], stack_pos [1] 
 # Local variable [c], stack_pos [5] 
-# Running thru ordinal counter
 # Local variable [d], stack_pos [6] 
-# parameter [a0], position [7]
-# parameter [a1], position [8]
-	 # f() [0] params, [7] local vars
+# Local variable [d], stack_pos [7] 
+# parameter [a0], position [8]
+# parameter [a1], position [9]
+	 # f() [2] params, [8] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 28 # push local vars
+sub $sp, $sp, 32 # push local vars
 # {
+li  $t0, 4
+sw  $t0, 24($sp)
+lw  $t0, 24($sp)
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t1 $v0
+li  $t2, 4
+sw  $t2, 0($sp)
+li  $t2, 3
+sw  $t2, 20($sp)
+lw  $t2, 0($sp)
+lw  $t3, 20($sp)
+add $t4, $t2, $t3
+sub $sp, $sp, 4
+sw  $t4, ($sp)
+jal _f_output
+move $t2 $v0
 # }
-add $sp, $sp, 28 # pop local vars
+add $sp, $sp, 32 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
-add $sp, $sp, 0 # pop arguments 
+add $sp, $sp, 8 # pop arguments 
 j $ra
 
 _f_main:
@@ -45,14 +62,14 @@ sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 0 # push local vars
 # {
-li  $t0, 3
+li  $t3, 3
 sub $sp, $sp, 4
-sw  $t0, ($sp)
-li  $t1, 2
+sw  $t3, ($sp)
+li  $t5, 2
 sub $sp, $sp, 4
-sw  $t1, ($sp)
+sw  $t5, ($sp)
 jal _f_f
-move $t2 $v0
+move $t6 $v0
 # }
 add $sp, $sp, 0 # pop local vars
 lw  $ra, ($sp)

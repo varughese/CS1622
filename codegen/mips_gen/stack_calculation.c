@@ -5,7 +5,7 @@
 #include "stack_calculation.h"
 
 void set_stack_positions_on_variables(struct decl *fd, struct decl *local_decl);
-void set_stack_positions_for_parameters(struct param_list* params, int local_vars_count);
+int set_stack_positions_for_parameters(struct param_list* params, int local_vars_count);
 
 void find_variables_in_stmt(struct decl *d, struct stmt *stmt) {
 	if(stmt == NULL) return;
@@ -54,7 +54,8 @@ void set_stack_positions_on_variables(struct decl *fd, struct decl *local_decl) 
 		find_variables_in_stmt(fd, fd->code);
 		// Now, local_vars_count is populated with the correct number, since the above
 		// call is recursive.
-		set_stack_positions_for_parameters(fd->type->params, fd->symbol->local_vars_count);
+		int param_count = set_stack_positions_for_parameters(fd->type->params, fd->symbol->local_vars_count);
+		fd->symbol->params_count = param_count;
 	} else {
 		int local_variables = fd->symbol->local_vars_count;
 		while (local_decl != NULL) {
@@ -74,7 +75,7 @@ void set_stack_positions_on_variables(struct decl *fd, struct decl *local_decl) 
 
 // To make argument stack calculation easier, we increase the `stack_pos` on
 // the parameters so symbol_codegen() can easily determine its position on the stack
-void set_stack_positions_for_parameters(struct param_list* params, int local_vars_count) {
+int set_stack_positions_for_parameters(struct param_list* params, int local_vars_count) {
 	struct param_list *current = params;
 	int param_count = 0;
 
@@ -99,6 +100,8 @@ void set_stack_positions_for_parameters(struct param_list* params, int local_var
 		printf("# parameter [%s], position [%d]\n", current->symbol->name, current->symbol->stack_position);
 		current = current->next;
 	}
+
+	return param_count;
 }
 
 void pre_function(struct decl *d) {

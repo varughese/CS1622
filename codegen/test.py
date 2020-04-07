@@ -15,7 +15,8 @@ files=[
 	# "test-simple-expr",
 	# "test-simple-if",
 	# "test-simple-return",
-	# "test-simple-while"
+	# "test-simple-while",
+	"test-mingmat-var-decl"
 ]
 
 RED='\033[0;31m'
