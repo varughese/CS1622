@@ -208,7 +208,7 @@ z		<- $sp
 ```
 
 In the compiler, each symbol has a `stack_position` variable to indicate the position it is located on the stack.
-In mips_gen, we call functions in `stack_calculation` to figure this out.
+In `mips_gen.c`, we call functions in `stack_calculation.c` to calculate this for us.
 
 ```
 a1->stack_position	4	20 ($sp)
@@ -222,3 +222,11 @@ x->stack_position	0	0 ($sp)
 So, for local variables, we can just do `<stack_position * 4> $sp`.
 
 For parameters, we can do `<stack_position * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.
+
+The complication however, is that the `$sp` can change during a function call.
+For example, when you call a function within a function, you push arguments onto the
+stack. This will f up the calculated variables above. 
+
+To deal with this, we use the `$fp`, frame pointer. The `$fp` is set to the `$sp` after the
+stack is set up but before the function starts. A function ends by cleaning up the stack,
+and resetting the `$fp`.
