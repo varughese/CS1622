@@ -73,6 +73,51 @@ const char *array_at_index_codegen(struct expr *e) {
 	return array_with_index_pointer;
 }
 
+void comparision_codegen(struct expr *e) {
+	if (e == NULL) return;
+
+	expr_codegen(e->left);
+	expr_codegen(e->right);
+	e->reg = scratch_alloc();
+	const char *reg = scratch_name(e->reg);
+	const char *A = scratch_name(e->left->reg);
+	const char *B = scratch_name(e->right->reg);  
+
+	switch(e->kind) {
+		case EXPR_ISEQ:
+			printf("sub %s, %s, %s\n", reg, A, B);
+			// Set %s to 1 if it's non-zero
+			printf("sltu %s, $zero, %s\n", reg, reg);
+			// Flip the lsb so that 0 becomes 1, and 1 becomes 0
+			printf("xori %s, %s, 1\n", reg, reg);
+			break;
+		case EXPR_NEQ:
+			printf("sub %s, %s, %s\n", reg, A, B);
+			printf("sltu %s, $zero, %s\n", reg, reg);
+			break;
+		case EXPR_LE:
+			printf("sub %s, %s, %s\n", reg, A, B);
+			printf("slti %s, %s, 1\n", reg, reg);
+			break;
+		case EXPR_LT:
+			printf("sub %s, %s, %s\n", reg, A, B);
+			printf("slt %s, %s, $zero\n", reg, reg);
+			break;
+		case EXPR_GT:
+			printf("sub %s, %s, %s\n", reg, B, A);
+			printf("slt %s, %s, $zero\n", reg, reg);
+			break;
+		case EXPR_GE:
+			printf("sub %s, %s, %s\n", reg, B, A);
+			printf("slti %s, %s, 1\n", reg, reg);
+			break;
+		default:
+			break;
+	}
+	scratch_free(e->left->reg);
+	scratch_free(e->right->reg);
+}
+
 void expr_codegen(struct expr *e) {
 	if (e == NULL) return;
 
@@ -163,6 +208,7 @@ void expr_codegen(struct expr *e) {
 		case EXPR_LT:
 		case EXPR_GT:
 		case EXPR_GE:
+			comparision_codegen(e);
 			break;
 
 		case EXPR_SUBSCRIPT: {
@@ -206,10 +252,23 @@ void stmt_codegen(struct stmt *s) {
 			scratch_free(s->expr->reg);
 			break;
 
-		case STMT_IF_ELSE:
-			// stmt_codegen(s->body);
-			// stmt_codegen(s->else_body);
+		case STMT_IF_ELSE: {
+			const char *if_body = label_name(label_create());
+			const char *else_body = label_name(label_create());
+			const char *end_if = label_name(label_create());
+
+			expr_codegen(s->expr);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
+			scratch_free(s->expr->reg);
+			printf("b %s\n", else_body);
+			printf("%s:\n", if_body);
+			stmt_codegen(s->body);
+			printf("b %s\n", end_if);
+			printf("%s:\n", else_body);
+			stmt_codegen(s->else_body);
+			printf("%s:\n", end_if);
 			break;
+		}
 
 		case STMT_ITERATION:
 			// expr_codegen(s->expr);
@@ -228,12 +287,8 @@ void decl_codegen(struct decl *d) {
 	if (d == NULL) return;
 
 	struct symbol *sym = d->symbol;
-	if (sym->kind != SYMBOL_GLOBAL) {
-		printf("TODO - I do not think this should ever happen\n.");
-		return;
-	}
-
 	const char *var_name = symbol_codegen(sym);
+
 	switch(d->type->kind) {
 		case TYPE_INTEGER:
 			printf(".data\n%s: .word 0\n\n", var_name);

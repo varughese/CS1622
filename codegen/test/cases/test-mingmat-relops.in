@@ -1,0 +1,22 @@
+void main(void) {
+    int x;
+
+    output(0 == 1);
+    output(1 == 1);
+
+    output(1 != 1);
+    output(0 != 1);
+
+    output(111 <= 1);
+    output(1 <= 1);
+
+    output(1 < 1);
+    output(1 < 11);
+
+    output(1 > 1);
+    output(11 > 1);
+
+    output(1 >= 11);
+    output(1 >= 1);
+
+}

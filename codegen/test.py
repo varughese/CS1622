@@ -13,13 +13,14 @@ files=[
 	# "test-program-selection-sort",
 	# "test-program-simple",
 	# "test-simple-expr",
-	# "test-simple-if",
+	"test-simple-if",
 	# "test-simple-return",
 	# "test-simple-while",
 	"test-mingmat-var-decl",
 	"test-mingmat-arrays-numeric-index",
 	"test-mingmat-array-params",
-	"test-mingmat-arrays-expression-index"
+	"test-mingmat-arrays-expression-index",
+	"test-mingmat-relops"
 ]
 
 RED='\033[0;31m'
