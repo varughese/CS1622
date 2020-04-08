@@ -22,6 +22,8 @@ struct symbol {
 	int params_count;
 	// local_vars_count : for a function, we store the number of local variables
 	int local_vars_count;
+	// MIPS register the variable is in
+	int reg;
 };
 
 #endif

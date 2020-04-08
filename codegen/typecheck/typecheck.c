@@ -30,6 +30,7 @@ struct symbol * symbol_copy(struct symbol *s) {
 	copy->name = s->name;
 	copy->params_count = 0;
 	copy->local_vars_count = 0;
+	copy->reg = -1;
     return copy;
 }
 

@@ -47,13 +47,13 @@ const char *symbol_codegen(struct symbol *s) {
 }
 
 // This finds the array in memory and loads it into the specified register
-void load_array_codegen(struct expr *e, int reg) {
+void load_array_codegen(struct expr *e, const char *reg) {
 	if (e->symbol->kind == SYMBOL_PARAM) {
 		// arrays are passed by reference, so the variable on the stack contains 
 		// the address already since it is a parameter
-		printf("lw  %s, %s\n",  scratch_name(reg), symbol_codegen(e->symbol));
+		printf("lw  %s, %s\n",  reg, symbol_codegen(e->symbol));
 	} else {
-		printf("la  %s, %s\n",  scratch_name(reg), symbol_codegen(e->symbol));
+		printf("la  %s, %s\n",  reg, symbol_codegen(e->symbol));
 	}
 }
 
@@ -63,18 +63,18 @@ const char *array_at_index_codegen(struct expr *e) {
 	int index;
 
 	e->reg = scratch_alloc();
-	load_array_codegen(e->left, e->reg);
+	load_array_codegen(e->left, scratch_name(e));
 
 	if (e->right->kind == EXPR_INTEGER_LITERAL) {
 		index = e->right->integer_value;
-		sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
+		sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e));
 	} else {
 		expr_codegen(e->right);
 		// Multiply result expression 4 to get index
-		printf("sll %s, %s, 2\n", scratch_name(e->right->reg), scratch_name(e->right->reg));
-		printf("add %s, %s, %s\n", scratch_name(e->reg), scratch_name(e->reg), scratch_name(e->right->reg));
-		scratch_free(e->right->reg);
-		sprintf(array_with_index_pointer, "(%s)", scratch_name(e->reg));
+		printf("sll %s, %s, 2\n", scratch_name(e->right), scratch_name(e->right));
+		printf("add %s, %s, %s\n", scratch_name(e), scratch_name(e), scratch_name(e->right));
+		scratch_free(e->right);
+		sprintf(array_with_index_pointer, "(%s)", scratch_name(e));
 	}
 
 	return array_with_index_pointer;
@@ -86,9 +86,9 @@ void comparision_codegen(struct expr *e) {
 	expr_codegen(e->left);
 	expr_codegen(e->right);
 	e->reg = scratch_alloc();
-	const char *reg = scratch_name(e->reg);
-	const char *A = scratch_name(e->left->reg);
-	const char *B = scratch_name(e->right->reg);  
+	const char *reg = scratch_name(e);
+	const char *A = scratch_name(e->left);
+	const char *B = scratch_name(e->right);  
 
 	switch(e->kind) {
 		case EXPR_ISEQ:
@@ -121,20 +121,32 @@ void comparision_codegen(struct expr *e) {
 		default:
 			break;
 	}
-	scratch_free(e->left->reg);
-	scratch_free(e->right->reg);
+	scratch_free(e->left);
+	scratch_free(e->right);
+}
+
+void reload_variable_if_needed(struct expr *e) {
+	// When doing math, sometimes you generate the left expression tree
+	// and the right expression tree, and then the right tree will
+	// use variables the left tree also uses. Then, the right tree will
+	// free those variables, and the left tree is now missing variables.
+	// So, this reloads them into memory
+	if (e->symbol && e->symbol->reg == -1) {
+		printf("# Reloading variable\n");
+		expr_codegen(e);
+	}
 }
 
 const char *math_mips_instruction(expr_t op) {
 	switch(op) {
 		case EXPR_ADD:
-			return "add";
+			return "addu";
 		case EXPR_SUB:
-			return "sub";
+			return "subu";
 		case EXPR_MUL:
 			return "mul";
 		case EXPR_DIV:
-			return "div";
+			return "divu";
 		default:
 			return NULL;
 	}
@@ -146,15 +158,22 @@ void expr_codegen(struct expr *e) {
 	switch(e->kind) {
 		case EXPR_INTEGER_LITERAL:
 			e->reg = scratch_alloc();
-			printf("li  %s, %d\n", scratch_name(e->reg), e->integer_value);
+			printf("li  %s, %d\n", scratch_name(e), e->integer_value);
 			break;
 
 		case EXPR_NAME:
+			if (e->symbol->reg >= 0) {
+				// If an variable is already loading into a register,
+				// just use that register instead of re-loading
+				e->reg = e->symbol->reg;
+				return;
+			}
 			e->reg = scratch_alloc();
+			e->symbol->reg = e->reg;
 			if (e->symbol->type->kind == TYPE_ARRAY) {
-				load_array_codegen(e, e->reg);
+				load_array_codegen(e, scratch_name(e));
 			} else {
-				printf("lw  %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+				printf("lw  %s, %s\n", scratch_name(e), symbol_codegen(e->symbol));
 			}
 			break;
 		case EXPR_ASSIGN:
@@ -169,13 +188,13 @@ void expr_codegen(struct expr *e) {
 			// We handle the case of `arr[3] = 4` here
 			if (e->left->kind == EXPR_SUBSCRIPT) {
 				variable_address = array_at_index_codegen(e->left);
-				scratch_free(e->left->reg);
+				scratch_free(e->left);
 			} else {
 				variable_address = symbol_codegen(e->left->symbol);
 			}
 
-			printf("sw  %s, %s\n", scratch_name(e->right->reg), variable_address);
-			scratch_free(e->right->reg);
+			printf("sw  %s, %s\n", scratch_name(e->right), variable_address);
+			scratch_free(e->right);
 			break;
 
 		case EXPR_ADD:
@@ -185,13 +204,14 @@ void expr_codegen(struct expr *e) {
 			expr_codegen(e->left);
 			expr_codegen(e->right);
 			e->reg = scratch_alloc();
+			reload_variable_if_needed(e->left);
 			printf("%s %s, %s, %s\n", 
 					math_mips_instruction(e->kind),
-					scratch_name(e->reg), 
-					scratch_name(e->left->reg),  
-					scratch_name(e->right->reg));
-			scratch_free(e->right->reg);
-			scratch_free(e->left->reg);
+					scratch_name(e), 
+					scratch_name(e->left),  
+					scratch_name(e->right));
+			scratch_free(e->right);
+			scratch_free(e->left);
 			break;
 
 		case EXPR_ISEQ:
@@ -210,21 +230,21 @@ void expr_codegen(struct expr *e) {
 			// Use the variable address register as the same register for
 			// both loading the address and then store the value of the
 			// array in that register too
-			printf("lw  %s, %s\n", scratch_name(e->reg), array_with_index_address);
+			printf("lw  %s, %s\n", scratch_name(e), array_with_index_address);
 			break;
 		}
 		case EXPR_CALL:
 			expr_codegen(e->right);
 			printf("jal _f_%s\n", e->left->symbol->name);
 			e->reg = scratch_alloc();
-			printf("move %s $v0\n", scratch_name(e->reg));
+			printf("move %s $v0\n", scratch_name(e));
 			break;
 		case EXPR_ARG:
 			expr_codegen(e->right);
 			expr_codegen(e->left);
 			printf("sub $sp, $sp, 4\n");
-			printf("sw  %s, ($sp)\n", scratch_name(e->left->reg));
-			scratch_free(e->left->reg);
+			printf("sw  %s, ($sp)\n", scratch_name(e->left));
+			scratch_free(e->left);
 			break;
 
 		default:
@@ -241,7 +261,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 
 		case STMT_EXPR:
 			expr_codegen(s->expr);
-			scratch_free(s->expr->reg);
+			scratch_free(s->expr);
 			break;
 
 		case STMT_IF_ELSE: {
@@ -251,8 +271,8 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			expr_codegen(s->expr);
 			// Everything that is 0 is treated as false, everything thing
 			// else is true
-			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
-			scratch_free(s->expr->reg);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr), if_body);
+			scratch_free(s->expr);
 			branch_to(else_body);
 			{
 				define_label(if_body);
@@ -273,10 +293,10 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			const char *end_while = create_label_name("end_while");
 			define_label(while_condition);
 			expr_codegen(s->expr);
-			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), while_body);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr), while_body);
 			branch_to(end_while);
 			{
-				scratch_free(s->expr->reg);
+				scratch_free(s->expr);
 				define_label(while_body);
 				stmt_codegen(s->body, fn);
 				branch_to(while_condition);
@@ -288,7 +308,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 		case STMT_RETURN:
 			if (s->expr) {
 				expr_codegen(s->expr);
-				printf("move $v0, %s\n", scratch_name(s->expr->reg));
+				printf("move $v0, %s\n", scratch_name(s->expr));
 			}
 			branch_to(return_label_from_fn_name(fn->name));
 			break;
