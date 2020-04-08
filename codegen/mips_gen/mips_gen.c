@@ -14,17 +14,18 @@ void expr_codegen(struct expr *e);
 const char *create_label_name(const char *desc) {
 	static int _label_count = 0;
 	char *name = malloc(128);
-	sprintf(name, "_L%s%d", desc, _label_count++);
+	sprintf(name, "__%s%d", desc, _label_count++);
 	return name;
 }
 
-void define_label(const char *label) {
-	printf("%s:\n", label);
+const char *return_label_from_fn_name(const char *fn_name) {
+	char *name = malloc(128);
+	sprintf(name, "_return_%s", fn_name);
+	return name;	
 }
 
-void branch_to(const char *label) {
-	printf("b %s\n", label);
-}
+void define_label(const char *label) { printf("%s:\n", label); }
+void branch_to(const char *label) { printf("b %s\n", label); }
 
 const char *symbol_codegen(struct symbol *s) {
 	// "Stack and Variables Example" section of README.md in example_mips folder 
@@ -275,7 +276,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			break;
 	}
 
-	stmt_codegen(s->next);	
+	stmt_codegen(s->next, fn);	
 }
 
 void decl_codegen(struct decl *d) {
@@ -299,6 +300,7 @@ void decl_codegen(struct decl *d) {
 			printf("_f_%s:\n", sym->name);
 			pre_function(d);
 			stmt_codegen(d->code, sym);
+			printf("%s:\n", return_label_from_fn_name(sym->name));
 			post_function(d);
 			printf("\n");
 			break;
