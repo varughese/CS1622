@@ -6,6 +6,8 @@
 // Mips has t0, t1 .. t7 which are temporary registers
 #define MIPS_TEMP_REGISTERS 8
 
+const char *temp_name(int reg);
+
 int t_registers[MIPS_TEMP_REGISTERS] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 // This finds a free $t register, a temporary register 
@@ -31,6 +33,32 @@ void scratch_free(struct expr *e) {
 }
 
 const char *scratch_name(struct expr *e) {
-	static const char *register_names[] = {"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7"};
-    return (char *) register_names[e->reg];
+    return temp_name(e->reg);
 }
+
+const char *temp_name(int reg) {
+	static const char *register_names[] = {"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7"};
+	return (char *) register_names[reg];
+}
+
+const char *saved_name(int reg) {
+	static const char *register_names[] = {"$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7"};
+    return (char *) register_names[reg];
+}
+
+
+int *used_registers() {
+	int *regs = malloc(MIPS_TEMP_REGISTERS * sizeof(int));
+	return regs;
+}
+
+int *save_registers(int temp_registers[]) {
+	int *regs = malloc(MIPS_TEMP_REGISTERS * sizeof(int));
+	return regs;	
+}
+
+void restore_registers(int temp_registers[], int saved_registers[]) {
+	free(temp_registers);
+	free(saved_registers);
+}
+

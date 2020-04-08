@@ -152,6 +152,38 @@ const char *math_mips_instruction(expr_t op) {
 	}
 }
 
+void function_call_codegen(struct expr *e) {
+	// When we call functions, those functions will use temporary registers
+	// which will overwrite ours and mess up our calculations. To prevent this,
+	// We used saved registers. In MIPS, every function needs to be sure to
+	// not overwrite the saved registers. So, we will push the saved registers onto
+	// the stack before we overwrite them. Then, we will pop the saved registers
+	// back onto the stack.
+
+	// For example, if our code is `f(5) + f(3)`, 
+	// we would generate all of the code to call 5 with 5, and then store that value
+	// in a temp register. f(3) would be called, and might potentially overwrite the
+	// temp register. So, before we jal, we will save all in use temporary variables into
+	// saved registers.
+
+	// In the example `f(3)`,
+	// # f(3)
+	// push s0..sN ## push saved registers to not mutate them
+	// s0..sN = t0..tN ## save the temporarys
+	// push 3
+	// jal f
+	// t0..tN = s0..sN ## restore the temporarys
+	// pop s0..sN ## restore the saved registers
+	// t1 = v0
+	int *temp_registers = used_registers();
+	int *saved_registers = save_registers(temp_registers);
+	expr_codegen(e->right);
+	printf("jal _f_%s\n", e->left->symbol->name);
+	restore_registers(temp_registers, saved_registers);
+	e->reg = scratch_alloc();
+	printf("move %s $v0\n", scratch_name(e));
+}
+
 void expr_codegen(struct expr *e) {
 	if (e == NULL) return;
 
@@ -236,10 +268,7 @@ void expr_codegen(struct expr *e) {
 			break;
 		}
 		case EXPR_CALL:
-			expr_codegen(e->right);
-			printf("jal _f_%s\n", e->left->symbol->name);
-			e->reg = scratch_alloc();
-			printf("move %s $v0\n", scratch_name(e));
+			function_call_codegen(e);
 			break;
 		case EXPR_ARG:
 			expr_codegen(e->right);
