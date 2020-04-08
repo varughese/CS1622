@@ -10,15 +10,22 @@
 void decl_codegen(struct decl *d);
 void expr_codegen(struct expr *e);
 
-int _label_count = 0;
-int label_create() {
-	return _label_count++;
-}
-const char *label_name(int label) {
+
+const char *create_label_name(const char *desc) {
+	static int _label_count = 0;
 	char *name = malloc(128);
-	sprintf(name, "_L%d", label);
+	sprintf(name, "__%s%d", desc, _label_count++);
 	return name;
+} 
+
+const char *return_label_from_fn_name(const char *fn_name) {
+	char *name = malloc(128);
+	sprintf(name, "_return_%s", fn_name);
+	return name;	
 }
+
+void define_label(const char *label) { printf("%s:\n", label); }
+void branch_to(const char *label) { printf("b %s\n", label); }
 
 const char *symbol_codegen(struct symbol *s) {
 	// "Stack and Variables Example" section of README.md in example_mips folder 
@@ -240,11 +247,11 @@ void expr_codegen(struct expr *e) {
 	}
 }
 
-void stmt_codegen(struct stmt *s) {
+void stmt_codegen(struct stmt *s, struct symbol *fn) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
-			stmt_codegen(s->body);
+			stmt_codegen(s->body, fn);
 			break;
 
 		case STMT_EXPR:
@@ -253,34 +260,56 @@ void stmt_codegen(struct stmt *s) {
 			break;
 
 		case STMT_IF_ELSE: {
-			const char *if_body = label_name(label_create());
-			const char *else_body = label_name(label_create());
-			const char *end_if = label_name(label_create());
-
+			const char *if_body = create_label_name("if_body");
+			const char *else_body = create_label_name("else_body");
+			const char *end_if = create_label_name("end_if");
 			expr_codegen(s->expr);
+			// Everything that is 0 is treated as false, everything thing
+			// else is true
 			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
 			scratch_free(s->expr->reg);
-			printf("b %s\n", else_body);
-			printf("%s:\n", if_body);
-			stmt_codegen(s->body);
-			printf("b %s\n", end_if);
-			printf("%s:\n", else_body);
-			stmt_codegen(s->else_body);
-			printf("%s:\n", end_if);
+			branch_to(else_body);
+			{
+				define_label(if_body);
+				stmt_codegen(s->body, fn);
+			}
+			branch_to(end_if);
+			{
+				define_label(else_body);
+				stmt_codegen(s->else_body, fn);
+			}
+			define_label(end_if);
 			break;
 		}
 
-		case STMT_ITERATION:
-			// expr_codegen(s->expr);
-			// stmt_codegen(s->body);
+		case STMT_ITERATION: {
+			const char *while_condition = create_label_name("while_condition");
+			const char *while_body = create_label_name("while_body");
+			const char *end_while = create_label_name("end_while");
+			define_label(while_condition);
+			expr_codegen(s->expr);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), while_body);
+			branch_to(end_while);
+			{
+				scratch_free(s->expr->reg);
+				define_label(while_body);
+				stmt_codegen(s->body, fn);
+				branch_to(while_condition);
+			}
+			define_label(end_while);
 			break;
+		}
 
 		case STMT_RETURN:
-			// expr_codegen(s->expr);
+			if (s->expr) {
+				expr_codegen(s->expr);
+				printf("move $v0, %s\n", scratch_name(s->expr->reg));
+			}
+			branch_to(return_label_from_fn_name(fn->name));
 			break;
 	}
 
-	stmt_codegen(s->next);	
+	stmt_codegen(s->next, fn);	
 }
 
 void decl_codegen(struct decl *d) {
@@ -303,7 +332,8 @@ void decl_codegen(struct decl *d) {
 		case TYPE_FUNCTION:
 			printf("_f_%s:\n", sym->name);
 			pre_function(d);
-			stmt_codegen(d->code);
+			stmt_codegen(d->code, sym);
+			printf("%s:\n", return_label_from_fn_name(sym->name));
 			post_function(d);
 			printf("\n");
 			break;
