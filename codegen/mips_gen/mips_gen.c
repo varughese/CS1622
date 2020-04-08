@@ -16,7 +16,7 @@ const char *create_label_name(const char *desc) {
 	char *name = malloc(128);
 	sprintf(name, "__%s%d", desc, _label_count++);
 	return name;
-}
+} 
 
 const char *return_label_from_fn_name(const char *fn_name) {
 	char *name = malloc(128);
@@ -272,7 +272,11 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 		}
 
 		case STMT_RETURN:
-			// expr_codegen(s->expr);
+			if (s->expr) {
+				expr_codegen(s->expr);
+				printf("move $v0, %s\n", scratch_name(s->expr->reg));
+			}
+			branch_to(return_label_from_fn_name(fn->name));
 			break;
 	}
 
