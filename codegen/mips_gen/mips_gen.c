@@ -10,14 +10,20 @@
 void decl_codegen(struct decl *d);
 void expr_codegen(struct expr *e);
 
-int _label_count = 0;
-int label_create() {
-	return _label_count++;
-}
-const char *label_name(int label) {
+
+const char *create_label_name(const char *desc) {
+	static int _label_count = 0;
 	char *name = malloc(128);
-	sprintf(name, "_L%d", label);
+	sprintf(name, "_L%s%d", desc, _label_count++);
 	return name;
+}
+
+void print_label(const char *label) {
+	printf("%s:\n", label);
+}
+
+void branch_to(const char *label) {
+	printf("b %s\n", label);
 }
 
 const char *symbol_codegen(struct symbol *s) {
@@ -224,20 +230,25 @@ void stmt_codegen(struct stmt *s) {
 			break;
 
 		case STMT_IF_ELSE: {
-			const char *if_body = label_name(label_create());
-			const char *else_body = label_name(label_create());
-			const char *end_if = label_name(label_create());
-
+			const char *if_body = create_label_name("if_body");
+			const char *else_body = create_label_name("else_body");
+			const char *end_if = create_label_name("end_if");
 			expr_codegen(s->expr);
+			// Everything that is 0 is treated as false, everything thing
+			// else is true
 			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
 			scratch_free(s->expr->reg);
-			printf("b %s\n", else_body);
-			printf("%s:\n", if_body);
-			stmt_codegen(s->body);
-			printf("b %s\n", end_if);
-			printf("%s:\n", else_body);
-			stmt_codegen(s->else_body);
-			printf("%s:\n", end_if);
+			branch_to(else_body);
+			{
+				print_label(if_body);
+				stmt_codegen(s->body);
+			}
+			branch_to(end_if);
+			{
+				print_label(else_body);
+				stmt_codegen(s->else_body);
+			}
+			print_label(end_if);
 			break;
 		}
 
