@@ -1,22 +1,28 @@
-void main(void) {
+void main(void)
+{
     int x;
+    int y;
 
-    output(0 == 1);
-    output(1 == 1);
+    x = 1;
+    y = 2;
 
-    output(1 != 1);
-    output(0 != 1);
+    if(x == y)
+        output(1);
+    else
+        output(2);
+    output(3);
 
-    output(111 <= 1);
-    output(1 <= 1);
+    if(x != y)
+        output(4);
+    else
+        output(5);
+    output(6);
 
-    output(1 < 1);
-    output(1 < 11);
+    if(x == y)
+        output(7);
+    output(8);
 
-    output(1 > 1);
-    output(11 > 1);
-
-    output(1 >= 11);
-    output(1 >= 1);
-
+    if(x != y)
+        output(9);
+    output(10);
 }

@@ -223,10 +223,23 @@ void stmt_codegen(struct stmt *s) {
 			scratch_free(s->expr->reg);
 			break;
 
-		case STMT_IF_ELSE:
+		case STMT_IF_ELSE: {
+			const char *if_body = label_name(label_create());
+			const char *else_body = label_name(label_create());
+			const char *end_if = label_name(label_create());
+
+			expr_codegen(s->expr);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
+			scratch_free(s->expr->reg);
+			printf("b %s\n", else_body);
+			printf("%s:\n", if_body);
 			stmt_codegen(s->body);
+			printf("b %s\n", end_if);
+			printf("%s:\n", else_body);
 			stmt_codegen(s->else_body);
+			printf("%s:\n", end_if);
 			break;
+		}
 
 		case STMT_ITERATION:
 			// expr_codegen(s->expr);

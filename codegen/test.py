@@ -13,7 +13,7 @@ files=[
 	# "test-program-selection-sort",
 	# "test-program-simple",
 	# "test-simple-expr",
-	# "test-simple-if",
+	"test-simple-if",
 	# "test-simple-return",
 	# "test-simple-while",
 	"test-mingmat-var-decl",

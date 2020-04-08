@@ -20,112 +20,111 @@ j $ra
 
 _f_main:
 # Local variable [x], stack_pos [0] 
-	 # main() [0] params, [1] local vars
+# Local variable [y], stack_pos [1] 
+	 # main() [0] params, [2] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 4 # push local vars
+sub $sp, $sp, 8 # push local vars
 move $fp, $sp
 # {
-li  $t0, 0
-li  $t1, 1
+li  $t0, 1
+sw  $t0, 0($fp)
+li  $t0, 2
+sw  $t0, 4($fp)
+lw  $t0, 0($fp)
+lw  $t1, 4($fp)
 sub $t2, $t0, $t1
 sltu $t2, $zero, $t2
 xori $t2, $t2, 1
+bne $t2, $zero _L0
+b _L1
+_L0:
+li  $t0, 1
 sub $sp, $sp, 4
-sw  $t2, ($sp)
+sw  $t0, ($sp)
 jal _f_output
 move $t0 $v0
-li  $t0, 1
-li  $t1, 1
+b _L2
+_L1:
+li  $t0, 2
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+_L2:
+li  $t0, 3
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+lw  $t0, 0($fp)
+lw  $t1, 4($fp)
+sub $t2, $t0, $t1
+sltu $t2, $zero, $t2
+bne $t2, $zero _L3
+b _L4
+_L3:
+li  $t0, 4
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+b _L5
+_L4:
+li  $t0, 5
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+_L5:
+li  $t0, 6
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+lw  $t0, 0($fp)
+lw  $t1, 4($fp)
 sub $t2, $t0, $t1
 sltu $t2, $zero, $t2
 xori $t2, $t2, 1
+bne $t2, $zero _L6
+b _L7
+_L6:
+li  $t0, 7
 sub $sp, $sp, 4
-sw  $t2, ($sp)
+sw  $t0, ($sp)
 jal _f_output
 move $t0 $v0
-li  $t0, 1
-li  $t1, 1
+b _L8
+_L7:
+_L8:
+li  $t0, 8
+sub $sp, $sp, 4
+sw  $t0, ($sp)
+jal _f_output
+move $t0 $v0
+lw  $t0, 0($fp)
+lw  $t1, 4($fp)
 sub $t2, $t0, $t1
 sltu $t2, $zero, $t2
+bne $t2, $zero _L9
+b _L10
+_L9:
+li  $t0, 9
 sub $sp, $sp, 4
-sw  $t2, ($sp)
+sw  $t0, ($sp)
 jal _f_output
 move $t0 $v0
-li  $t0, 0
-li  $t1, 1
-sub $t2, $t0, $t1
-sltu $t2, $zero, $t2
+b _L11
+_L10:
+_L11:
+li  $t0, 10
 sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 111
-li  $t1, 1
-sub $t2, $t0, $t1
-slti $t2, $t2, 1
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 1
-sub $t2, $t0, $t1
-slti $t2, $t2, 1
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 1
-sub $t2, $t0, $t1
-slt $t2, $t2, $zero
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 11
-sub $t2, $t0, $t1
-slt $t2, $t2, $zero
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 1
-sub $t2, $t1, $t0
-slt $t2, $t2, $zero
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 11
-li  $t1, 1
-sub $t2, $t1, $t0
-slt $t2, $t2, $zero
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 11
-sub $t2, $t1, $t0
-slti $t2, $t2, 1
-sub $sp, $sp, 4
-sw  $t2, ($sp)
-jal _f_output
-move $t0 $v0
-li  $t0, 1
-li  $t1, 1
-sub $t2, $t1, $t0
-slti $t2, $t2, 1
-sub $sp, $sp, 4
-sw  $t2, ($sp)
+sw  $t0, ($sp)
 jal _f_output
 move $t0 $v0
 # }
-add $sp, $sp, 4 # pop local vars
+add $sp, $sp, 8 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
 add $sp, $sp, 0 # pop arguments 
