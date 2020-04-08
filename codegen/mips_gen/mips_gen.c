@@ -125,16 +125,28 @@ void comparision_codegen(struct expr *e) {
 	scratch_free(e->right);
 }
 
+void reload_variable_if_needed(struct expr *e) {
+	// When doing math, sometimes you generate the left expression tree
+	// and the right expression tree, and then the right tree will
+	// use variables the left tree also uses. Then, the right tree will
+	// free those variables, and the left tree is now missing variables.
+	// So, this reloads them into memory
+	if (e->symbol && e->symbol->reg == -1) {
+		printf("# Reloading variable\n");
+		expr_codegen(e);
+	}
+}
+
 const char *math_mips_instruction(expr_t op) {
 	switch(op) {
 		case EXPR_ADD:
-			return "add";
+			return "addu";
 		case EXPR_SUB:
-			return "sub";
+			return "subu";
 		case EXPR_MUL:
 			return "mul";
 		case EXPR_DIV:
-			return "div";
+			return "divu";
 		default:
 			return NULL;
 	}
@@ -151,8 +163,9 @@ void expr_codegen(struct expr *e) {
 
 		case EXPR_NAME:
 			if (e->symbol->reg >= 0) {
+				// If an variable is already loading into a register,
+				// just use that register instead of re-loading
 				e->reg = e->symbol->reg;
-				printf("# loading  %s from register %d\n", e->name, e->reg);
 				return;
 			}
 			e->reg = scratch_alloc();
@@ -188,11 +201,10 @@ void expr_codegen(struct expr *e) {
 		case EXPR_SUB:
 		case EXPR_MUL:
 		case EXPR_DIV:
-			printf("## Codegen left\n");
 			expr_codegen(e->left);
-			printf("## Codegen right\n");
 			expr_codegen(e->right);
 			e->reg = scratch_alloc();
+			reload_variable_if_needed(e->left);
 			printf("%s %s, %s, %s\n", 
 					math_mips_instruction(e->kind),
 					scratch_name(e), 

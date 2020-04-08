@@ -25,7 +25,6 @@ int scratch_alloc() {
 void scratch_free(struct expr *e) {
 	t_registers[e->reg] = 0;
 	if (e->symbol && e->symbol->reg >= 0) {
-		printf("# freeing  %s from register %d\n", e->name, e->reg);
 		e->symbol->reg = -1;
 	}
 }
