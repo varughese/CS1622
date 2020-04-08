@@ -19,10 +19,10 @@ syscall
 j $ra
 
 _f_main:
-# Local variable [y], stack_pos [0]
-# Local variable [x], stack_pos [1]
-# Local variable [z], stack_pos [2]
-         # main() [0] params, [3] local vars
+# Local variable [y], stack_pos [0] 
+# Local variable [x], stack_pos [1] 
+# Local variable [z], stack_pos [2] 
+	 # main() [0] params, [3] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 12 # push local vars
@@ -54,7 +54,7 @@ move $t0 $v0
 add $sp, $sp, 12 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
-add $sp, $sp, 0 # pop arguments
+add $sp, $sp, 0 # pop arguments 
 move $fp, $sp
 j $ra
 
