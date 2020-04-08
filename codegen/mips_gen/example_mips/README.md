@@ -199,8 +199,8 @@ void main() {
 So in this example, `main` calls `f` with the two arguments `100` and `200`. Before main calls `f`, it puts those values on the stack. `f` then puts the $ra onto the stack. Then, it allocates memory for its 3 local variables on the stack. So, the stack looks like:
 
 ```
-100 # a1
-200 # a0
+200 # a1
+100 # a0
 $ra
 x
 y
