@@ -19,6 +19,8 @@ codegen/codegen
 parser.c
 parser.tokens.h
 lex.yy.c
+codegen/main.c
+codegen/main.asm
 
 **/out_test
 
