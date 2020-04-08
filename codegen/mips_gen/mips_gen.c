@@ -140,13 +140,13 @@ void reload_variable_if_needed(struct expr *e) {
 const char *math_mips_instruction(expr_t op) {
 	switch(op) {
 		case EXPR_ADD:
-			return "addu";
+			return "add";
 		case EXPR_SUB:
-			return "subu";
+			return "sub";
 		case EXPR_MUL:
 			return "mul";
 		case EXPR_DIV:
-			return "divu";
+			return "div";
 		default:
 			return NULL;
 	}
@@ -166,9 +166,11 @@ void expr_codegen(struct expr *e) {
 				// If an variable is already loading into a register,
 				// just use that register instead of re-loading
 				e->reg = e->symbol->reg;
+				printf("# re-loading variable %s from %d\n", e->name, e->reg);
 				return;
 			}
 			e->reg = scratch_alloc();
+			printf("# regularly loading variable %s from %d\n", e->name, e->reg);
 			e->symbol->reg = e->reg;
 			if (e->symbol->type->kind == TYPE_ARRAY) {
 				load_array_codegen(e, scratch_name(e));
@@ -309,6 +311,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			if (s->expr) {
 				expr_codegen(s->expr);
 				printf("move $v0, %s\n", scratch_name(s->expr));
+				scratch_free(s->expr);
 			}
 			branch_to(return_label_from_fn_name(fn->name));
 			break;

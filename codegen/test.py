@@ -9,7 +9,7 @@ files=[
 	"test-program-dijkstra",
 	"test-program-fibonacci-bottomup",
 	# "test-program-fibonacci-topdown",
-	# "test-program-gcd",
+	"test-program-gcd",
 	# "test-program-selection-sort",
 	"test-program-simple",
 	"test-simple-expr",
