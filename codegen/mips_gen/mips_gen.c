@@ -217,11 +217,11 @@ void expr_codegen(struct expr *e) {
 	}
 }
 
-void stmt_codegen(struct stmt *s) {
+void stmt_codegen(struct stmt *s, struct symbol *fn) {
 	if(s == NULL) return;
 	switch(s->kind) {
 		case STMT_COMPOUND:
-			stmt_codegen(s->body);
+			stmt_codegen(s->body, fn);
 			break;
 
 		case STMT_EXPR:
@@ -241,12 +241,12 @@ void stmt_codegen(struct stmt *s) {
 			branch_to(else_body);
 			{
 				define_label(if_body);
-				stmt_codegen(s->body);
+				stmt_codegen(s->body, fn);
 			}
 			branch_to(end_if);
 			{
 				define_label(else_body);
-				stmt_codegen(s->else_body);
+				stmt_codegen(s->else_body, fn);
 			}
 			define_label(end_if);
 			break;
@@ -263,7 +263,7 @@ void stmt_codegen(struct stmt *s) {
 			{
 				scratch_free(s->expr->reg);
 				define_label(while_body);
-				stmt_codegen(s->body);
+				stmt_codegen(s->body, fn);
 				branch_to(while_condition);
 			}
 			define_label(end_while);
@@ -298,7 +298,7 @@ void decl_codegen(struct decl *d) {
 		case TYPE_FUNCTION:
 			printf("_f_%s:\n", sym->name);
 			pre_function(d);
-			stmt_codegen(d->code);
+			stmt_codegen(d->code, sym);
 			post_function(d);
 			printf("\n");
 			break;
