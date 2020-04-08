@@ -18,7 +18,7 @@ const char *create_label_name(const char *desc) {
 	return name;
 }
 
-void print_label(const char *label) {
+void define_label(const char *label) {
 	printf("%s:\n", label);
 }
 
@@ -240,22 +240,35 @@ void stmt_codegen(struct stmt *s) {
 			scratch_free(s->expr->reg);
 			branch_to(else_body);
 			{
-				print_label(if_body);
+				define_label(if_body);
 				stmt_codegen(s->body);
 			}
 			branch_to(end_if);
 			{
-				print_label(else_body);
+				define_label(else_body);
 				stmt_codegen(s->else_body);
 			}
-			print_label(end_if);
+			define_label(end_if);
 			break;
 		}
 
-		case STMT_ITERATION:
-			// expr_codegen(s->expr);
-			// stmt_codegen(s->body);
+		case STMT_ITERATION: {
+			const char *while_condition = create_label_name("while_condition");
+			const char *while_body = create_label_name("while_body");
+			const char *end_while = create_label_name("end_while");
+			define_label(while_condition);
+			expr_codegen(s->expr);
+			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), while_body);
+			branch_to(end_while);
+			{
+				scratch_free(s->expr->reg);
+				define_label(while_body);
+				stmt_codegen(s->body);
+				branch_to(while_condition);
+			}
+			define_label(end_while);
 			break;
+		}
 
 		case STMT_RETURN:
 			// expr_codegen(s->expr);
