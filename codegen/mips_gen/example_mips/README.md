@@ -199,26 +199,34 @@ void main() {
 So in this example, `main` calls `f` with the two arguments `100` and `200`. Before main calls `f`, it puts those values on the stack. `f` then puts the $ra onto the stack. Then, it allocates memory for its 3 local variables on the stack. So, the stack looks like:
 
 ```
-100 # a1
-200 # a0
+200 # a1
+100 # a0
 $ra
 x
 y
 z		<- $sp
 ```
 
-In the compiler, each symbol has a `which` variable to indicate the position it is located.
-In mips_gen, we call `increase_param_symbol_which` to increase the `which` of the arguments.
+In the compiler, each symbol has a `stack_position` variable to indicate the position it is located on the stack.
+In `mips_gen.c`, we call functions in `stack_calculation.c` to calculate this for us.
 
 ```
-a1->which	4	20 ($sp)
-a0->which	3	16 ($sp)
-// 				12 ($sp) contains $ra
-z->which	2	8 ($sp)
-y->which	1	4 ($sp)
-x->which	0	0 ($sp)
+a1->stack_position	4	20 ($sp)
+a0->stack_position	3	16 ($sp)
+// 						12 ($sp) contains $ra
+z->stack_position	2	8 ($sp)
+y->stack_position	1	4 ($sp)
+x->stack_position	0	0 ($sp)
 ```
 
-So, for local variables, we can just do `<which * 4> $sp`.
+So, for local variables, we can just do `<stack_position * 4> $sp`.
 
-For parameters, we can do `<which * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.
+For parameters, we can do `<stack_position * 4 + 4> $sp`. We need to do the +4 to account for the $ra spot.
+
+The complication however, is that the `$sp` can change during a function call.
+For example, when you call a function within a function, you push arguments onto the
+stack. This will f up the calculated variables above. 
+
+To deal with this, we use the `$fp`, frame pointer. The `$fp` is set to the `$sp` after the
+stack is set up but before the function starts. A function ends by cleaning up the stack,
+and resetting the `$fp`.

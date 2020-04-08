@@ -1,0 +1,18 @@
+void f(int a0, int a1) {
+    int b;
+    int x[4];
+    int c;
+    {
+        int d;
+        d = 4;
+        output(d);
+    }
+    b = 4;
+    c = 3;
+    output(b+c);
+}
+
+void main(void)
+{
+    f(2, 3);
+}

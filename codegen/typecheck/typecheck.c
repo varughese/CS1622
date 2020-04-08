@@ -26,9 +26,10 @@ struct symbol * symbol_copy(struct symbol *s) {
     struct symbol *copy;
     copy = malloc(sizeof(*copy));
     copy->kind = s->kind;
-    copy->which = s->which;
     copy->type = type_copy(s->type);
 	copy->name = s->name;
+	copy->params_count = 0;
+	copy->local_vars_count = 0;
     return copy;
 }
 

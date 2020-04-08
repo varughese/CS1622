@@ -85,40 +85,6 @@ int main() {
 	assert(scope_lookup("petrucci") == petrucci_sym);
 	assert(scope_lookup("ming") == ming_sym);
 	
-
-
-
-	printf("Testing sym->which ordinal position\n"); 
-	// Simulate a function declaration
-	scope_enter();
-	struct symbol *func = symbol_create(SYMBOL_GLOBAL, create_int_type(), "function_with_params");
-	scope_bind("function_with_params", func);
-	scope_enter();
-	struct symbol *paramf0 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramf0");
-	scope_bind("paramf0", paramf0);
-	struct symbol *paramf1 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramf1");
-	scope_bind("paramf1", paramf1);
-	struct symbol *paramf2 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramf2");
-	scope_bind("paramf2", paramf2);
-	struct symbol *local_variable3 = symbol_create(SYMBOL_LOCAL, create_int_type(), "local_variable");
-	scope_bind("local_variable", local_variable3);
-	assert(paramf0->which == 0);
-	assert(paramf1->which == 1);
-	assert(paramf2->which == 2);
-	// We reset the count at local variables
-	assert(local_variable3->which == 0);
-	//create a new function to make sure the symbols match
-	scope_exit();
-	struct symbol *func2 = symbol_create(SYMBOL_GLOBAL, create_int_type(), "function_with_params2");
-	scope_bind("function_with_params2", func2);
-	scope_enter();
-	struct symbol *paramg0 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramg0");
-	scope_bind("paramg0", paramg0);
-	struct symbol *paramg1 = symbol_create(SYMBOL_PARAM, create_int_type(), "paramg1");
-	scope_bind("paramg1", paramg1);
-	assert(paramg0->which == 0);
-	assert(paramg1->which == 1);
-
 	printf(T_PRINT_GREEN "All tests pass :) !\n\n" T_RESET);
 	return 0;
 }
