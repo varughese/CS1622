@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "../ast/factory.h"
 #include "scratch.h"
 
@@ -16,14 +18,19 @@ int scratch_alloc() {
 		}
 	}
 
+	fprintf(stderr, "Ran out of registers.\n");
 	return -1;
 }
 
 void scratch_free(struct expr *e) {
 	t_registers[e->reg] = 0;
+	if (e->symbol && e->symbol->reg >= 0) {
+		printf("# freeing  %s from register %d\n", e->name, e->reg);
+		e->symbol->reg = -1;
+	}
 }
 
-const char *scratch_name(int r) {
+const char *scratch_name(struct expr *e) {
 	static const char *register_names[] = {"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7"};
-    return (char *) register_names[r];
+    return (char *) register_names[e->reg];
 }

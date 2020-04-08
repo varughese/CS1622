@@ -15,6 +15,7 @@ struct symbol *symbol_create(
 	s->name = name;
 	s->params_count = 0;
 	s->local_vars_count = 0;
+	s->reg = -1;
 	return s;
 }
 
