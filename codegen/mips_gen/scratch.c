@@ -1,3 +1,4 @@
+#include "../ast/factory.h"
 #include "scratch.h"
 
 // Mips has t0, t1 .. t7 which are temporary registers
@@ -18,8 +19,8 @@ int scratch_alloc() {
 	return -1;
 }
 
-void scratch_free(int r) {
-	t_registers[r] = 0;
+void scratch_free(struct expr *e) {
+	t_registers[e->reg] = 0;
 }
 
 const char *scratch_name(int r) {

@@ -73,7 +73,7 @@ const char *array_at_index_codegen(struct expr *e) {
 		// Multiply result expression 4 to get index
 		printf("sll %s, %s, 2\n", scratch_name(e->right->reg), scratch_name(e->right->reg));
 		printf("add %s, %s, %s\n", scratch_name(e->reg), scratch_name(e->reg), scratch_name(e->right->reg));
-		scratch_free(e->right->reg);
+		scratch_free(e->right);
 		sprintf(array_with_index_pointer, "(%s)", scratch_name(e->reg));
 	}
 
@@ -121,8 +121,8 @@ void comparision_codegen(struct expr *e) {
 		default:
 			break;
 	}
-	scratch_free(e->left->reg);
-	scratch_free(e->right->reg);
+	scratch_free(e->left);
+	scratch_free(e->right);
 }
 
 const char *math_mips_instruction(expr_t op) {
@@ -151,6 +151,7 @@ void expr_codegen(struct expr *e) {
 
 		case EXPR_NAME:
 			e->reg = scratch_alloc();
+			e->symbol->reg = e->reg;
 			if (e->symbol->type->kind == TYPE_ARRAY) {
 				load_array_codegen(e, e->reg);
 			} else {
@@ -169,13 +170,13 @@ void expr_codegen(struct expr *e) {
 			// We handle the case of `arr[3] = 4` here
 			if (e->left->kind == EXPR_SUBSCRIPT) {
 				variable_address = array_at_index_codegen(e->left);
-				scratch_free(e->left->reg);
+				scratch_free(e->left);
 			} else {
 				variable_address = symbol_codegen(e->left->symbol);
 			}
 
 			printf("sw  %s, %s\n", scratch_name(e->right->reg), variable_address);
-			scratch_free(e->right->reg);
+			scratch_free(e->right);
 			break;
 
 		case EXPR_ADD:
@@ -190,8 +191,8 @@ void expr_codegen(struct expr *e) {
 					scratch_name(e->reg), 
 					scratch_name(e->left->reg),  
 					scratch_name(e->right->reg));
-			scratch_free(e->right->reg);
-			scratch_free(e->left->reg);
+			scratch_free(e->right);
+			scratch_free(e->left);
 			break;
 
 		case EXPR_ISEQ:
@@ -224,7 +225,7 @@ void expr_codegen(struct expr *e) {
 			expr_codegen(e->left);
 			printf("sub $sp, $sp, 4\n");
 			printf("sw  %s, ($sp)\n", scratch_name(e->left->reg));
-			scratch_free(e->left->reg);
+			scratch_free(e->left);
 			break;
 
 		default:
@@ -241,7 +242,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 
 		case STMT_EXPR:
 			expr_codegen(s->expr);
-			scratch_free(s->expr->reg);
+			scratch_free(s->expr);
 			break;
 
 		case STMT_IF_ELSE: {
@@ -252,7 +253,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			// Everything that is 0 is treated as false, everything thing
 			// else is true
 			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), if_body);
-			scratch_free(s->expr->reg);
+			scratch_free(s->expr);
 			branch_to(else_body);
 			{
 				define_label(if_body);
@@ -276,7 +277,7 @@ void stmt_codegen(struct stmt *s, struct symbol *fn) {
 			printf("bne %s, $zero %s\n", scratch_name(s->expr->reg), while_body);
 			branch_to(end_while);
 			{
-				scratch_free(s->expr->reg);
+				scratch_free(s->expr);
 				define_label(while_body);
 				stmt_codegen(s->body, fn);
 				branch_to(while_condition);
