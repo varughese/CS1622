@@ -18,28 +18,20 @@ li  $v0, 5
 syscall
 j $ra
 
-.data
-g: .word 0
-
-.text
-.data
-garr: .word 0:4 
-
-.text
-_f_bar:
+_f_g:
 # parameter [a], position [0]
-# parameter [b], position [1]
-# parameter [c], position [2]
-# parameter [d], position [3]
-	 # bar() [4] params, [0] local vars
+# parameter [index], position [1]
+	 # g() [2] params, [0] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 0 # push local vars
 move $fp, $sp
 # {
-# Symbol is an array param. Load the pointer.
 lw  $t0, 4($fp)
-lw  $t0, 4($t0)
+lw  $t1, 8($fp)
+sll $t1, $t1, 2
+add $t0, $t0, $t1
+lw  $t0, ($t0)
 sub $sp, $sp, 4
 sw  $t0, ($sp)
 jal _f_output
@@ -48,85 +40,78 @@ move $t0 $v0
 add $sp, $sp, 0 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
-add $sp, $sp, 16 # pop arguments 
+add $sp, $sp, 8 # pop arguments 
 move $fp, $sp
 j $ra
 
-_f_foo:
-# parameter [a], position [0]
-# parameter [b], position [1]
-# parameter [c], position [2]
-	 # foo() [3] params, [0] local vars
+_f_f:
+# Local variable [x], stack_pos [0] 
+# parameter [a], position [1]
+	 # f() [1] params, [1] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
-sub $sp, $sp, 0 # push local vars
+sub $sp, $sp, 4 # push local vars
 move $fp, $sp
 # {
-# Symbol is an array param. Load the pointer.
-lw  $t0, 4($fp)
-lw  $t0, 4($t0)
+li  $t0, 99
+lw  $t1, 8($fp)
+sw  $t0, 12($t1)
+li  $t0, 1
+sw  $t0, 0($fp)
+lw  $t0, 0($fp)
+lw  $t1, 0($fp)
+add $t2, $t0, $t1
+lw  $t0, 0($fp)
+add $t1, $t2, $t0
 sub $sp, $sp, 4
-sw  $t0, ($sp)
-jal _f_output
-move $t0 $v0
-lw  $t0, 12($fp)
-sub $sp, $sp, 4
-sw  $t0, ($sp)
+sw  $t1, ($sp)
 lw  $t0, 8($fp)
 sub $sp, $sp, 4
 sw  $t0, ($sp)
-# Symbol is an array param. Load the pointer.
-lw  $t0, 4($fp)
-lw  $t0, 4($t0)
-sub $sp, $sp, 4
-sw  $t0, ($sp)
-lw  $t0, 4($fp)
-sub $sp, $sp, 4
-sw  $t0, ($sp)
-jal _f_bar
+jal _f_g
 move $t0 $v0
 # }
-add $sp, $sp, 0 # pop local vars
+add $sp, $sp, 4 # pop local vars
 lw  $ra, ($sp)
 add $sp, $sp, 4
-add $sp, $sp, 12 # pop arguments 
+add $sp, $sp, 4 # pop arguments 
 move $fp, $sp
 j $ra
 
 _f_main:
-# Local variable [x], stack_pos [0] 
-# Local variable [y], stack_pos [1] 
+# Local variable [y], stack_pos [0] 
+# Local variable [x], stack_pos [4] 
 	 # main() [0] params, [5] local vars
 sub $sp, $sp, 4 # push ra
 sw  $ra, 0($sp)
 sub $sp, $sp, 20 # push local vars
 move $fp, $sp
 # {
-li  $t0, 101
-sw  $t0, 0($fp)
+li  $t0, 1
+sw  $t0, 16($fp)
 li  $t0, 102
-la  $t1, 4($fp)
-sw  $t0, 0($t1)
-li  $t0, 103
-la  $t1, 4($fp)
-sw  $t0, 4($t1)
-li  $t0, 104
-la  $t1, 4($fp)
-sw  $t0, 8($t1)
-li  $t0, 105
-la  $t1, 4($fp)
-sw  $t0, 12($t1)
-la  $t0, 4($fp)
-lw  $t0, 12($t0)
+la  $t1, 0($fp)
+lw  $t2, 16($fp)
+li  $t3, 1
+add $t4, $t2, $t3
+sll $t4, $t4, 2
+add $t1, $t1, $t4
+sw  $t0, ($t1)
+la  $t0, 0($fp)
+li  $t1, 1
+li  $t2, 1
+add $t3, $t1, $t2
+sll $t3, $t3, 2
+add $t0, $t0, $t3
+lw  $t0, ($t0)
 sub $sp, $sp, 4
 sw  $t0, ($sp)
-lw  $t0, 0($fp)
+jal _f_output
+move $t0 $v0
+la  $t0, 0($fp)
 sub $sp, $sp, 4
 sw  $t0, ($sp)
-la  $t0, 4($fp) # fuck
-sub $sp, $sp, 4
-sw  $t0, ($sp)
-jal _f_foo
+jal _f_f
 move $t0 $v0
 # }
 add $sp, $sp, 20 # pop local vars

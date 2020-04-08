@@ -8,6 +8,7 @@
 #include "mips_gen.h"
 
 void decl_codegen(struct decl *d);
+void expr_codegen(struct expr *e);
 
 int _label_count = 0;
 int label_create() {
@@ -51,23 +52,24 @@ void load_array_codegen(struct expr *e, int reg) {
 
 // This loads the array AT A SPECIFIC INDEX (like a[1]) into an address and returns the address pointer in MIPS
 const char *array_at_index_codegen(struct expr *e) {
+	char *array_with_index_pointer = malloc(128);
 	int index;
+
+	e->reg = scratch_alloc();
+	load_array_codegen(e->left, e->reg);
 
 	if (e->right->kind == EXPR_INTEGER_LITERAL) {
 		index = e->right->integer_value;
+		sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
 	} else {
-		// expr_codegen(e->right);
-		printf("# TODO , expressions in arrays does not work yet\n");
-		return "(null)";
-		// TODO ugh gotta code gen the right, and then you need
-		// to get the value in a register, left shift that by 2 (multiply by 4)
-		// to get the index. then, you need have to load the array address
-		// add the index, and then return that.
+		expr_codegen(e->right);
+		// Multiply result expression 4 to get index
+		printf("sll %s, %s, 2\n", scratch_name(e->right->reg), scratch_name(e->right->reg));
+		printf("add %s, %s, %s\n", scratch_name(e->reg), scratch_name(e->reg), scratch_name(e->right->reg));
+		scratch_free(e->right->reg);
+		sprintf(array_with_index_pointer, "(%s)", scratch_name(e->reg));
 	}
-	e->reg = scratch_alloc();
-	load_array_codegen(e->left, e->reg);
-	char *array_with_index_pointer = malloc(128);
-	sprintf(array_with_index_pointer, "%d(%s)", 4*index, scratch_name(e->reg));
+
 	return array_with_index_pointer;
 }
 

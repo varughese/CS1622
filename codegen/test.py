@@ -18,7 +18,8 @@ files=[
 	# "test-simple-while",
 	"test-mingmat-var-decl",
 	"test-mingmat-arrays-numeric-index",
-	"test-mingmat-array-params"
+	"test-mingmat-array-params",
+	"test-mingmat-arrays-expression-index"
 ]
 
 RED='\033[0;31m'
