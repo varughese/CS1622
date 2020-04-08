@@ -1,19 +1,12 @@
-void g(int a[], int index) {
-    output(a[index]);
-}
-
-void f(int a[]) {
-    int x;
-    a[3] = 99;
-    x = 1;
-    g(a, x+x+x);
-}
 void main(void){
-    int y[4];
+    int y;
     int x;
+    int z;
 
-    x = 1;
-    y[x+1] = 102;
-    output(y[1+1]);
-    f(y);
+    x = 10;
+    y = 20;
+    z = y * x;
+    output(z);
+    z = y * 2;
+    output(z);
 }
