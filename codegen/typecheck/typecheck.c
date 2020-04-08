@@ -143,7 +143,7 @@ struct type *expr_typecheck(struct expr *e) {
 			   lt->kind == TYPE_FUNCTION) {
 				error_type_check("Can't equate the two types");
 			}
-			result = create_type(TYPE_BOOLEAN,0,0);
+			result = create_type(TYPE_INTEGER,0,0);
 			break;
 
 		case EXPR_SUBSCRIPT:
