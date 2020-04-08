@@ -184,6 +184,7 @@ void expr_codegen(struct expr *e) {
 		case EXPR_DIV:
 			expr_codegen(e->left);
 			expr_codegen(e->right);
+			e->reg = scratch_alloc();
 			printf("%s %s, %s, %s\n", 
 					math_mips_instruction(e->kind),
 					scratch_name(e->reg), 
