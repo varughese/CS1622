@@ -125,6 +125,21 @@ void comparision_codegen(struct expr *e) {
 	scratch_free(e->right->reg);
 }
 
+const char *math_mips_instruction(expr_t op) {
+	switch(op) {
+		case EXPR_ADD:
+			return "add";
+		case EXPR_SUB:
+			return "sub";
+		case EXPR_MUL:
+			return "mul";
+		case EXPR_DIV:
+			return "div";
+		default:
+			return NULL;
+	}
+}
+
 void expr_codegen(struct expr *e) {
 	if (e == NULL) return;
 
@@ -164,20 +179,19 @@ void expr_codegen(struct expr *e) {
 			break;
 
 		case EXPR_ADD:
+		case EXPR_SUB:
+		case EXPR_MUL:
+		case EXPR_DIV:
 			expr_codegen(e->left);
 			expr_codegen(e->right);
 			e->reg = scratch_alloc();
-			printf("add %s, %s, %s\n", 
+			printf("%s %s, %s, %s\n", 
+					math_mips_instruction(e->kind),
 					scratch_name(e->reg), 
 					scratch_name(e->left->reg),  
 					scratch_name(e->right->reg));
 			scratch_free(e->right->reg);
 			scratch_free(e->left->reg);
-			break;
-
-		case EXPR_SUB:
-		case EXPR_MUL:
-		case EXPR_DIV:
 			break;
 
 		case EXPR_ISEQ:
