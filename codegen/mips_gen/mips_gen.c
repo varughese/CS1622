@@ -90,37 +90,43 @@ void comparision_codegen(struct expr *e) {
 	const char *A = scratch_name(e->left);
 	const char *B = scratch_name(e->right);  
 
+	const char *set_true = create_label_name("_boolin_true");
+	const char *set_false = create_label_name("_boolin_false");
+	const char *end_compare = create_label_name("_boolin_done");
+	
 	switch(e->kind) {
 		case EXPR_ISEQ:
-			printf("sub %s, %s, %s\n", reg, A, B);
-			// Set %s to 1 if it's non-zero
-			printf("sltu %s, $zero, %s\n", reg, reg);
-			// Flip the lsb so that 0 becomes 1, and 1 becomes 0
-			printf("xori %s, %s, 1\n", reg, reg);
+			printf("beq %s, %s, %s\n", A, B, set_true);
 			break;
 		case EXPR_NEQ:
-			printf("sub %s, %s, %s\n", reg, A, B);
-			printf("sltu %s, $zero, %s\n", reg, reg);
+			printf("bne %s, %s, %s\n", A, B, set_true);
 			break;
 		case EXPR_LE:
-			printf("sub %s, %s, %s\n", reg, A, B);
-			printf("slti %s, %s, 1\n", reg, reg);
+			printf("ble %s, %s, %s\n", A, B, set_true);
 			break;
 		case EXPR_LT:
-			printf("sub %s, %s, %s\n", reg, A, B);
-			printf("slt %s, %s, $zero\n", reg, reg);
+			printf("blt %s, %s, %s\n", A, B, set_true);
 			break;
 		case EXPR_GT:
-			printf("sub %s, %s, %s\n", reg, B, A);
-			printf("slt %s, %s, $zero\n", reg, reg);
+			printf("bgt %s, %s, %s\n", A, B, set_true);
 			break;
 		case EXPR_GE:
-			printf("sub %s, %s, %s\n", reg, B, A);
-			printf("slti %s, %s, 1\n", reg, reg);
+			printf("bge %s, %s, %s\n", A, B, set_true);
 			break;
 		default:
 			break;
 	}
+
+	branch_to(set_false);
+	define_label(set_true);
+	printf("li  %s, 1 # T\n", reg);
+	branch_to(end_compare);
+
+	define_label(set_false);
+	printf("li  %s, 0 # F\n", reg);
+
+	define_label(end_compare);
+
 	scratch_free(e->left);
 	scratch_free(e->right);
 }
