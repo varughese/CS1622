@@ -25,7 +25,6 @@ int scratch_alloc() {
 }
 
 void scratch_free(struct expr *e) {
-	printf("# %s freed from register %d\n", e->name, e->reg);
 	t_registers[e->reg] = 0;
 	if (e->symbol && e->symbol->reg >= 0) {
 		e->symbol->reg = -1;
@@ -46,19 +45,40 @@ const char *saved_name(int reg) {
     return (char *) register_names[reg];
 }
 
-
-int *used_registers() {
-	int *regs = malloc(MIPS_TEMP_REGISTERS * sizeof(int));
-	return regs;
+int *save_registers() {
+	int *saved_registers = malloc(MIPS_TEMP_REGISTERS * sizeof(int));
+	int i;
+	for(i=0; i < MIPS_TEMP_REGISTERS; i++) {
+		if (t_registers[i] == 1) {
+			// push $s
+			printf("sub $sp, $sp, 4\n");
+			printf("sw  %s, ($sp)\n", saved_name(i));
+			// $s = $t
+			printf("move %s, %s\n", saved_name(i), temp_name(i));
+		}
+		saved_registers[i] = t_registers[i];
+	}
+	return saved_registers;
 }
 
-int *save_registers(int temp_registers[]) {
-	int *regs = malloc(MIPS_TEMP_REGISTERS * sizeof(int));
-	return regs;	
-}
-
-void restore_registers(int temp_registers[], int saved_registers[]) {
-	free(temp_registers);
+void restore_registers(int *saved_registers) {
+	int i;
+	int restore_count = 0;
+	for(i=0; i < MIPS_TEMP_REGISTERS; i++) {
+		if (saved_registers[i] == 1) {
+			// $t = $s
+			printf("move %s, %s\n", temp_name(i), saved_name(i));
+			// pop $s
+			printf("lw  %s, ($sp)\n", saved_name(i));
+			printf("add $sp, $sp, 4\n");
+			restore_count++;
+		}
+	}
+	// We need to the following line because the saving of the 
+	// registers changes the stack pointer when we push them on
+	// the stack, and that in turns changes the frame pointer 
+	// when we return from a function
+	printf("addi $fp, $fp, %d\n", restore_count*4);
 	free(saved_registers);
 }
 

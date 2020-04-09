@@ -175,11 +175,10 @@ void function_call_codegen(struct expr *e) {
 	// t0..tN = s0..sN ## restore the temporarys
 	// pop s0..sN ## restore the saved registers
 	// t1 = v0
-	int *temp_registers = used_registers();
-	int *saved_registers = save_registers(temp_registers);
+	int *saved = save_registers();
 	expr_codegen(e->right);
 	printf("jal _f_%s\n", e->left->symbol->name);
-	restore_registers(temp_registers, saved_registers);
+	restore_registers(saved);
 	e->reg = scratch_alloc();
 	printf("move %s $v0\n", scratch_name(e));
 }
@@ -198,11 +197,9 @@ void expr_codegen(struct expr *e) {
 				// If an variable is already loading into a register,
 				// just use that register instead of re-loading
 				e->reg = e->symbol->reg;
-				printf("# re-loading variable %s from %d\n", e->name, e->reg);
 				return;
 			}
 			e->reg = scratch_alloc();
-			printf("# regularly loading variable %s from %d\n", e->name, e->reg);
 			e->symbol->reg = e->reg;
 			if (e->symbol->type->kind == TYPE_ARRAY) {
 				load_array_codegen(e, scratch_name(e));
