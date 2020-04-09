@@ -6,7 +6,6 @@ before_install:
 
 script:
   - cd codegen && make && make test
-  - make run && echo '----' && cat main.c
   - echo '----'
   - make run_test_cases
 
