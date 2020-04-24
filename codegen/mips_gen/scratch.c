@@ -57,11 +57,12 @@ int *save_registers() {
 			printf("move %s, %s\n", saved_name(i), temp_name(i));
 		}
 		saved_registers[i] = t_registers[i];
+		t_registers[i] = 0;
 	}
 	return saved_registers;
 }
 
-void restore_registers(int *saved_registers) {
+int restore_registers(int *saved_registers) {
 	int i;
 	int restore_count = 0;
 	for(i=0; i < MIPS_TEMP_REGISTERS; i++) {
@@ -72,13 +73,18 @@ void restore_registers(int *saved_registers) {
 			printf("lw  %s, ($sp)\n", saved_name(i));
 			printf("add $sp, $sp, 4\n");
 			restore_count++;
+			t_registers[i] = 1;
 		}
 	}
+	free(saved_registers);
+	return restore_count;
+}
+
+void restore_frame_pointer(int restored_register_count) {
 	// We need to the following line because the saving of the 
 	// registers changes the stack pointer when we push them on
 	// the stack, and that in turns changes the frame pointer 
 	// when we return from a function
-	printf("addi $fp, $fp, %d\n", restore_count*4);
-	free(saved_registers);
+	printf("addi $fp, $fp, %d\n", restored_register_count*4);
+	
 }
-

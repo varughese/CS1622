@@ -184,7 +184,8 @@ void function_call_codegen(struct expr *e) {
 	int *saved = save_registers();
 	expr_codegen(e->right);
 	printf("jal _f_%s\n", e->left->symbol->name);
-	restore_registers(saved);
+	int restored_count = restore_registers(saved);
+	restore_frame_pointer(restored_count);
 	e->reg = scratch_alloc();
 	printf("move %s $v0\n", scratch_name(e));
 }
