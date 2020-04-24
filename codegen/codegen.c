@@ -8,6 +8,7 @@
 #include "typecheck/name_resolution.h"
 #include "typecheck/typecheck.h"
 #include "./mips_gen/mips_gen.h"
+#include "./mips_gen/optimize.h"
 
 extern int yylex();
 extern int yyparse();
@@ -20,7 +21,7 @@ extern char *yytext;
 
 
 int main(int argc, char* argv[]) {
-	if (argc != 3) {
+	if (argc < 3) {
 		printf("Must provide 2 arguments\n");
 		return 1;
 	}
@@ -33,6 +34,9 @@ int main(int argc, char* argv[]) {
 		resolve_symbol_table(abstract_syntax_tree);
 
 		if(pass_type_checks(abstract_syntax_tree)) {
+			if (argc > 3 && strcmp(argv[3], "-o") == 0) {
+				optimize_ast(abstract_syntax_tree);
+			}
 			ast_to_mips(abstract_syntax_tree);
 		} else {
 			fprintf(stderr, "Typechecking error.\n");
