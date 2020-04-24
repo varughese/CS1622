@@ -20,7 +20,9 @@ files=[
 	"test-mingmat-arrays-numeric-index",
 	"test-mingmat-array-params",
 	"test-mingmat-arrays-expression-index",
-	"test-mingmat-relops"
+	"test-mingmat-relops",
+	"test-z-too-many-registers-int-literal",
+	"test-z-too-many-registers-variables"
 ]
 
 RED='\033[0;31m'

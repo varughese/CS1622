@@ -143,6 +143,7 @@ void reload_variable_if_needed(struct expr *e) {
 	}
 }
 
+
 const char *math_mips_instruction(expr_t op) {
 	switch(op) {
 		case EXPR_ADD:
@@ -184,7 +185,8 @@ void function_call_codegen(struct expr *e) {
 	int *saved = save_registers();
 	expr_codegen(e->right);
 	printf("jal _f_%s\n", e->left->symbol->name);
-	restore_registers(saved);
+	int restored_count = restore_registers(saved);
+	restore_frame_pointer(restored_count);
 	e->reg = scratch_alloc();
 	printf("move %s $v0\n", scratch_name(e));
 }
@@ -237,19 +239,22 @@ void expr_codegen(struct expr *e) {
 		case EXPR_ADD:
 		case EXPR_SUB:
 		case EXPR_MUL:
-		case EXPR_DIV:
+		case EXPR_DIV: {
 			expr_codegen(e->left);
 			expr_codegen(e->right);
 			e->reg = scratch_alloc();
 			reload_variable_if_needed(e->left);
+			scratch_load_from_stack_if_needed(e->left, e->right);
 			printf("%s %s, %s, %s\n", 
 					math_mips_instruction(e->kind),
 					scratch_name(e), 
 					scratch_name(e->left),  
 					scratch_name(e->right));
+
 			scratch_free(e->right);
 			scratch_free(e->left);
 			break;
+		}
 
 		case EXPR_ISEQ:
 		case EXPR_NEQ:
@@ -284,6 +289,8 @@ void expr_codegen(struct expr *e) {
 		default:
 			break;
 	}
+
+	scratch_save_to_stack_if_needed(e);
 }
 
 void stmt_codegen(struct stmt *s, struct symbol *fn) {
