@@ -119,6 +119,40 @@ This is a stringified version of the tree. Read how it is structured [here](http
 
 ## 3. Semantic Analysis
 Perform typechecking on the abstract syntax tree.
+  - Are all variables assigned to the correct type?
+  - Is there a main function?
+  - Are all functions called with the right number of arguments?
+  - Etc ...
 
 ## 4. Code Generation
-Coming soon
+Recurse through the AST, and piece by piece turn it into MIPS assembly code. Example output for the input 
+code from part 1.
+
+```mips
+.text
+_f_main:
+# Local variable [a], stack_pos [0] 
+# main() [0] params, [1] local vars
+sub $sp, $sp, 4 # push ra
+sw  $ra, 0($sp)
+sub $sp, $sp, 4 # push local vars
+move $fp, $sp
+# {
+li  $t0, 4
+li  $t1, 5
+add $t2, $t0, $t1
+sw  $t2, 0($fp)
+_return_main:
+# }
+add $sp, $sp, 4 # pop local vars
+lw  $ra, ($sp)
+add $sp, $sp, 4
+add $sp, $sp, 0 # pop arguments 
+move $fp, $sp
+j $ra
+
+main:
+jal _f_main
+li $v0, 10 # We need to do this syscall to exit
+syscall # Or else it will error!
+```
